@@ -1,7 +1,7 @@
 <?php
 require_once '../inc/functions/connexion.php';
 require_once '../inc/functions/requete/requete_vehicules.php';
-include('header.php');
+include('header_caisse.php');
 
 // Récupérer la liste des véhicules
 $stmt = $conn->prepare("SELECT * FROM vehicules ORDER BY created_at DESC");

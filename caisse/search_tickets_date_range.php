@@ -1,7 +1,7 @@
 <?php
 require_once '../inc/functions/connexion.php';
 require_once '../inc/functions/requete/requete_tickets.php';
-include('header.php');
+include('header_caisse.php');
 
 if (!isset($_GET['date_debut']) || !isset($_GET['date_fin'])) {
     header('Location: tickets.php');

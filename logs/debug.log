@@ -3638,3 +3638,83 @@
 [2025-09-20 11:19:37] Bordereau #43 mis à jour avec montant_payer=35000000, montant_reste=-995420
 [2025-09-20 11:19:37] Transaction de paiement créée #107, nouveau solde: 45000000
 [2025-09-20 11:19:37] Paiement enregistré avec succès
+[2025-09-27 12:48:46] Début de l'enregistrement de l'approvisionnement
+[2025-09-27 12:48:46] Montant reçu: 1000000
+[2025-09-27 12:48:46] Solde actuel avant approvisionnement: 55000000
+[2025-09-27 12:48:46] Nouveau solde calculé: 56000000
+[2025-09-27 12:48:46] Transaction d'approvisionnement créée #108, nouveau solde: 56000000
+[2025-09-27 12:49:14] Début de l'enregistrement de l'approvisionnement
+[2025-09-27 12:49:14] Montant reçu: 20000000
+[2025-09-27 12:49:14] Solde actuel avant approvisionnement: 56000000
+[2025-09-27 12:49:14] Nouveau solde calculé: 76000000
+[2025-09-27 12:49:14] Transaction d'approvisionnement créée #109, nouveau solde: 76000000
+[2025-09-27 13:04:03] Début de l'enregistrement de l'approvisionnement
+[2025-09-27 13:04:03] Montant reçu: 150000
+[2025-09-27 13:04:03] Solde actuel avant approvisionnement: 76000000
+[2025-09-27 13:04:03] Nouveau solde calculé: 76150000
+[2025-09-27 13:04:03] Transaction d'approvisionnement créée #110, nouveau solde: 76150000
+[2025-09-27 13:11:23] Début de l'enregistrement de l'approvisionnement
+[2025-09-27 13:11:23] Montant reçu: 1500000
+[2025-09-27 13:11:23] Source reçue: Retrait BACI par Mai
+[2025-09-27 13:11:23] Motifs reçus: 
+[2025-09-27 13:11:23] Solde actuel avant approvisionnement: 76150000
+[2025-09-27 13:11:23] Nouveau solde calculé: 77650000
+[2025-09-27 13:11:23] Transaction d'approvisionnement créée #111, nouveau solde: 77650000
+[2025-09-27 13:14:28] Début de l'enregistrement de l'approvisionnement
+[2025-09-27 13:14:28] Montant reçu: 2000000
+[2025-09-27 13:14:28] Source reçue: Fisher Mouan
+[2025-09-27 13:14:28] Motifs reçus: Approvisionnement de la caisse
+[2025-09-27 13:14:28] Solde actuel avant approvisionnement: 77650000
+[2025-09-27 13:14:28] Nouveau solde calculé: 79650000
+[2025-09-27 13:14:28] Transaction d'approvisionnement créée #112, nouveau solde: 79650000
+[2025-09-27 13:38:03] Début de l'enregistrement de la sortie diverse
+[2025-09-27 13:38:03] Numéro sortie: fffffffff
+[2025-09-27 13:38:03] Montant reçu: 100000
+[2025-09-27 13:38:03] Motifs reçus: Loyer
+[2025-09-27 13:38:03] Sortie diverse créée #2
+[2025-09-27 13:38:03] ERREUR: SQLSTATE[HY000]: General error: 1093 You can't specify target table 'transactions' for update in FROM clause
+[2025-09-27 13:38:03] Trace: #0 C:\laragon\www\unipalm\pages\save_sortie_diverse.php(102): PDOStatement->execute()
+#1 {main}
+[2025-09-27 13:38:33] Début de l'enregistrement de la sortie diverse
+[2025-09-27 13:38:33] Numéro sortie: ddddddddffgf
+[2025-09-27 13:38:33] Montant reçu: 1000000
+[2025-09-27 13:38:33] Motifs reçus: Paiement Loyer
+[2025-09-27 13:38:33] Sortie diverse créée #3
+[2025-09-27 13:38:33] ERREUR: SQLSTATE[HY000]: General error: 1093 You can't specify target table 'transactions' for update in FROM clause
+[2025-09-27 13:38:33] Trace: #0 C:\laragon\www\unipalm\pages\save_sortie_diverse.php(102): PDOStatement->execute()
+#1 {main}
+[2025-09-27 13:41:04] Début de l'enregistrement de la sortie diverse
+[2025-09-27 13:41:04] Numéro sortie généré automatiquement: SD-2025-09-001
+[2025-09-27 13:41:04] Montant reçu: 500000
+[2025-09-27 13:41:04] Motifs reçus: Loyer
+[2025-09-27 13:41:04] Sortie diverse créée #4
+[2025-09-27 13:41:04] ERREUR: SQLSTATE[HY000]: General error: 1093 You can't specify target table 'transactions' for update in FROM clause
+[2025-09-27 13:41:04] Trace: #0 C:\laragon\www\unipalm\pages\save_sortie_diverse.php(114): PDOStatement->execute()
+#1 {main}
+[2025-09-27 13:48:57] Début de l'enregistrement de la sortie diverse
+[2025-09-27 13:48:57] Table sorties_diverses trouvée
+[2025-09-27 13:48:57] Génération du numéro pour année: 2025, mois: 09
+[2025-09-27 13:48:57] Dernier numéro trouvé: aucun
+[2025-09-27 13:48:57] Premier numéro du mois, séquence: 1
+[2025-09-27 13:48:57] Numéro sortie généré automatiquement: SD-2025-09-001
+[2025-09-27 13:48:57] Montant reçu: 150000
+[2025-09-27 13:48:57] Motifs reçus: Blabla
+[2025-09-27 13:48:57] Sortie diverse créée #5
+[2025-09-27 13:48:57] Transaction de paiement créée pour la sortie diverse
+[2025-09-27 13:51:00] Début de l'enregistrement de la sortie diverse
+[2025-09-27 13:51:00] Table sorties_diverses trouvée
+[2025-09-27 13:51:00] Génération du numéro pour année: 2025, mois: 09
+[2025-09-27 13:51:00] Dernier numéro trouvé: SD-2025-09-001
+[2025-09-27 13:51:00] Séquence extraite: 001, nouvelle séquence: 2
+[2025-09-27 13:51:00] Numéro sortie généré automatiquement: SD-2025-09-002
+[2025-09-27 13:51:00] Montant reçu: 200000
+[2025-09-27 13:51:00] Motifs reçus: Fisher
+[2025-09-27 13:51:00] Sortie diverse créée #6
+[2025-09-27 13:51:00] Transaction de paiement créée pour la sortie diverse
+[2025-09-27 15:42:44] Début de l'enregistrement de l'approvisionnement
+[2025-09-27 15:42:44] Montant reçu: 1000000
+[2025-09-27 15:42:44] Source reçue: Retrait compte palle
+[2025-09-27 15:42:44] Motifs reçus: Approvisionnement de la caisse
+[2025-09-27 15:42:44] Solde actuel avant approvisionnement: 79650000
+[2025-09-27 15:42:44] Nouveau solde calculé: 80650000
+[2025-09-27 15:42:44] Transaction d'approvisionnement créée #115, nouveau solde: 80650000

@@ -1,7 +1,7 @@
 <?php
 require_once '../inc/functions/connexion.php';
 require_once '../inc/functions/requete/requete_usines.php';
-include('header.php');
+include('header_caisse.php');
 
 if (isset($_GET['id'])) {
     $id_usine = $_GET['id'];

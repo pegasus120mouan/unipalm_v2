@@ -1,6 +1,6 @@
 <?php
 require_once '../inc/functions/connexion.php';
-include('header.php');
+include('header_caisse.php');
 
 // Paramètres de pagination
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -49,6 +49,13 @@ $stmt = $conn->prepare($count_query);
 $stmt->execute($params);
 $total_rows = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 $total_pages = ceil($total_rows / $limit);
+
+// Compter les demandes en attente
+$demandes_attente = "SELECT * FROM demande_sortie WHERE date_approbation IS NULL";
+$stmt = $conn->prepare($demandes_attente);
+$stmt->execute();
+$demandes_attente = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$total_demandes_attente = count($demandes_attente);
 
 // Requête pour les demandes avec les noms des utilisateurs
 $query = "SELECT d.*, 
@@ -265,7 +272,17 @@ label {
     }
     </style>
 
+<div class="row">
 
+    <div class="block-container">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3><i class="fa fa-ban text-danger"></i> Liste des Demandes en attente</h3>
+            <div class="text-muted">
+                <?php echo $total_demandes_attente; ?> demande(s) en attente(s)
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row">
     <?php if (isset($_SESSION['warning'])): ?>
         <div class="col-12">
@@ -937,89 +954,66 @@ console.log('Bootstrap modal:', typeof $.fn.modal !== 'undefined' ? 'chargé' : 
 <script src="../../dist/js/adminlte.js"></script>
 
 <script>
-   $(document).on('click', '.btn-valider', function(e) {
-    e.preventDefault();
+$(document).ready(function() {
+    console.log('🚀 Page demande_attente.php chargée');
+    console.log('jQuery version:', $.fn.jquery);
     
-    var id_demande = $(this).data('id');
-
-    if (confirm('Voulez-vous vraiment valider cette demande ?')) {
-        // Ajout d'un loader (optionnel)
+    // Vérifier si les boutons existent
+    var buttons = $('.btn-valider');
+    console.log('Boutons .btn-valider trouvés:', buttons.length);
+    
+    // Event listener pour validation
+    $(document).on('click', '.btn-valider', function(e) {
+        e.preventDefault();
+        console.log('🖱️ Clic sur bouton valider détecté');
+        
+        var id_demande = $(this).data('id');
         var $btn = $(this);
-        $btn.prop('disabled', true).text('Validation...');
+        
+        console.log('ID demande:', id_demande);
+        
+        if (!id_demande) {
+            alert('Erreur: ID de demande manquant');
+            return;
+        }
 
+        // Désactiver le bouton et afficher un loader
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Validation...');
+        console.log('🔄 Envoi de la validation et actualisation');
+
+        // Envoyer la requête AJAX en arrière-plan
         $.ajax({
             url: 'valider_demande.php',
             type: 'POST',
             data: { id_demande: id_demande },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    // Affiche la modale de succès
-                    $('#successModal').modal('show');
-                    setTimeout(function() {
-                        location.reload();  // Recharge la page après 2 secondes
-                    }, 2000);
-                } else {
-                    alert('Erreur: ' + response.message);
-                    $btn.prop('disabled', false).text('Valider');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Erreur AJAX:', error);
-                alert('Erreur lors de la validation');
-                $btn.prop('disabled', false).text('Valider');
-            }
+            dataType: 'json'
         });
-    }
-});
 
+        // Actualiser la page immédiatement
+        setTimeout(function() {
+            location.reload();
+        }, 500); // Petit délai pour laisser le temps à la requête de partir
+    });
+    
+    console.log('✅ Event listeners attachés');
+});
 </script>
 
 <script>
 $(function() {
-    console.log('Document ready');
+    console.log('Document ready - demande_attente.php');
     
-    // Initialiser DataTable
-    $('#example1').DataTable({
-        "responsive": true,
-        "lengthChange": true,
-        "autoWidth": false,
-        "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/French.json"
-        }
-    });
-    
-    // Attacher l'événement directement aux boutons
-    $(document).on('click', '.btn-valider', function(e) {
-        e.preventDefault();
-        console.log('Bouton valider cliqué');
-        
-        var id = $(this).data('id');
-        console.log('ID de la demande:', id);
-        
-        if(confirm('Voulez-vous vraiment valider cette demande ?')) {
-            $.ajax({
-                url: 'valider_demande.php',
-                type: 'POST',
-                data: { id_demande: id },
-                success: function(response) {
-                    console.log('Réponse reçue:', response);
-                    if(response.success) {
-                        $('#successModal').modal('show');
-                        setTimeout(function() {
-                            location.reload();
-                        }, 2000);
-                    } else {
-                        alert('Erreur: ' + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Erreur AJAX:', error);
-                    alert('Erreur lors de la validation');
-                }
-            });
-        }
-    });
+    // Initialiser DataTable si l'élément existe
+    if ($('#example1').length) {
+        $('#example1').DataTable({
+            "responsive": true,
+            "lengthChange": true,
+            "autoWidth": false,
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/French.json"
+            }
+        });
+    }
 });
 </script>
 

@@ -2,7 +2,7 @@
 require_once '../inc/functions/connexion.php';
 require_once '../inc/functions/requete/requete_tickets.php';
 require_once '../inc/functions/requete/requete_bordereaux.php';
-include('header.php');
+include('header_caisse.php');
 
 // Récupérer tous les tickets validés
 $stmt = $conn->prepare(

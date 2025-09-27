@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Menu Approvisionnement</title>
+    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../dist/css/adminlte.min.css">
+    <script src="../plugins/jquery/jquery.min.js"></script>
+    <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../dist/js/adminlte.min.js"></script>
+    
+    <style>
+        /* Styles pour les menus déroulants de la sidebar */
+        .nav-sidebar .nav-item .nav-treeview {
+            display: none;
+            padding-left: 1rem;
+        }
+        
+        .nav-sidebar .nav-item.menu-open .nav-treeview {
+            display: block;
+        }
+        
+        .nav-sidebar .nav-item > a {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-sidebar .nav-item > a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-sidebar .nav-item.menu-open > a {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Animation pour les icônes de flèche */
+        .nav-sidebar .nav-item > a .right {
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-sidebar .nav-item.menu-open > a .right {
+            transform: rotate(-90deg);
+        }
+        
+        body {
+            background: #343a40;
+            color: white;
+        }
+        
+        .test-container {
+            max-width: 300px;
+            margin: 50px auto;
+            background: #495057;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        .nav-sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .nav-sidebar .nav-link:hover {
+            color: white !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h3 class="p-3 mb-0 bg-success text-white text-center" style="border-radius: 10px 10px 0 0;">
+            ✅ Test Menu Approvisionnement
+        </h3>
+        
+        <nav class="mt-2 p-3">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                
+                <!-- Menu Listes des utilisateurs -->
+                <li class="nav-item">
+                    <a href="javascript:void(0)" class="nav-link">
+                        <i class="nav-icon fas fa-table"></i>
+                        <p>
+                            Listes des utilisateurs
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-male"></i>
+                                <p>Listes des utilisateurs</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-user-tie"></i>
+                                <p>Listes des admins</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <!-- Menu Gestion -->
+                <li class="nav-item">
+                    <a href="javascript:void(0)" class="nav-link">
+                        <i class="nav-icon fas fa-cogs"></i>
+                        <p>
+                            Gestion
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-users"></i>
+                                <p>Gestion chef equipe</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-user-plus"></i>
+                                <p>Gestion des agents</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <!-- Menu Gestion financière -->
+                <li class="nav-item">
+                    <a href="javascript:void(0)" class="nav-link">
+                        <i class="nav-icon fas fa-money-bill-alt"></i>
+                        <p>
+                            Gestion financière
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-tags"></i>
+                                <p>Prix unitaires</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-receipt"></i>
+                                <p>Reçus</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-money-bill-wave-alt"></i>
+                                <p>Sorties diverses</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+            </ul>
+        </nav>
+        
+        <div class="p-3 text-center">
+            <small class="text-muted">
+                Cliquez sur les menus pour tester le fonctionnement
+            </small>
+        </div>
+    </div>
+
+    <script>
+    $(document).ready(function() {
+        console.log('🚀 Test Menu Approvisionnement - Démarrage');
+        console.log('jQuery chargé:', typeof $ !== 'undefined');
+        console.log('AdminLTE chargé:', typeof $.AdminLTE !== 'undefined');
+        
+        // Gestion des menus déroulants de la sidebar
+        $('.nav-sidebar .nav-item > a').on('click', function(e) {
+            var $this = $(this);
+            var $parent = $this.parent('.nav-item');
+            var $submenu = $this.next('.nav-treeview');
+            
+            console.log('🔍 Clic sur menu:', $this.find('p').first().text().trim());
+            console.log('📁 Sous-menu trouvé:', $submenu.length > 0);
+            console.log('🔗 Href:', $this.attr('href'));
+            
+            // Si c'est un lien avec sous-menu
+            if ($submenu.length > 0 && $this.attr('href') === 'javascript:void(0)') {
+                e.preventDefault();
+                
+                // Fermer les autres menus ouverts
+                $('.nav-sidebar .nav-item.menu-open').not($parent).each(function() {
+                    console.log('🔒 Fermeture automatique d\'un autre menu');
+                    $(this).removeClass('menu-open');
+                    $(this).find('.nav-treeview').slideUp(300);
+                });
+                
+                // Toggle du menu actuel
+                if ($parent.hasClass('menu-open')) {
+                    console.log('📤 Fermeture du menu');
+                    $parent.removeClass('menu-open');
+                    $submenu.slideUp(300);
+                } else {
+                    console.log('📥 Ouverture du menu');
+                    $parent.addClass('menu-open');
+                    $submenu.slideDown(300);
+                }
+            }
+        });
+        
+        // Test automatique après 3 secondes
+        setTimeout(function() {
+            console.log('🤖 Test automatique - ouverture du premier menu');
+            $('.nav-sidebar .nav-item:first > a').trigger('click');
+            
+            setTimeout(function() {
+                console.log('🤖 Test automatique - ouverture du deuxième menu');
+                $('.nav-sidebar .nav-item:eq(1) > a').trigger('click');
+            }, 2000);
+        }, 3000);
+        
+        console.log('✅ Initialisation terminée');
+    });
+    </script>
+</body>
+</html>

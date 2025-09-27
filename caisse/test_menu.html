@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Menu Déroulant</title>
+    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../dist/css/adminlte.min.css">
+    <script src="../plugins/jquery/jquery.min.js"></script>
+    <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../dist/js/adminlte.min.js"></script>
+    
+    <style>
+        /* Styles pour les menus déroulants de la sidebar */
+        .nav-sidebar .nav-item .nav-treeview {
+            display: none;
+            padding-left: 1rem;
+        }
+        
+        .nav-sidebar .nav-item.menu-open .nav-treeview {
+            display: block;
+        }
+        
+        .nav-sidebar .nav-item > a {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-sidebar .nav-item > a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-sidebar .nav-item.menu-open > a {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Animation pour les icônes de flèche */
+        .nav-sidebar .nav-item > a .right {
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-sidebar .nav-item.menu-open > a .right {
+            transform: rotate(-90deg);
+        }
+        
+        body {
+            background: #f4f4f4;
+        }
+        
+        .test-container {
+            max-width: 300px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h3 class="p-3 mb-0 bg-primary text-white text-center" style="border-radius: 10px 10px 0 0;">
+            Test Menu Déroulant
+        </h3>
+        
+        <nav class="mt-2 p-3">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                
+                <!-- Test Menu 1 -->
+                <li class="nav-item">
+                    <a href="javascript:void(0)" class="nav-link">
+                        <i class="nav-icon fas fa-table"></i>
+                        <p>
+                            Utilisateurs
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-male"></i>
+                                <p>Liste utilisateurs</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-user-tie"></i>
+                                <p>Liste admins</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <!-- Test Menu 2 -->
+                <li class="nav-item">
+                    <a href="javascript:void(0)" class="nav-link">
+                        <i class="nav-icon fas fa-cogs"></i>
+                        <p>
+                            Gestion
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-users"></i>
+                                <p>Chef équipe</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-user-plus"></i>
+                                <p>Agents</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <!-- Test Menu 3 -->
+                <li class="nav-item">
+                    <a href="javascript:void(0)" class="nav-link">
+                        <i class="nav-icon fas fa-money-bill-alt"></i>
+                        <p>
+                            Finances
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-tags"></i>
+                                <p>Prix unitaires</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-receipt"></i>
+                                <p>Reçus</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+
+    <script>
+    $(document).ready(function() {
+        console.log('jQuery chargé:', typeof $ !== 'undefined');
+        console.log('AdminLTE chargé:', typeof $.AdminLTE !== 'undefined');
+        
+        // Gestion des menus déroulants de la sidebar
+        $('.nav-sidebar .nav-item > a').on('click', function(e) {
+            var $this = $(this);
+            var $parent = $this.parent('.nav-item');
+            var $submenu = $this.next('.nav-treeview');
+            
+            console.log('Clic sur menu:', $this.find('p').first().text());
+            console.log('Sous-menu trouvé:', $submenu.length > 0);
+            console.log('Href:', $this.attr('href'));
+            
+            // Si c'est un lien avec sous-menu
+            if ($submenu.length > 0 && $this.attr('href') === 'javascript:void(0)') {
+                e.preventDefault();
+                
+                // Fermer les autres menus ouverts
+                $('.nav-sidebar .nav-item.menu-open').not($parent).each(function() {
+                    $(this).removeClass('menu-open');
+                    $(this).find('.nav-treeview').slideUp(300);
+                });
+                
+                // Toggle du menu actuel
+                if ($parent.hasClass('menu-open')) {
+                    console.log('Fermeture du menu');
+                    $parent.removeClass('menu-open');
+                    $submenu.slideUp(300);
+                } else {
+                    console.log('Ouverture du menu');
+                    $parent.addClass('menu-open');
+                    $submenu.slideDown(300);
+                }
+            }
+        });
+        
+        // Test de fonctionnement
+        setTimeout(function() {
+            console.log('Test automatique - ouverture du premier menu');
+            $('.nav-sidebar .nav-item:first > a').trigger('click');
+        }, 2000);
+    });
+    </script>
+</body>
+</html>
