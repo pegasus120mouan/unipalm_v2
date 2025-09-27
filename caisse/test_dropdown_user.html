@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dropdown Utilisateur</title>
+    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../dist/css/adminlte.min.css">
+    <script src="../plugins/jquery/jquery.min.js"></script>
+    <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../dist/js/adminlte.min.js"></script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 50px 20px;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .test-header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+        
+        .test-navbar {
+            background: #343a40;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Styles pour les dropdowns de la navbar */
+        .navbar-nav .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            z-index: 1000;
+            min-width: 250px;
+            padding: 0.5rem 0;
+            margin: 0.125rem 0 0;
+            background-color: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 0.375rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+        }
+        
+        .navbar-nav .dropdown.show .dropdown-menu {
+            display: block;
+        }
+        
+        .navbar-nav .dropdown-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            color: #212529;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-nav .dropdown-menu .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #16181b;
+        }
+        
+        .navbar-nav .dropdown-menu .dropdown-item.text-danger:hover {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .navbar-nav .dropdown-menu .dropdown-header {
+            padding: 0.5rem 1rem;
+            margin-bottom: 0;
+            font-size: 0.875rem;
+            color: #6c757d;
+            white-space: nowrap;
+        }
+        
+        .navbar-nav .dropdown-menu .dropdown-divider {
+            height: 0;
+            margin: 0.5rem 0;
+            overflow: hidden;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        /* Animation pour l'avatar utilisateur */
+        .navbar-nav .nav-link img {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .navbar-nav .dropdown.show .nav-link img {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+        }
+        
+        .navbar-nav {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .navbar-nav .nav-item {
+            position: relative;
+        }
+        
+        .navbar-nav .nav-link {
+            color: white;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+        }
+        
+        .debug-log {
+            background: #212529;
+            color: #28a745;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h2><i class="fas fa-user-circle"></i> Test Menu Déroulant Utilisateur</h2>
+            <p>Cliquez sur l'avatar pour tester le menu déroulant</p>
+        </div>
+        
+        <div class="test-navbar">
+            <div>
+                <span style="color: white; font-weight: bold;">UniPalm - Caisse</span>
+            </div>
+            
+            <ul class="navbar-nav ml-auto">
+                <!-- Notifications -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="javascript:void(0)" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge badge-warning navbar-badge">3</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <div class="dropdown-header">
+                            <i class="fas fa-bell mr-2"></i>
+                            <strong>Notifications Système</strong>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-clock text-warning mr-3"></i>
+                            <div>
+                                <strong>3 tickets en attente</strong>
+                                <p class="text-muted text-sm mb-0">Nécessitent une validation</p>
+                            </div>
+                        </a>
+                    </div>
+                </li>
+                
+                <!-- Profil utilisateur -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="javascript:void(0)" title="Profil">
+                        <img src="https://via.placeholder.com/35x35/28a745/ffffff?text=U" 
+                             class="img-circle" 
+                             style="width: 35px; height: 35px; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" 
+                             alt="Avatar">
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <div class="dropdown-header">
+                            <strong>Youman Ouattara</strong>
+                            <p class="text-muted text-sm mb-0">Caissière</p>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-user mr-2"></i> Mon Profil
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-cog mr-2"></i> Paramètres
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item text-danger">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Se déconnecter
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="debug-log" id="debugLog">
+            <div>🚀 Test du menu déroulant utilisateur initialisé...</div>
+        </div>
+        
+        <div style="padding: 20px;">
+            <h4>Instructions de test :</h4>
+            <ol>
+                <li>Cliquez sur l'avatar utilisateur (image verte)</li>
+                <li>Le menu déroulant devrait s'ouvrir</li>
+                <li>Vous devriez voir les options : Mon Profil, Paramètres, Se déconnecter</li>
+                <li>Cliquez ailleurs pour fermer le menu</li>
+                <li>Testez aussi le menu des notifications (cloche)</li>
+            </ol>
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>Note :</strong> Les logs de débogage s'affichent dans la zone noire ci-dessus.
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function addLog(message) {
+        const log = document.getElementById('debugLog');
+        const entry = document.createElement('div');
+        entry.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+        log.appendChild(entry);
+        log.scrollTop = log.scrollHeight;
+    }
+
+    $(document).ready(function() {
+        addLog('✅ jQuery chargé');
+        addLog('📊 Nombre de dropdowns trouvés: ' + $('.navbar-nav .dropdown').length);
+        
+        // Gestion spécifique des dropdowns de la navbar
+        $('.navbar-nav .dropdown > a[data-toggle="dropdown"]').on('click', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            var $dropdown = $this.parent('.dropdown');
+            var $menu = $this.next('.dropdown-menu');
+            
+            addLog('🖱️ Clic sur dropdown: ' + ($this.attr('title') || 'Dropdown'));
+            
+            // Fermer tous les autres dropdowns
+            $('.navbar-nav .dropdown').not($dropdown).removeClass('show');
+            $('.navbar-nav .dropdown-menu').not($menu).removeClass('show');
+            
+            // Toggle du dropdown actuel
+            $dropdown.toggleClass('show');
+            $menu.toggleClass('show');
+            
+            addLog('📋 Dropdown état: ' + ($dropdown.hasClass('show') ? 'Ouvert' : 'Fermé'));
+        });
+        
+        // Fermer les dropdowns en cliquant ailleurs
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.navbar-nav .dropdown').length) {
+                var wasOpen = $('.navbar-nav .dropdown.show').length > 0;
+                $('.navbar-nav .dropdown').removeClass('show');
+                $('.navbar-nav .dropdown-menu').removeClass('show');
+                if (wasOpen) {
+                    addLog('🔒 Dropdowns fermés (clic extérieur)');
+                }
+            }
+        });
+        
+        // Gestion des clics sur les items du menu
+        $('.dropdown-item').on('click', function(e) {
+            e.preventDefault();
+            var text = $(this).text().trim();
+            addLog('🎯 Clic sur item: ' + text);
+            
+            if (text.includes('déconnecter')) {
+                addLog('🚪 Simulation déconnexion...');
+                alert('Déconnexion simulée !');
+            }
+        });
+        
+        addLog('✅ Gestionnaires d\'événements attachés');
+        
+        // Test automatique après 3 secondes
+        setTimeout(function() {
+            addLog('🤖 Test automatique - ouverture du menu utilisateur');
+            $('.navbar-nav .dropdown:last > a').trigger('click');
+        }, 3000);
+    });
+    </script>
+</body>
+</html>
