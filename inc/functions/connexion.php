@@ -1,33 +1,62 @@
 <?php 
 session_start(); 
 
-// Activer l'affichage des erreurs en local
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Détection automatique de l'environnement
+$isLocal = (
+    $_SERVER['HTTP_HOST'] === 'localhost' || 
+    $_SERVER['HTTP_HOST'] === '127.0.0.1' || 
+    strpos($_SERVER['HTTP_HOST'], 'localhost:') === 0 ||
+    strpos($_SERVER['HTTP_HOST'], '.local') !== false
+);
+
+// Configuration des erreurs selon l'environnement
+if ($isLocal) {
+    // Environnement LOCAL - Afficher les erreurs
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    // Environnement PRODUCTION - Afficher temporairement pour diagnostic
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+    ini_set('log_errors', 1);
+}
 
 // Auth guard: redirect to login if not authenticated
-// List of scripts that are allowed without authentication
 $__PUBLIC_SCRIPTS = [
-    'index.php',              // page de connexion
-    'login_verification.php', // si utilisé
-    'register.php',           // inscription éventuelle
-    'connexion-test.php',     // page de test éventuelle
+    'index.php',
+    'login_verification.php',
+    'register.php',
+    'connexion-test.php',
+    'debug_online.php'
 ];
 
 $__current_script = basename($_SERVER['SCRIPT_NAME'] ?? '');
 if (!in_array($__current_script, $__PUBLIC_SCRIPTS, true)) {
     if (empty($_SESSION['user_id'])) {
-        // Redirection absolue vers la page d'accueil/login
-        header('Location: /index.php');
+        // Redirection relative pour fonctionner partout
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'];
+        $base_path = dirname(dirname(dirname($_SERVER['SCRIPT_NAME'])));
+        $redirect_url = $protocol . '://' . $host . $base_path . '/index.php';
+        header('Location: ' . $redirect_url);
         exit();
     }
 }
 
-// DB credentials.
-define('DB_HOST','localhost');
-define('DB_USER','root');
-define('DB_PASS','');
-define('DB_NAME','unipalm_gestion_new');
+// Configuration Base de Données selon l'environnement
+if ($isLocal) {
+    // Configuration LOCALE (Laragon)
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+    define('DB_NAME', 'unipalm_gestion_new');
+} else {
+    // Configuration PRODUCTION
+    define('DB_HOST', '82.25.118.46');
+    define('DB_USER', 'unipalm_user');
+    define('DB_PASS', 'z1V07GpfhUqi7XeAlQ8');
+    define('DB_NAME', 'unipalm_gestion_new');
+}
 
 // Fonction pour établir la connexion à la base de données
 function getConnexion() {
@@ -35,13 +64,22 @@ function getConnexion() {
     
     if ($conn === null) {
         try {
-            $conn = new PDO("mysql:host=".DB_HOST.";dbname=".DB_NAME.";charset=utf8mb4", DB_USER, DB_PASS);
-            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $conn->exec("SET NAMES utf8mb4");
-            $conn->exec("SET CHARACTER SET utf8mb4");
-            $conn->exec("SET character_set_connection=utf8mb4");
+            $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+            ];
+            
+            $conn = new PDO($dsn, DB_USER, DB_PASS, $options);
+            
         } catch (PDOException $e) {
+            // Afficher l'erreur pour diagnostic
             echo "Erreur de connexion : " . $e->getMessage();
+            echo "<br>Host: " . DB_HOST;
+            echo "<br>User: " . DB_USER;
+            echo "<br>DB: " . DB_NAME;
             exit();
         }
     }
@@ -49,7 +87,7 @@ function getConnexion() {
     return $conn;
 }
 
-// Pour la compatibilité avec le code existant, on crée aussi une connexion globale
+// Pour la compatibilité avec le code existant
 try {
     $conn = getConnexion();
 } catch (PDOException $e) {
