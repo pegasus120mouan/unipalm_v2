@@ -21,7 +21,7 @@ if (isset($_GET['id'])) {
     exit;
 }
 
-include('header.php');
+include('header_caisse.php');
 ?>
 
 <div class="container mt-4">

@@ -9,7 +9,7 @@
   <?php
     // Connexion à la base de données (à adapter avec vos informations)
     require_once '../inc/functions/connexion.php';
-    include('header.php');
+    include('header_caisse.php');
 
     // Récupération de l'ID de la commande depuis l'URL (par exemple, edit_commande.php?id=1)
     $id_utilisateur = $_GET['id'];

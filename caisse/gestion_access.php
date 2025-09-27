@@ -2,7 +2,7 @@
 
 require_once '../inc/functions/connexion.php';
 require_once '../inc/functions/requete/requete_utilisateurs.php'; 
-include('header.php');
+include('header_caisse.php');
 
 $utilisateurs = getUtilisateurs($conn);
 
