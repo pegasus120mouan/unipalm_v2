@@ -470,6 +470,70 @@ if (!isset($_SESSION['user_id'])) {
     .nav-sidebar .nav-item.menu-open > a .right {
       transform: rotate(-90deg);
     }
+    
+    /* Styles pour les dropdowns de la navbar */
+    .navbar-nav .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      z-index: 1000;
+      min-width: 250px;
+      padding: 0.5rem 0;
+      margin: 0.125rem 0 0;
+      background-color: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 0.375rem;
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+    }
+    
+    .navbar-nav .dropdown.show .dropdown-menu {
+      display: block;
+    }
+    
+    .navbar-nav .dropdown-menu .dropdown-item {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      color: #212529;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    
+    .navbar-nav .dropdown-menu .dropdown-item:hover {
+      background-color: #f8f9fa;
+      color: #16181b;
+    }
+    
+    .navbar-nav .dropdown-menu .dropdown-item.text-danger:hover {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    
+    .navbar-nav .dropdown-menu .dropdown-header {
+      padding: 0.5rem 1rem;
+      margin-bottom: 0;
+      font-size: 0.875rem;
+      color: #6c757d;
+      white-space: nowrap;
+    }
+    
+    .navbar-nav .dropdown-menu .dropdown-divider {
+      height: 0;
+      margin: 0.5rem 0;
+      overflow: hidden;
+      border-top: 1px solid #dee2e6;
+    }
+    
+    /* Animation pour l'avatar utilisateur */
+    .navbar-nav .nav-link img {
+      transition: all 0.3s ease;
+    }
+    
+    .navbar-nav .dropdown.show .nav-link img {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    }
   </style>
 
   <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
@@ -508,17 +572,34 @@ if (!isset($_SESSION['user_id'])) {
     });
     
     // Gestion des dropdowns de la navbar
-    $('[data-toggle="dropdown"]').on('click', function(e) {
+    $('.navbar-nav .nav-link[data-toggle="dropdown"]').off('click.dropdown').on('click.dropdown', function(e) {
       e.preventDefault();
-      $(this).parent().toggleClass('show');
-      $(this).next('.dropdown-menu').toggleClass('show');
+      e.stopPropagation();
+      
+      var $this = $(this);
+      var $dropdown = $this.parent('.nav-item.dropdown');
+      var $menu = $this.next('.dropdown-menu');
+      
+      console.log('🖱️ Clic sur dropdown navbar:', $this.attr('title') || 'Dropdown');
+      console.log('📋 Dropdown parent trouvé:', $dropdown.length);
+      console.log('📋 Menu trouvé:', $menu.length);
+      
+      // Fermer tous les autres dropdowns
+      $('.navbar-nav .dropdown').not($dropdown).removeClass('show');
+      $('.navbar-nav .dropdown-menu').not($menu).removeClass('show');
+      
+      // Toggle du dropdown actuel
+      $dropdown.toggleClass('show');
+      $menu.toggleClass('show');
+      
+      console.log('📋 Dropdown état:', $dropdown.hasClass('show') ? 'Ouvert' : 'Fermé');
     });
     
     // Fermer les dropdowns en cliquant ailleurs
     $(document).on('click', function(e) {
-      if (!$(e.target).closest('.dropdown').length) {
-        $('.dropdown').removeClass('show');
-        $('.dropdown-menu').removeClass('show');
+      if (!$(e.target).closest('.navbar-nav .dropdown').length) {
+        $('.navbar-nav .dropdown').removeClass('show');
+        $('.navbar-nav .dropdown-menu').removeClass('show');
       }
     });
     
@@ -536,6 +617,13 @@ if (!isset($_SESSION['user_id'])) {
       } else {
         document.documentElement.requestFullscreen();
       }
+    });
+    
+    // Gestion de la recherche navbar
+    $('[data-widget="navbar-search"]').on('click', function(e) {
+      e.preventDefault();
+      $('.navbar-search-block').toggle();
+      console.log('🔍 Toggle recherche');
     });
   });
   </script>

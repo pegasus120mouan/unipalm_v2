@@ -117,356 +117,790 @@ if (!empty($tickets)) {
 
 <!-- Main row -->
 <style>
-  .pagination-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 20px;
-}
+    /* ===== STYLES ULTRA-PROFESSIONNELS POUR PRIX UNITAIRES ===== */
+    
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --glass-border: rgba(255, 255, 255, 0.3);
+        --shadow-light: 0 8px 32px rgba(31, 38, 135, 0.15);
+        --shadow-heavy: 0 15px 35px rgba(31, 38, 135, 0.25);
+        --border-radius: 20px;
+        --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-.pagination-link {
-    padding: 8px;
-    text-decoration: none;
-    color: white;
-    background-color: #007bff; 
-    border: 1px solid #007bff;
-    border-radius: 4px; 
-    margin-right: 4px;
-}
+    /* Page Header */
+    .page-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 2rem 1.5rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-heavy);
+        position: relative;
+        overflow: hidden;
+    }
 
-.items-per-page-form {
-    margin-left: 20px;
-}
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: translate(50%, -50%);
+    }
 
-label {
-    margin-right: 5px;
-}
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
 
-.items-per-page-select {
-    padding: 6px;
-    border-radius: 4px; 
-}
+    .page-header p {
+        font-size: 1.1rem;
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+    }
 
-.submit-button {
-    padding: 6px 10px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px; 
-    cursor: pointer;
-}
- .custom-icon {
-            color: green;
-            font-size: 24px;
-            margin-right: 8px;
- }
- .spacing {
-    margin-right: 10px; 
-    margin-bottom: 20px;
-}
+    /* Action Buttons Container */
+    .action-buttons-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .btn-professional {
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: var(--transition);
+        border: none;
+        position: relative;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-professional:disabled {
+        background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%) !important;
+        color: rgba(255, 255, 255, 0.7) !important;
+        cursor: not-allowed !important;
+        opacity: 0.6 !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .btn-professional:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-add {
+        background: var(--success-gradient);
+        color: white;
+        box-shadow: 0 4px 15px rgba(86, 171, 47, 0.3);
+    }
+
+    .btn-print {
+        background: var(--info-gradient);
+        color: white;
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    }
+
+    /* Search Container */
+    .search-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+    }
+
+    .search-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-control-modern {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-control-modern:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+
+    .btn-search {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: var(--transition);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-search:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .btn-reset {
+        background: transparent;
+        color: #e74c3c;
+        border: 2px solid #e74c3c;
+        border-radius: 12px;
+        padding: 10px 22px;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+
+    .btn-reset:hover {
+        background: #e74c3c;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Active Filters */
+    .active-filters {
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 12px;
+        padding: 1rem;
+        border-left: 4px solid #667eea;
+    }
+
+    .badge-filter {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .badge-filter a {
+        color: white;
+        opacity: 0.8;
+        transition: opacity 0.3s;
+    }
+
+    .badge-filter a:hover {
+        opacity: 1;
+        text-decoration: none;
+    }
+
+    /* Table Professional */
+    .table-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+        overflow: hidden;
+    }
+
+    .table-professional {
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-professional thead th {
+        background: var(--primary-gradient);
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        border: none;
+        font-size: 0.9rem;
+    }
+
+    .table-professional tbody tr {
+        background: white;
+        transition: var(--transition);
+    }
+
+    .table-professional tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-professional tbody td {
+        padding: 1rem;
+        border-bottom: 1px solid #f8f9fa;
+        font-size: 0.95rem;
+        vertical-align: middle;
+    }
+
+    .table-professional tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Action Buttons in Table */
+    .action-btn {
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 2px;
+        transition: var(--transition);
+        cursor: pointer;
+    }
+
+    .action-btn-edit {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+    }
+
+    .action-btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+    }
+
+    .action-btn-delete {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+    }
+
+    .action-btn-delete:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+    }
+
+    /* Pagination Professional */
+    .pagination-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-light);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .pagination-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pagination-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: none;
+        background: var(--primary-gradient);
+        color: white;
+        font-weight: 600;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+
+    .pagination-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .pagination-info {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-weight: 600;
+        margin: 0 1rem;
+    }
+
+    .items-per-page-form {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(102, 126, 234, 0.05);
+        padding: 8px 12px;
+        border-radius: 10px;
+    }
+
+    .items-per-page-select {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 0.9rem;
+        background: white;
+        transition: var(--transition);
+    }
+
+    .items-per-page-select:focus {
+        border-color: #667eea;
+        outline: none;
+    }
+
+    .submit-button {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-weight: 600;
+        transition: var(--transition);
+        cursor: pointer;
+    }
+
+    .submit-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 2rem;
+        }
+        
+        .action-buttons-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .btn-professional {
+            justify-content: center;
+        }
+        
+        .table-container {
+            padding: 1rem;
+            overflow-x: auto;
+        }
+        
+        .pagination-container {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .pagination-nav {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table-professional thead {
+            display: none;
+        }
+        
+        .table-professional tbody tr {
+            display: block;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+        }
+        
+        .table-professional tbody td {
+            display: block;
+            text-align: left;
+            border: none;
+            padding: 0.5rem 0;
+        }
+        
+        .table-professional tbody td::before {
+            content: attr(data-label) ": ";
+            font-weight: 700;
+            color: #667eea;
+            display: inline-block;
+            width: 120px;
+        }
+    }
+
+    /* Status Indicators */
+    .status-active {
+        background: var(--success-gradient);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-expired {
+        background: var(--warning-gradient);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* Price Display */
+    .price-display {
+        font-weight: 700;
+        color: #27ae60;
+        font-size: 1.1rem;
+    }
+
+    /* Animation for loading states */
+    @keyframes shimmer {
+        0% { background-position: -200px 0; }
+        100% { background-position: calc(200px + 100%) 0; }
+    }
+
+    .loading-shimmer {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200px 100%;
+        animation: shimmer 1.5s infinite;
+    }
 </style>
 
-  <style>
-        @media only screen and (max-width: 767px) {
-            
-            th {
-                display: none; 
-            }
-            tbody tr {
-                display: block;
-                margin-bottom: 20px;
-                border: 1px solid #ccc;
-                padding: 10px;
-            }
-            tbody tr td::before {
 
-                font-weight: bold;
-                margin-right: 5px;
-            }
-        }
-        .margin-right-15 {
-        margin-right: 15px;
-       }
-        .block-container {
-      background-color:  #d7dbdd ;
-      padding: 20px;
-      border-radius: 5px;
-      width: 100%;
-      margin-bottom: 20px;
-    }
-    </style>
-
-
-<div class="row">
-
-    <div class="block-container">
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-ticket">
-      <i class="fa fa-edit"></i>Enregistrer un Prix Unitaire
-    </button>
-
-    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#print-bordereau">
-      <i class="fa fa-print"></i> Imprimer la liste des prix unitaires
-    </button>
+<!-- Page Header -->
+<div class="page-header">
+    <h1><i class="fas fa-tags mr-3"></i>Gestion des Prix Unitaires</h1>
+    <p>Gérez et consultez les prix unitaires par usine avec des outils de recherche avancés</p>
 </div>
 
-<!-- Barre de recherche et filtres -->
-<div class="search-container mb-4">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <form id="filterForm" method="GET">
-                <div class="row">
-                    <!-- Recherche par usine -->
-                    <div class="col-md-3 mb-3">
-                        <select class="form-control" name="usine_id" id="usine_select">
-                            <option value="">Sélectionner une usine</option>
-                            <?php foreach($usines as $usine): ?>
-                                <option value="<?= $usine['id_usine'] ?>" <?= ($usine_id == $usine['id_usine']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($usine['nom_usine']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <!-- Prix minimum -->
-                    <div class="col-md-3 mb-3">
-                        <input type="number" 
-                               class="form-control" 
-                               name="prix_min" 
-                               id="prix_min"
-                               placeholder="Prix minimum" 
-                               value="<?= htmlspecialchars($prix_min) ?>">
-                    </div>
-
-                    <!-- Prix maximum -->
-                    <div class="col-md-3 mb-3">
-                        <input type="number" 
-                               class="form-control" 
-                               name="prix_max" 
-                               id="prix_max"
-                               placeholder="Prix maximum" 
-                               value="<?= htmlspecialchars($prix_max) ?>">
-                    </div>
-
-                    <!-- Date de début -->
-                    <div class="col-md-3 mb-3">
-                        <input type="date" 
-                               class="form-control" 
-                               name="date_debut" 
-                               id="date_debut"
-                               placeholder="Date de début" 
-                               value="<?= htmlspecialchars($date_debut) ?>">
-                    </div>
-
-                    <!-- Date de fin -->
-                    <div class="col-md-3 mb-3">
-                        <input type="date" 
-                               class="form-control" 
-                               name="date_fin" 
-                               id="date_fin"
-                               placeholder="Date de fin" 
-                               value="<?= htmlspecialchars($date_fin) ?>">
-                    </div>
-
-                    <!-- Boutons -->
-                    <div class="col-12 text-center">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa fa-search"></i> Rechercher
-                        </button>
-                        <a href="prix_unitaires.php" class="btn btn-outline-danger">
-                            <i class="fa fa-times"></i> Réinitialiser les filtres
-                        </a>
-                    </div>
-                </div>
-            </form>
-            
-            <!-- Filtres actifs -->
-            <?php if($usine_id || $date_debut || $date_fin || $prix_min || $prix_max): ?>
-            <div class="active-filters mt-3">
-                <div class="d-flex align-items-center flex-wrap">
-                    <strong class="text-muted mr-2">Filtres actifs :</strong>
-                    <?php if($usine_id): ?>
-                        <?php 
-                        $usine_name = '';
-                        foreach($usines as $usine) {
-                            if($usine['id_usine'] == $usine_id) {
-                                $usine_name = $usine['nom_usine'];
-                                break;
-                            }
-                        }
-                        ?>
-                        <span class="badge badge-info mr-2 p-2">
-                            <i class="fa fa-building"></i>
-                            Usine: <?= htmlspecialchars($usine_name) ?>
-                            <a href="?<?= http_build_query(array_merge($_GET, ['usine_id' => null])) ?>" class="text-white ml-2">
-                                <i class="fa fa-times"></i>
-                            </a>
-                        </span>
-                    <?php endif; ?>
-                    <?php if($prix_min): ?>
-                        <span class="badge badge-info mr-2 p-2">
-                            <i class="fa fa-money"></i>
-                            Prix min: <?= htmlspecialchars($prix_min) ?>
-                            <a href="?<?= http_build_query(array_merge($_GET, ['prix_min' => null])) ?>" class="text-white ml-2">
-                                <i class="fa fa-times"></i>
-                            </a>
-                        </span>
-                    <?php endif; ?>
-                    <?php if($prix_max): ?>
-                        <span class="badge badge-info mr-2 p-2">
-                            <i class="fa fa-money"></i>
-                            Prix max: <?= htmlspecialchars($prix_max) ?>
-                            <a href="?<?= http_build_query(array_merge($_GET, ['prix_max' => null])) ?>" class="text-white ml-2">
-                                <i class="fa fa-times"></i>
-                            </a>
-                        </span>
-                    <?php endif; ?>
-                    <?php if($date_debut): ?>
-                        <span class="badge badge-info mr-2 p-2">
-                            <i class="fa fa-calendar"></i>
-                            Depuis: <?= htmlspecialchars($date_debut) ?>
-                            <a href="?<?= http_build_query(array_merge($_GET, ['date_debut' => null])) ?>" class="text-white ml-2">
-                                <i class="fa fa-times"></i>
-                            </a>
-                        </span>
-                    <?php endif; ?>
-                    <?php if($date_fin): ?>
-                        <span class="badge badge-info mr-2 p-2">
-                            <i class="fa fa-calendar"></i>
-                            Jusqu'au: <?= htmlspecialchars($date_fin) ?>
-                            <a href="?<?= http_build_query(array_merge($_GET, ['date_fin' => null])) ?>" class="text-white ml-2">
-                                <i class="fa fa-times"></i>
-                            </a>
-                        </span>
-                    <?php endif; ?>
-                </div>
-            </div>
-            <?php endif; ?>
-        </div>
+<!-- Action Buttons -->
+<div class="action-buttons-container">
+    <div class="d-flex gap-3">
+        <button type="button" class="btn-professional btn-add" disabled>
+            <i class="fas fa-plus"></i>
+            Enregistrer un Prix Unitaire
+        </button>
+        <button type="button" class="btn-professional btn-print" disabled>
+            <i class="fas fa-print"></i>
+            Imprimer la liste
+        </button>
+    </div>
+    <div class="d-flex align-items-center">
+        <span class="badge badge-info">
+            <i class="fas fa-database mr-1"></i>
+            <?= $total_items ?> prix unitaires
+        </span>
     </div>
 </div>
 
-<div class="table-responsive">
-    <table id="example1" class="table table-bordered table-striped">
+<!-- Search and Filters -->
+<div class="search-container">
+    <div class="search-title">
+        <i class="fas fa-search"></i>
+        Recherche et Filtres Avancés
+    </div>
+    
+    <form id="filterForm" method="GET">
+        <div class="row">
+            <!-- Recherche par usine -->
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-muted mb-2">
+                    <i class="fas fa-industry mr-1"></i>Usine
+                </label>
+                <select class="form-control-modern" name="usine_id" id="usine_select">
+                    <option value="">Toutes les usines</option>
+                    <?php foreach($usines as $usine): ?>
+                        <option value="<?= $usine['id_usine'] ?>" <?= ($usine_id == $usine['id_usine']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($usine['nom_usine']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
 
- <!-- <table style="max-height: 90vh !important; overflow-y: scroll !important" id="example1" class="table table-bordered table-striped">-->
-    <thead>
-      <tr>
-        
-        <th>Nom Usine</th>
-        <th>Prix Unitaire</th>
-        <th>Date Début</th>
-        <th>Date Fin</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php foreach ($prix_unitaires_list as $prix) : ?>
-        <tr>
-          <td><?= htmlspecialchars($prix['nom_usine']) ?></td>
-          <td><?= htmlspecialchars($prix['prix']) ?></td>
-          <td><?= date('d/m/Y', strtotime($prix['date_debut'])) ?></td>
-          <td><?= $prix['date_fin'] ? date('d/m/Y', strtotime($prix['date_fin'])) : 'En cours' ?></td>
-          <td class="actions">
-            <a href="#" class="edit" data-toggle="modal" data-target="#editModal<?= $prix['id'] ?>">
-              <i class="fas fa-pen fa-xs" style="font-size:24px;color:blue"></i>
-            </a>
-            <a href="#" class="trash" data-toggle="modal" data-target="#deleteModal<?= $prix['id'] ?>">
-              <i class="fas fa-trash fa-xs" style="font-size:24px;color:red"></i>
-            </a>
-          </td>
-        </tr>
+            <!-- Prix minimum -->
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-muted mb-2">
+                    <i class="fas fa-money-bill-wave mr-1"></i>Prix minimum
+                </label>
+                <input type="number" 
+                       class="form-control-modern" 
+                       name="prix_min" 
+                       id="prix_min"
+                       placeholder="0" 
+                       value="<?= htmlspecialchars($prix_min) ?>">
+            </div>
+
+            <!-- Prix maximum -->
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-muted mb-2">
+                    <i class="fas fa-money-bill-wave mr-1"></i>Prix maximum
+                </label>
+                <input type="number" 
+                       class="form-control-modern" 
+                       name="prix_max" 
+                       id="prix_max"
+                       placeholder="999999" 
+                       value="<?= htmlspecialchars($prix_max) ?>">
+            </div>
+
+            <!-- Date de début -->
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-muted mb-2">
+                    <i class="fas fa-calendar-alt mr-1"></i>Date de début
+                </label>
+                <input type="date" 
+                       class="form-control-modern" 
+                       name="date_debut" 
+                       id="date_debut"
+                       value="<?= htmlspecialchars($date_debut) ?>">
+            </div>
+
+            <!-- Date de fin -->
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-muted mb-2">
+                    <i class="fas fa-calendar-alt mr-1"></i>Date de fin
+                </label>
+                <input type="date" 
+                       class="form-control-modern" 
+                       name="date_fin" 
+                       id="date_fin"
+                       value="<?= htmlspecialchars($date_fin) ?>">
+            </div>
+
+            <!-- Boutons -->
+            <div class="col-12 text-center mt-3">
+                <button type="submit" class="btn-search mr-3">
+                    <i class="fas fa-search mr-2"></i>Rechercher
+                </button>
+                <a href="prix_unitaires.php" class="btn-reset">
+                    <i class="fas fa-times mr-2"></i>Réinitialiser
+                </a>
+            </div>
+        </div>
+    </form>
+            
+    
+    <!-- Filtres actifs -->
+    <?php if($usine_id || $date_debut || $date_fin || $prix_min || $prix_max): ?>
+    <div class="active-filters mt-4">
+        <div class="d-flex align-items-center flex-wrap">
+            <strong class="text-muted mr-3">
+                <i class="fas fa-filter mr-1"></i>Filtres actifs :
+            </strong>
+            <?php if($usine_id): ?>
+                <?php 
+                $usine_name = '';
+                foreach($usines as $usine) {
+                    if($usine['id_usine'] == $usine_id) {
+                        $usine_name = $usine['nom_usine'];
+                        break;
+                    }
+                }
+                ?>
+                <span class="badge-filter">
+                    <i class="fas fa-industry"></i>
+                    Usine: <?= htmlspecialchars($usine_name) ?>
+                    <a href="?<?= http_build_query(array_merge($_GET, ['usine_id' => null])) ?>">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </span>
+            <?php endif; ?>
+            <?php if($prix_min): ?>
+                <span class="badge-filter">
+                    <i class="fas fa-money-bill-wave"></i>
+                    Prix min: <?= number_format($prix_min, 0, ',', ' ') ?> FCFA
+                    <a href="?<?= http_build_query(array_merge($_GET, ['prix_min' => null])) ?>">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </span>
+            <?php endif; ?>
+            <?php if($prix_max): ?>
+                <span class="badge-filter">
+                    <i class="fas fa-money-bill-wave"></i>
+                    Prix max: <?= number_format($prix_max, 0, ',', ' ') ?> FCFA
+                    <a href="?<?= http_build_query(array_merge($_GET, ['prix_max' => null])) ?>">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </span>
+            <?php endif; ?>
+            <?php if($date_debut): ?>
+                <span class="badge-filter">
+                    <i class="fas fa-calendar-alt"></i>
+                    Depuis: <?= date('d/m/Y', strtotime($date_debut)) ?>
+                    <a href="?<?= http_build_query(array_merge($_GET, ['date_debut' => null])) ?>">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </span>
+            <?php endif; ?>
+            <?php if($date_fin): ?>
+                <span class="badge-filter">
+                    <i class="fas fa-calendar-alt"></i>
+                    Jusqu'au: <?= date('d/m/Y', strtotime($date_fin)) ?>
+                    <a href="?<?= http_build_query(array_merge($_GET, ['date_fin' => null])) ?>">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </span>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
+
+<!-- Table Container -->
+<div class="table-container">
+    <table class="table-professional w-100">
+        <thead>
+            <tr>
+                <th><i class="fas fa-industry mr-2"></i>Usine</th>
+                <th><i class="fas fa-money-bill-wave mr-2"></i>Prix Unitaire</th>
+                <th><i class="fas fa-calendar-alt mr-2"></i>Date Début</th>
+                <th><i class="fas fa-calendar-check mr-2"></i>Date Fin</th>
+              <!-- <th><i class="fas fa-cogs mr-2"></i>Actions</th> -->
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($prix_unitaires_list)): ?>
+                <?php foreach ($prix_unitaires_list as $prix) : ?>
+                    <tr>
+                        <td data-label="Usine">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-industry text-primary mr-2"></i>
+                                <strong><?= htmlspecialchars($prix['nom_usine']) ?></strong>
+                            </div>
+                        </td>
+                        <td data-label="Prix Unitaire">
+                            <span class="price-display">
+                                <?= number_format($prix['prix'], 0, ',', ' ') ?> FCFA
+                            </span>
+                        </td>
+                        <td data-label="Date Début">
+                            <span class="text-muted">
+                                <i class="fas fa-calendar-alt mr-1"></i>
+                                <?= date('d/m/Y', strtotime($prix['date_debut'])) ?>
+                            </span>
+                        </td>
+                        <td data-label="Date Fin">
+                            <?php if ($prix['date_fin']): ?>
+                                <span class="status-expired">
+                                    <i class="fas fa-calendar-times mr-1"></i>
+                                    <?= date('d/m/Y', strtotime($prix['date_fin'])) ?>
+                                </span>
+                            <?php else: ?>
+                                <span class="status-active">
+                                    <i class="fas fa-infinity mr-1"></i>
+                                    En cours
+                                </span>
+                            <?php endif; ?>
+                        </td>
+                       <!-- <td data-label="Actions">
+                            <div class="d-flex justify-content-center">
+                                <button class="action-btn action-btn-edit" 
+                                        data-toggle="modal" 
+                                        data-target="#editModal<?= $prix['id'] ?>"
+                                        title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn action-btn-delete" 
+                                        data-toggle="modal" 
+                                        data-target="#deleteModal<?= $prix['id'] ?>"
+                                        title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>-->
+                    </tr>
 
         <!-- Modal Modification -->
-        <div class="modal fade" id="editModal<?= $prix['id'] ?>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel<?= $prix['id'] ?>" aria-hidden="true">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel<?= $prix['id'] ?>">Modifier le Prix Unitaire</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <form action="traitement_prix_unitaires.php" method="post">
-                  <input type="hidden" name="id" value="<?= $prix['id'] ?>">
-                  
-                  <div class="form-group">
-                    <label>Sélection Usine</label>
-                    <select name="id_usine" class="form-control" required>
-                      <?php foreach ($usines as $usine) : ?>
-                        <option value="<?= $usine['id_usine'] ?>" <?= $usine['id_usine'] == $prix['id_usine'] ? 'selected' : '' ?>>
-                          <?= htmlspecialchars($usine['nom_usine']) ?>
-                        </option>
-                      <?php endforeach; ?>
-                    </select>
-                  </div>
 
-                  <div class="form-group">
-                    <label>Prix Unitaire</label>
-                    <input type="number" step="0.01" class="form-control" name="prix" value="<?= $prix['prix'] ?>" required>
-                  </div>
 
-                  <div class="form-group">
-                    <label>Date de début</label>
-                    <input type="date" class="form-control" name="date_debut" value="<?= $prix['date_debut'] ?>" required>
-                  </div>
-
-                  <div class="form-group">
-                    <label>Date de fin</label>
-                    <input type="date" class="form-control" name="date_fin" value="<?= $prix['date_fin'] ?>">
-                    <small class="form-text text-muted">Laissez vide si le prix unitaire est toujours en cours</small>
-                  </div>
-
-                  <button type="submit" class="btn btn-primary" name="updatePrixUnitaire">Enregistrer les modifications</button>
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Modal Suppression -->
-        <div class="modal fade" id="deleteModal<?= $prix['id'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel<?= $prix['id'] ?>" aria-hidden="true">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel<?= $prix['id'] ?>">Confirmer la suppression</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir supprimer ce prix unitaire ?</p>
-                <p>Usine: <?= htmlspecialchars($prix['nom_usine']) ?></p>
-                <p>Prix: <?= htmlspecialchars($prix['prix']) ?></p>
-              </div>
-              <div class="modal-footer">
-                <form action="traitement_prix_unitaires.php" method="post">
-                  <input type="hidden" name="id" value="<?= $prix['id'] ?>">
-                  <button type="submit" class="btn btn-danger" name="deletePrixUnitaire">Supprimer</button>
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      <?php endforeach; ?>
-    </tbody>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <div class="d-flex flex-column align-items-center">
+                            <i class="fas fa-search text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+                            <h5 class="text-muted mb-2">Aucun prix unitaire trouvé</h5>
+                            <p class="text-muted mb-3">Essayez de modifier vos critères de recherche</p>
+                            <a href="prix_unitaires.php" class="btn-reset">
+                                <i class="fas fa-refresh mr-2"></i>Réinitialiser les filtres
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
     </table>
 </div>
 
-  <div class="pagination-container bg-secondary d-flex justify-content-center w-100 text-white p-3">
-    <?php if($page > 1): ?>
-        <a href="?page=<?= $page - 1 ?><?= $usine_id ? '&usine_id='.$usine_id : '' ?><?= $date_debut ? '&date_debut='.$date_debut : '' ?><?= $date_fin ? '&date_fin='.$date_fin : '' ?><?= $prix_min ? '&prix_min='.$prix_min : '' ?><?= $prix_max ? '&prix_max='.$prix_max : '' ?><?= isset($_GET['limit']) ? '&limit='.$_GET['limit'] : '' ?>" class="btn btn-primary"><</a>
-    <?php endif; ?>
-    
-    <span class="mx-2"><?= $page . '/' . $total_pages ?></span>
+<!-- Pagination Professional -->
+<?php if ($total_pages > 1): ?>
+<div class="pagination-container">
+    <div class="pagination-nav">
+        <?php if($page > 1): ?>
+            <a href="?page=<?= $page - 1 ?><?= $usine_id ? '&usine_id='.$usine_id : '' ?><?= $date_debut ? '&date_debut='.$date_debut : '' ?><?= $date_fin ? '&date_fin='.$date_fin : '' ?><?= $prix_min ? '&prix_min='.$prix_min : '' ?><?= $prix_max ? '&prix_max='.$prix_max : '' ?><?= isset($_GET['limit']) ? '&limit='.$_GET['limit'] : '' ?>" 
+               class="pagination-btn" 
+               title="Page précédente">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        <?php endif; ?>
+        
+        <div class="pagination-info">
+            Page <?= $page ?> sur <?= $total_pages ?>
+        </div>
 
-    <?php if($page < $total_pages): ?>
-        <a href="?page=<?= $page + 1 ?><?= $usine_id ? '&usine_id='.$usine_id : '' ?><?= $date_debut ? '&date_debut='.$date_debut : '' ?><?= $date_fin ? '&date_fin='.$date_fin : '' ?><?= $prix_min ? '&prix_min='.$prix_min : '' ?><?= $prix_max ? '&prix_max='.$prix_max : '' ?><?= isset($_GET['limit']) ? '&limit='.$_GET['limit'] : '' ?>" class="btn btn-primary">></a>
-    <?php endif; ?>
+        <?php if($page < $total_pages): ?>
+            <a href="?page=<?= $page + 1 ?><?= $usine_id ? '&usine_id='.$usine_id : '' ?><?= $date_debut ? '&date_debut='.$date_debut : '' ?><?= $date_fin ? '&date_fin='.$date_fin : '' ?><?= $prix_min ? '&prix_min='.$prix_min : '' ?><?= $prix_max ? '&prix_max='.$prix_max : '' ?><?= isset($_GET['limit']) ? '&limit='.$_GET['limit'] : '' ?>" 
+               class="pagination-btn"
+               title="Page suivante">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        <?php endif; ?>
+    </div>
     
-    <form action="" method="get" class="items-per-page-form ml-3">
+    <form action="" method="get" class="items-per-page-form">
         <?php if($usine_id): ?>
             <input type="hidden" name="usine_id" value="<?= htmlspecialchars($usine_id) ?>">
         <?php endif; ?>
@@ -482,15 +916,22 @@ label {
         <?php if($prix_max): ?>
             <input type="hidden" name="prix_max" value="<?= htmlspecialchars($prix_max) ?>">
         <?php endif; ?>
-        <label for="limit">Afficher :</label>
+        
+        <label for="limit" class="text-muted mr-2">
+            <i class="fas fa-list mr-1"></i>Afficher :
+        </label>
         <select name="limit" id="limit" class="items-per-page-select">
-            <option value="5" <?= $limit == 5 ? 'selected' : '' ?>>5</option>
-            <option value="10" <?= $limit == 10 ? 'selected' : '' ?>>10</option>
-            <option value="15" <?= $limit == 15 ? 'selected' : '' ?>>15</option>
+            <option value="5" <?= $limit == 5 ? 'selected' : '' ?>>5 éléments</option>
+            <option value="10" <?= $limit == 10 ? 'selected' : '' ?>>10 éléments</option>
+            <option value="15" <?= $limit == 15 ? 'selected' : '' ?>>15 éléments</option>
+            <option value="25" <?= $limit == 25 ? 'selected' : '' ?>>25 éléments</option>
         </select>
-        <button type="submit" class="submit-button">Valider</button>
+        <button type="submit" class="submit-button ml-2">
+            <i class="fas fa-check mr-1"></i>Appliquer
+        </button>
     </form>
-  </div>
+</div>
+<?php endif; ?>
 
 
 

@@ -572,12 +572,12 @@ if (!isset($_SESSION['user_id'])) {
       }
     });
     
-    // Gestion des dropdowns de la navbar
-    $('[data-toggle="dropdown"]').on('click', function(e) {
-      e.preventDefault();
-      $(this).parent().toggleClass('show');
-      $(this).next('.dropdown-menu').toggleClass('show');
-    });
+    // Gestion des dropdowns de la navbar - désactivé car géré plus bas
+    // $('[data-toggle="dropdown"]').on('click', function(e) {
+    //   e.preventDefault();
+    //   $(this).parent().toggleClass('show');
+    //   $(this).next('.dropdown-menu').toggleClass('show');
+    // });
     
     // Fermer les dropdowns en cliquant ailleurs
     $(document).on('click', function(e) {
@@ -805,45 +805,6 @@ if (!isset($_SESSION['user_id'])) {
 
             <li class="nav-item">
               <a href="javascript:void(0)" class="nav-link">
-                <i class="nav-icon fas fa-cogs"></i>
-                <p>
-                  Gestion
-                  <i class="fas fa-angle-left right"></i>
-                </p>
-              </a>
-              <ul class="nav nav-treeview">
-                <li class="nav-item">
-                  <a href="chef_equipe.php" class="nav-link">
-                    <i class="fas fa-users"></i>
-                    <p>Gestion chef equipe</p>
-                  </a>
-                </li>
-
-                <li class="nav-item">
-                  <a href="agents.php" class="nav-link">
-                    <i class="fas fa-user-plus"></i>
-                    <p>Gestion des agents</p>
-                  </a>
-                </li>
-
-                <li class="nav-item">
-                  <a href="usines.php" class="nav-link">
-                    <i class="fas fa-industry"></i>
-                    <p>Gestion des usines</p>
-                  </a>
-                </li>
-
-                <li class="nav-item">
-                  <a href="vehicules.php" class="nav-link">
-                    <i class="fas fa-car"></i>
-                    <p>Gestion des véhicules</p>
-                  </a>
-                </li>
-              </ul>
-            </li>
-
-            <li class="nav-item">
-              <a href="javascript:void(0)" class="nav-link">
                 <i class="nav-icon fas fa-money-bill-alt"></i>
                 <p>
                   Gestion financière
@@ -875,20 +836,6 @@ if (!isset($_SESSION['user_id'])) {
                   <a href="gestion_usines.php" class="nav-link">
                     <i class="fas fa-money-bill-wave"></i>
                     <p>Montant Usines</p>
-                  </a>
-                </li>
-                
-                <li class="nav-item">
-                  <a href="recus.php" class="nav-link">
-                    <i class="fas fa-receipt"></i>
-                    <p>Reçus</p>
-                  </a>
-                </li>
-
-                <li class="nav-item">
-                  <a href="divers.php" class="nav-link">
-                    <i class="fas fa-money-bill-wave-alt"></i>
-                    <p>Sorties diverses</p>
                   </a>
                 </li>
               </ul>
@@ -923,7 +870,7 @@ if (!isset($_SESSION['user_id'])) {
                 </li>
                 <li class="nav-item">
                   <a href="sorties_diverses.php" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
+                    <i class="fas fa-money-bill-wave-alt"></i>
                     <p>Sorties diverses</p>
                   </a>
                 </li>
@@ -1106,13 +1053,17 @@ $(document).ready(function() {
     console.log('✅ Gestionnaires d\'événements attachés');
     
     // Gestion spécifique des dropdowns de la navbar (notifications, profil utilisateur)
-    $('.navbar-nav .dropdown > a[data-toggle="dropdown"]').on('click', function(e) {
+    $('.navbar-nav .nav-link[data-toggle="dropdown"]').off('click.dropdown').on('click.dropdown', function(e) {
         e.preventDefault();
+        e.stopPropagation();
+        
         var $this = $(this);
-        var $dropdown = $this.parent('.dropdown');
+        var $dropdown = $this.parent('.nav-item.dropdown');
         var $menu = $this.next('.dropdown-menu');
         
         console.log('🖱️ Clic sur dropdown navbar:', $this.attr('title') || 'Dropdown');
+        console.log('📋 Dropdown parent trouvé:', $dropdown.length);
+        console.log('📋 Menu trouvé:', $menu.length);
         
         // Fermer tous les autres dropdowns
         $('.navbar-nav .dropdown').not($dropdown).removeClass('show');

@@ -142,84 +142,595 @@ $current_page = $page;
 
 <!-- Main row -->
 <style>
-  .pagination-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.pagination-link {
-    padding: 8px;
-    text-decoration: none;
-    color: white;
-    background-color: #007bff; 
-    border: 1px solid #007bff;
-    border-radius: 4px; 
-    margin-right: 4px;
-}
-
-.items-per-page-form {
-    margin-left: 20px;
-}
-
-label {
-    margin-right: 5px;
-}
-
-.items-per-page-select {
-    padding: 6px;
-    border-radius: 4px; 
-}
-
-.submit-button {
-    padding: 6px 10px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px; 
-    cursor: pointer;
-}
- .custom-icon {
-            color: green;
-            font-size: 24px;
-            margin-right: 8px;
- }
- .spacing {
-    margin-right: 10px; 
-    margin-bottom: 20px;
-}
-</style>
-
-  <style>
-        @media only screen and (max-width: 767px) {
-            
-            th {
-                display: none; 
-            }
-            tbody tr {
-                display: block;
-                margin-bottom: 20px;
-                border: 1px solid #ccc;
-                padding: 10px;
-            }
-            tbody tr td::before {
-
-                font-weight: bold;
-                margin-right: 5px;
-            }
-        }
-        .margin-right-15 {
-        margin-right: 15px;
-       }
-        .block-container {
-      background-color:  #d7dbdd ;
-      padding: 20px;
-      border-radius: 5px;
-      width: 100%;
-      margin-bottom: 20px;
+    /* ===== STYLES ULTRA-PROFESSIONNELS POUR BORDEREAUX ===== */
+    
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --danger-gradient: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --glass-border: rgba(255, 255, 255, 0.3);
+        --shadow-light: 0 8px 32px rgba(31, 38, 135, 0.15);
+        --shadow-heavy: 0 15px 35px rgba(31, 38, 135, 0.25);
+        --border-radius: 20px;
+        --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    </style>
+
+    /* Page Header */
+    .page-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 2rem 1.5rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-heavy);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: translate(50%, -50%);
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .page-header p {
+        font-size: 1.1rem;
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+    }
+
+    /* Action Buttons Container */
+    .action-buttons-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .btn-professional {
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: var(--transition);
+        border: none;
+        position: relative;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .btn-professional:disabled {
+        background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%) !important;
+        color: rgba(255, 255, 255, 0.7) !important;
+        cursor: not-allowed !important;
+        opacity: 0.6 !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .btn-professional:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+        color: white;
+    }
+
+    .btn-generate {
+        background: var(--danger-gradient);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3);
+    }
+
+    .btn-search {
+        background: var(--success-gradient);
+        color: white;
+        box-shadow: 0 4px 15px rgba(86, 171, 47, 0.3);
+    }
+
+    .btn-export {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+    }
+
+    .btn-add {
+        background: var(--info-gradient);
+        color: white;
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    }
+
+    /* Search Container */
+    .search-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+    }
+
+    .search-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-control-modern {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-control-modern:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+
+    /* Table Professional */
+    .table-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+        overflow: hidden;
+    }
+
+    .table-professional {
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-professional thead th {
+        background: var(--primary-gradient);
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1rem 0.75rem;
+        border: none;
+        font-size: 0.85rem;
+        text-align: center;
+    }
+
+    .table-professional tbody tr {
+        background: white;
+        transition: var(--transition);
+    }
+
+    .table-professional tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-professional tbody td {
+        padding: 1rem 0.75rem;
+        border-bottom: 1px solid #f8f9fa;
+        font-size: 0.9rem;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .table-professional tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-solde {
+        background: var(--success-gradient);
+        color: white;
+    }
+
+    .status-pending {
+        background: var(--warning-gradient);
+        color: white;
+    }
+
+    .status-validated {
+        background: var(--success-gradient);
+        color: white;
+    }
+
+    .status-not-validated {
+        background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        color: white;
+    }
+
+    /* Action Buttons in Table */
+    .action-btn {
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 2px;
+        transition: var(--transition);
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    .action-btn-validate {
+        background: var(--success-gradient);
+        color: white;
+        box-shadow: 0 2px 8px rgba(86, 171, 47, 0.3);
+    }
+
+    .action-btn-validate:hover {
+        box-shadow: 0 4px 12px rgba(86, 171, 47, 0.4);
+        color: white;
+    }
+
+    .action-btn-delete {
+        background: var(--danger-gradient);
+        color: white;
+        box-shadow: 0 2px 8px rgba(255, 65, 108, 0.3);
+    }
+
+    .action-btn-delete:hover {
+        box-shadow: 0 4px 12px rgba(255, 65, 108, 0.4);
+        color: white;
+    }
+
+    .action-btn-print {
+        background: var(--info-gradient);
+        color: white;
+        box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+    }
+
+    .action-btn-print:hover {
+        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+        color: white;
+    }
+
+    .action-btn-associate {
+        background: var(--warning-gradient);
+        color: white;
+        box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);
+        padding: 8px 12px;
+        width: auto;
+        font-size: 0.8rem;
+    }
+
+    .action-btn-associate:hover {
+        box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
+        color: white;
+    }
+
+    /* Pagination Professional */
+    .pagination-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .pagination-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: none;
+        background: var(--primary-gradient);
+        color: white;
+        font-weight: 600;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .pagination-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .pagination-btn.active {
+        background: var(--success-gradient);
+        transform: scale(1.1);
+    }
+
+    .pagination-info {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-weight: 600;
+        margin: 0 1rem;
+    }
+
+    /* Loading Animation */
+    .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 3rem;
+        background: var(--glass-bg);
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+    }
+
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(102, 126, 234, 0.1);
+        border-left: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Price Display */
+    .price-display {
+        font-weight: 700;
+        color: #27ae60;
+        font-size: 1rem;
+    }
+
+    .price-negative {
+        color: #e74c3c;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 2rem;
+        }
+        
+        .action-buttons-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .btn-professional {
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .table-container {
+            padding: 1rem;
+            overflow-x: auto;
+        }
+        
+        .pagination-container {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table-professional thead {
+            display: none;
+        }
+        
+        .table-professional tbody tr {
+            display: block;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+        }
+        
+        .table-professional tbody td {
+            display: block;
+            text-align: left;
+            border: none;
+            padding: 0.5rem 0;
+        }
+        
+        .table-professional tbody td::before {
+            content: attr(data-label) ": ";
+            font-weight: 700;
+            color: #667eea;
+            display: inline-block;
+            width: 120px;
+        }
+    }
+
+    /* Alert Improvements */
+    .alert-professional {
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: var(--shadow-light);
+        backdrop-filter: blur(15px);
+    }
+
+    .alert-success {
+        background: rgba(86, 171, 47, 0.1);
+        color: #2d5016;
+        border-left: 4px solid #56ab2f;
+    }
+
+    .alert-danger {
+        background: rgba(255, 65, 108, 0.1);
+        color: #8b1538;
+        border-left: 4px solid #ff416c;
+    }
+
+    .alert-warning {
+        background: rgba(240, 147, 251, 0.1);
+        color: #7d1a7d;
+        border-left: 4px solid #f093fb;
+    }
+
+    /* Styles pour les filtres avancés */
+    .btn-search {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: var(--transition);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-search:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-reset {
+        background: transparent;
+        color: #e74c3c;
+        border: 2px solid #e74c3c;
+        border-radius: 12px;
+        padding: 10px 22px;
+        font-weight: 600;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-reset:hover {
+        background: #e74c3c;
+        color: white;
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    /* Animation pour les badges de filtres */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .badge-filter {
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    /* Validation des champs */
+    .is-invalid {
+        border-color: #e74c3c !important;
+        box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
+    }
+
+    .invalid-feedback {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: #e74c3c;
+    }
+
+    /* Amélioration des select */
+    .form-control-modern option {
+        padding: 8px 12px;
+        background: white;
+        color: #2c3e50;
+    }
+
+    .form-control-modern option:hover {
+        background: rgba(102, 126, 234, 0.1);
+    }
+
+    /* Responsive pour les filtres */
+    @media (max-width: 768px) {
+        .search-container .row .col-md-3 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        .btn-search, .btn-reset {
+            width: 100%;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
 
 <link rel="stylesheet" href="../../plugins/jquery-ui/jquery-ui.min.css">
 <style>
@@ -238,96 +749,356 @@ label {
 }
 </style>
 
-<div class="row">
-    <?php if (isset($_SESSION['warning'])): ?>
-        <div class="col-12">
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                <?= $_SESSION['warning'] ?>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        </div>
-        <?php unset($_SESSION['warning']); ?>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['popup'])): ?>
-        <div class="col-12">
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                Ticket enregistré avec succès
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        </div>
-        <?php unset($_SESSION['popup']); ?>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['delete_pop'])): ?>
-        <div class="col-12">
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                Une erreur s'est produite
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        </div>
-        <?php unset($_SESSION['delete_pop']); ?>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="col-12">
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <?= $_SESSION['success'] ?>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        </div>
-        <?php unset($_SESSION['success']); ?>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="col-12">
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <?= $_SESSION['error'] ?>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        </div>
-        <?php unset($_SESSION['error']); ?>
-    <?php endif; ?>
-
-    <div class="block-container">
-    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#print-bordereau">
-      <i class="fa fa-print"></i> Générer un bordereau
-    </button>
-
-    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#search_ticket">
-      <i class="fa fa-search"></i> Rechercher un ticket
-    </button>
-
-    <button type="button" class="btn btn-dark" onclick="window.location.href='export_tickets.php'">
-              <i class="fa fa-print"></i> Exporter la liste les tickets
-             </button>
-
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-bordereau">
-        <i class="fa fa-plus"></i> Nouveau bordereau
-    </button>
-
-
+<!-- Page Header -->
+<div class="page-header">
+    <h1><i class="fas fa-file-invoice mr-3"></i>Gestion des Bordereaux</h1>
+    <p>Gérez, consultez et validez les bordereaux de livraison avec des outils de recherche avancés</p>
 </div>
 
-<div class="block-container">
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <div class="input-group">
-                <input type="text" id="search_agent" class="form-control" placeholder="Rechercher un bordereau en saisissant le nom de l'agent...">
-                <input type="hidden" id="selected_agent_id" name="agent_id">
+<!-- Alerts Professional -->
+<?php if (isset($_SESSION['warning'])): ?>
+    <div class="alert alert-warning alert-professional alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i>
+        <?= $_SESSION['warning'] ?>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <?php unset($_SESSION['warning']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['popup'])): ?>
+    <div class="alert alert-success alert-professional alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i>
+        Ticket enregistré avec succès
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <?php unset($_SESSION['popup']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['delete_pop'])): ?>
+    <div class="alert alert-danger alert-professional alert-dismissible fade show" role="alert">
+        <i class="fas fa-times-circle mr-2"></i>
+        Une erreur s'est produite
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <?php unset($_SESSION['delete_pop']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['success'])): ?>
+    <div class="alert alert-success alert-professional alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i>
+        <?= $_SESSION['success'] ?>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <?php unset($_SESSION['success']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['error'])): ?>
+    <div class="alert alert-danger alert-professional alert-dismissible fade show" role="alert">
+        <i class="fas fa-times-circle mr-2"></i>
+        <?= $_SESSION['error'] ?>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <?php unset($_SESSION['error']); ?>
+<?php endif; ?>
+
+<!-- Action Buttons -->
+<div class="action-buttons-container">
+    <div class="d-flex gap-3 flex-wrap">
+        <button type="button" class="btn-professional btn-generate" disabled style="cursor: not-allowed; opacity: 0.6;">
+            <i class="fas fa-file-pdf"></i>
+            Générer un bordereau
+        </button>
+
+        <button type="button" class="btn-professional btn-search" disabled style="cursor: not-allowed; opacity: 0.6;">
+            <i class="fas fa-search"></i>
+            Rechercher un ticket
+        </button>
+
+        <button type="button" class="btn-professional btn-export" disabled style="cursor: not-allowed; opacity: 0.6;">
+            <i class="fas fa-download"></i>
+            Exporter la liste
+        </button>
+
+        <button type="button" class="btn-professional btn-add" disabled style="cursor: not-allowed; opacity: 0.6;">
+            <i class="fas fa-plus"></i>
+            Nouveau bordereau
+        </button>
+    </div>
+    <div class="d-flex align-items-center">
+        <span class="badge badge-info">
+            <i class="fas fa-database mr-1"></i>
+            <?= count($bordereaux) ?> bordereaux
+        </span>
+    </div>
+</div>
+
+<!-- Advanced Filters Container -->
+<div class="search-container">
+    <div class="search-title">
+        <i class="fas fa-filter"></i>
+        Filtres Avancés de Recherche
+    </div>
+    
+    <form id="advancedFilterForm" method="GET" action="">
+        <div class="row">
+            <!-- Filtre par Agent -->
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-muted mb-2">
+                    <i class="fas fa-user-tie mr-1"></i>Agent / Chargé de Mission
+                </label>
+                <select class="form-control-modern" name="agent_id" id="agent_filter">
+                    <option value="">Tous les agents</option>
+                    <?php foreach($agents as $agent): ?>
+                        <option value="<?= $agent['id_agent'] ?>" 
+                                <?= (isset($_GET['agent_id']) && $_GET['agent_id'] == $agent['id_agent']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($agent['nom_complet_agent']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <!-- Filtre par Statut -->
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-muted mb-2">
+                    <i class="fas fa-info-circle mr-1"></i>Statut du Bordereau
+                </label>
+                <select class="form-control-modern" name="statut" id="statut_filter">
+                    <option value="">Tous les statuts</option>
+                    <option value="en_attente" <?= (isset($_GET['statut']) && $_GET['statut'] == 'en_attente') ? 'selected' : '' ?>>
+                        En Attente
+                    </option>
+                    <option value="soldé" <?= (isset($_GET['statut']) && $_GET['statut'] == 'soldé') ? 'selected' : '' ?>>
+                        Soldé
+                    </option>
+                </select>
+            </div>
+
+            <!-- Filtre par Date de Création -->
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-muted mb-2">
+                    <i class="fas fa-calendar-alt mr-1"></i>Date de Création
+                </label>
+                <input type="date" 
+                       class="form-control-modern" 
+                       name="date_creation" 
+                       id="date_creation_filter"
+                       value="<?= htmlspecialchars($_GET['date_creation'] ?? '') ?>">
+            </div>
+
+            <!-- Filtre par Période -->
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-muted mb-2">
+                    <i class="fas fa-calendar-week mr-1"></i>Période Prédéfinie
+                </label>
+                <select class="form-control-modern" name="periode" id="periode_filter">
+                    <option value="">Toutes les périodes</option>
+                    <option value="aujourd_hui" <?= (isset($_GET['periode']) && $_GET['periode'] == 'aujourd_hui') ? 'selected' : '' ?>>
+                        Aujourd'hui
+                    </option>
+                    <option value="cette_semaine" <?= (isset($_GET['periode']) && $_GET['periode'] == 'cette_semaine') ? 'selected' : '' ?>>
+                        Cette semaine
+                    </option>
+                    <option value="ce_mois" <?= (isset($_GET['periode']) && $_GET['periode'] == 'ce_mois') ? 'selected' : '' ?>>
+                        Ce mois
+                    </option>
+                    <option value="mois_dernier" <?= (isset($_GET['periode']) && $_GET['periode'] == 'mois_dernier') ? 'selected' : '' ?>>
+                        Mois dernier
+                    </option>
+                </select>
+            </div>
+
+            <!-- Filtre par Montant Minimum -->
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-muted mb-2">
+                    <i class="fas fa-money-bill-wave mr-1"></i>Montant Minimum
+                </label>
+                <input type="number" 
+                       class="form-control-modern" 
+                       name="montant_min" 
+                       id="montant_min_filter"
+                       placeholder="0"
+                       value="<?= htmlspecialchars($_GET['montant_min'] ?? '') ?>">
+            </div>
+
+            <!-- Filtre par Montant Maximum -->
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-muted mb-2">
+                    <i class="fas fa-money-bill-wave mr-1"></i>Montant Maximum
+                </label>
+                <input type="number" 
+                       class="form-control-modern" 
+                       name="montant_max" 
+                       id="montant_max_filter"
+                       placeholder="999999999"
+                       value="<?= htmlspecialchars($_GET['montant_max'] ?? '') ?>">
+            </div>
+
+            <!-- Filtre par Nombre de Tickets -->
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-muted mb-2">
+                    <i class="fas fa-ticket-alt mr-1"></i>Nombre de Tickets Min
+                </label>
+                <input type="number" 
+                       class="form-control-modern" 
+                       name="tickets_min" 
+                       id="tickets_min_filter"
+                       placeholder="1"
+                       min="1"
+                       value="<?= htmlspecialchars($_GET['tickets_min'] ?? '') ?>">
+            </div>
+
+            <!-- Recherche par Numéro -->
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-muted mb-2">
+                    <i class="fas fa-hashtag mr-1"></i>Numéro de Bordereau
+                </label>
+                <input type="text" 
+                       class="form-control-modern" 
+                       name="numero" 
+                       id="numero_filter"
+                       placeholder="Rechercher par numéro..."
+                       value="<?= htmlspecialchars($_GET['numero'] ?? '') ?>">
             </div>
         </div>
+
+        <!-- Boutons d'Action -->
+        <div class="row mt-3">
+            <div class="col-12 text-center">
+                <button type="submit" class="btn-search mr-3">
+                    <i class="fas fa-search mr-2"></i>Appliquer les Filtres
+                </button>
+                <a href="bordereaux.php" class="btn-reset mr-3">
+                    <i class="fas fa-times mr-2"></i>Réinitialiser
+                </a>
+                <button type="button" class="btn btn-outline-info" id="toggleAdvanced">
+                    <i class="fas fa-cog mr-2"></i>Options Avancées
+                </button>
+            </div>
+        </div>
+    </form>
+    
+    <!-- Filtres Actifs -->
+    <?php 
+    $active_filters = array_filter([
+        'agent_id' => $_GET['agent_id'] ?? null,
+        'statut' => $_GET['statut'] ?? null,
+        'date_creation' => $_GET['date_creation'] ?? null,
+        'periode' => $_GET['periode'] ?? null,
+        'montant_min' => $_GET['montant_min'] ?? null,
+        'montant_max' => $_GET['montant_max'] ?? null,
+        'tickets_min' => $_GET['tickets_min'] ?? null,
+        'numero' => $_GET['numero'] ?? null
+    ]);
+    ?>
+    
+    <?php if (!empty($active_filters)): ?>
+    <div class="active-filters mt-4">
+        <div class="d-flex align-items-center flex-wrap">
+            <strong class="text-muted mr-3">
+                <i class="fas fa-filter mr-1"></i>Filtres actifs :
+            </strong>
+            
+            <?php if(isset($_GET['agent_id']) && $_GET['agent_id']): ?>
+                <?php 
+                $agent_name = '';
+                foreach($agents as $agent) {
+                    if($agent['id_agent'] == $_GET['agent_id']) {
+                        $agent_name = $agent['nom_complet_agent'];
+                        break;
+                    }
+                }
+                ?>
+                <span class="badge-filter">
+                    <i class="fas fa-user-tie"></i>
+                    Agent: <?= htmlspecialchars($agent_name) ?>
+                    <a href="?<?= http_build_query(array_merge($_GET, ['agent_id' => null])) ?>">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </span>
+            <?php endif; ?>
+            
+            <?php if(isset($_GET['statut']) && $_GET['statut']): ?>
+                <span class="badge-filter">
+                    <i class="fas fa-info-circle"></i>
+                    Statut: <?= ucfirst($_GET['statut']) ?>
+                    <a href="?<?= http_build_query(array_merge($_GET, ['statut' => null])) ?>">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </span>
+            <?php endif; ?>
+            
+            <?php if(isset($_GET['date_creation']) && $_GET['date_creation']): ?>
+                <span class="badge-filter">
+                    <i class="fas fa-calendar-alt"></i>
+                    Date: <?= date('d/m/Y', strtotime($_GET['date_creation'])) ?>
+                    <a href="?<?= http_build_query(array_merge($_GET, ['date_creation' => null])) ?>">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </span>
+            <?php endif; ?>
+            
+            <?php if(isset($_GET['periode']) && $_GET['periode']): ?>
+                <span class="badge-filter">
+                    <i class="fas fa-calendar-week"></i>
+                    Période: <?= str_replace('_', ' ', ucfirst($_GET['periode'])) ?>
+                    <a href="?<?= http_build_query(array_merge($_GET, ['periode' => null])) ?>">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </span>
+            <?php endif; ?>
+            
+            <?php if(isset($_GET['montant_min']) && $_GET['montant_min']): ?>
+                <span class="badge-filter">
+                    <i class="fas fa-money-bill-wave"></i>
+                    Min: <?= number_format($_GET['montant_min'], 0, ',', ' ') ?> FCFA
+                    <a href="?<?= http_build_query(array_merge($_GET, ['montant_min' => null])) ?>">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </span>
+            <?php endif; ?>
+            
+            <?php if(isset($_GET['montant_max']) && $_GET['montant_max']): ?>
+                <span class="badge-filter">
+                    <i class="fas fa-money-bill-wave"></i>
+                    Max: <?= number_format($_GET['montant_max'], 0, ',', ' ') ?> FCFA
+                    <a href="?<?= http_build_query(array_merge($_GET, ['montant_max' => null])) ?>">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </span>
+            <?php endif; ?>
+            
+            <?php if(isset($_GET['tickets_min']) && $_GET['tickets_min']): ?>
+                <span class="badge-filter">
+                    <i class="fas fa-ticket-alt"></i>
+                    Tickets min: <?= $_GET['tickets_min'] ?>
+                    <a href="?<?= http_build_query(array_merge($_GET, ['tickets_min' => null])) ?>">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </span>
+            <?php endif; ?>
+            
+            <?php if(isset($_GET['numero']) && $_GET['numero']): ?>
+                <span class="badge-filter">
+                    <i class="fas fa-hashtag"></i>
+                    Numéro: <?= htmlspecialchars($_GET['numero']) ?>
+                    <a href="?<?= http_build_query(array_merge($_GET, ['numero' => null])) ?>">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </span>
+            <?php endif; ?>
+        </div>
     </div>
+    <?php endif; ?>
 </div>
 
  <!-- <button type="button" class="btn btn-primary spacing" data-toggle="modal" data-target="#add-commande">
@@ -351,106 +1122,125 @@ label {
 
 -->
 
-<div class="table-responsive">
-<div id="loader" class="text-center p-3">
-        <img src="../dist/img/loading.gif" alt="Chargement..." />
+<!-- Loading Animation -->
+<div id="loader" class="loading-container">
+    <div class="loading-spinner"></div>
+    <div class="ml-3">
+        <h5 class="text-muted mb-0">Chargement des bordereaux...</h5>
+        <p class="text-muted small mb-0">Veuillez patienter</p>
     </div>
-    <table id="example1" class="table table-bordered table-striped" style="display: none;">
-
- <!-- <table style="max-height: 90vh !important; overflow-y: scroll !important" id="example1" class="table table-bordered table-striped">-->
-    <thead>
-      <tr>
-            <th>Date de génération</th>
-            <th>Numéro</th>
-            <th>Nombre de ticket</th>
-            <th>Date Début</th>
-            <th>Date Fin</th>
-            <th>Poids Total</th>
-            <th>Montant Total</th>
-            <th>Montant Payé</th>
-            <th>Reste à Payer</th>
-            <th>Statut</th>
-            <th>Agent</th> 
-            <th>Validation</th>
-            <th>Actions</th>
-            <th>Statut Validation</th>
-            <th>Associer les tickets</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php foreach ($bordereaux as $bordereau) : ?>
-        <tr>
-          <td><?= date('d/m/Y', strtotime($bordereau['date_creation_bordereau'])) ?></td>
-          <td>
-            <a href="view_bordereau.php?numero=<?= urlencode($bordereau['numero_bordereau']) ?>" class="text-primary">
-                <?= $bordereau['numero_bordereau'] ?>
-            </a>
-          </td>
-          <td>
-            <span class="badge badge-primary">
-              <?= $bordereau['nombre_tickets'] ?>
-            </span>
-          </td>
-          <td><?= $bordereau['date_debut'] ? date('d/m/Y', strtotime($bordereau['date_debut'])) : '-' ?></td>
-          <td><?= $bordereau['date_fin'] ? date('d/m/Y', strtotime($bordereau['date_fin'])) : '-' ?></td>
-          <td><?= number_format($bordereau  ['poids_total'], 2, ',', ' ') ?> kg</td>
-          <td><?= number_format($bordereau['montant_total'], 0, ',', ' ') ?> FCFA</td>
-          <td><?= number_format($bordereau['montant_payer'] ?? 0, 0, ',', ' ') ?> FCFA</td>
-          <td><?= number_format($bordereau['montant_reste'] ?? $bordereau['montant_total'], 0, ',', ' ') ?> FCFA</td>
-          <td>
-            <span class="badge badge-<?= $bordereau['statut_bordereau'] === 'soldé' ? 'success' : 'warning' ?>">
-              <?= ucfirst($bordereau['statut_bordereau']) ?>
-            </span>
-          </td>
-          <td><?= $bordereau['nom_complet_agent'] ?></td>
-          <td>
-    <form method="POST" action="validate_bordereau.php" style="display: inline;">
-        <input type="hidden" name="id_bordereau" value="<?= $bordereau['id_bordereau'] ?>">
-        <input type="hidden" name="action" value="validate">
-        <button type="submit" class="btn btn-sm btn-primary"
-            <?php if ($bordereau['date_validation_boss'] !== null): ?>
-                disabled
-            <?php endif; ?>
-        >
-            <i class="fas fa-check"></i> Valider le bordereau
-        </button>
-    </form>
-   </td>
-          <td>
-         
-            <a href="?action=delete&id=<?= $bordereau['id_bordereau'] ?>&numero_bordereau=<?= $bordereau['numero_bordereau'] ?>" class="btn btn-sm btn-danger">
-                <i class="fas fa-trash"></i>
-            </a>
-            <a href="print_visualisation_bordereau.php?id=<?= $bordereau['id_bordereau'] ?>" class="btn btn-sm btn-success" target="_blank">
-              <i class="fas fa-print"></i>
-            </a>
-            <?php if ($bordereau['date_validation_boss'] === null): ?>
-<?php endif; ?>
-          </td>
-          <td>
-            <?php if ($bordereau['date_validation_boss'] === null): ?>
-              <button class="btn btn-sm btn-secondary" disabled>
-                <i class="fas fa-check"></i> Non Validé
-              </button>
-            <?php else: ?>
-              <button class="btn btn-sm btn-secondary" disabled>
-                <i class="fas fa-check"></i> Validé le <?= date('d/m/Y', strtotime($bordereau['date_validation_boss'])) ?>
-              </button>
-            <?php endif; ?>
-          </td>
-          <td>
-            <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#ticketsAssociationBordereau<?= $bordereau['id_bordereau'] ?>">
-              <i class="fas fa-menu"></i> Associer les tickets au bordereau
-            </button>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
-
 </div>
 
-  <div class="pagination-container bg-secondary d-flex justify-content-center w-100 text-white p-3">
+<!-- Table Container -->
+<div class="table-container" id="table-container" style="display: none;">
+    <table class="table-professional w-100">
+        <thead>
+            <tr>
+                <th><i class="fas fa-calendar mr-1"></i>Date</th>
+                <th><i class="fas fa-hashtag mr-1"></i>Numéro</th>
+                <th><i class="fas fa-ticket-alt mr-1"></i>Tickets</th>
+                <th><i class="fas fa-calendar-alt mr-1"></i>Début</th>
+                <th><i class="fas fa-calendar-check mr-1"></i>Fin</th>
+                <th><i class="fas fa-weight mr-1"></i>Poids</th>
+                <th><i class="fas fa-money-bill mr-1"></i>Total</th>
+                <th><i class="fas fa-credit-card mr-1"></i>Payé</th>
+                <th><i class="fas fa-exclamation-circle mr-1"></i>Reste</th>
+                <th><i class="fas fa-info-circle mr-1"></i>Statut</th>
+                <th><i class="fas fa-user-tie mr-1"></i>Agent</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($bordereaux)): ?>
+                <?php foreach ($bordereaux as $bordereau) : ?>
+                    <tr>
+                        <td data-label="Date">
+                            <span class="text-muted">
+                                <i class="fas fa-calendar mr-1"></i>
+                                <?= date('d/m/Y', strtotime($bordereau['date_creation_bordereau'])) ?>
+                            </span>
+                        </td>
+                        <td data-label="Numéro">
+                            <a href="view_bordereau.php?numero=<?= urlencode($bordereau['numero_bordereau']) ?>" 
+                               class="text-primary font-weight-bold">
+                                <i class="fas fa-file-invoice mr-1"></i>
+                                <?= $bordereau['numero_bordereau'] ?>
+                            </a>
+                        </td>
+                        <td data-label="Tickets">
+                            <span class="status-badge status-validated">
+                                <i class="fas fa-ticket-alt mr-1"></i>
+                                <?= $bordereau['nombre_tickets'] ?>
+                            </span>
+                        </td>
+                        <td data-label="Début">
+                            <span class="text-muted">
+                                <?= $bordereau['date_debut'] ? date('d/m/Y', strtotime($bordereau['date_debut'])) : '-' ?>
+                            </span>
+                        </td>
+                        <td data-label="Fin">
+                            <span class="text-muted">
+                                <?= $bordereau['date_fin'] ? date('d/m/Y', strtotime($bordereau['date_fin'])) : '-' ?>
+                            </span>
+                        </td>
+                        <td data-label="Poids">
+                            <span class="font-weight-bold text-info">
+                                <?= number_format($bordereau['poids_total'], 2, ',', ' ') ?> kg
+                            </span>
+                        </td>
+                        <td data-label="Total">
+                            <span class="price-display">
+                                <?= number_format($bordereau['montant_total'], 0, ',', ' ') ?> FCFA
+                            </span>
+                        </td>
+                        <td data-label="Payé">
+                            <span class="price-display">
+                                <?= number_format($bordereau['montant_payer'] ?? 0, 0, ',', ' ') ?> FCFA
+                            </span>
+                        </td>
+                        <td data-label="Reste">
+                            <span class="price-display <?= ($bordereau['montant_reste'] ?? $bordereau['montant_total']) > 0 ? 'price-negative' : '' ?>">
+                                <?= number_format($bordereau['montant_reste'] ?? $bordereau['montant_total'], 0, ',', ' ') ?> FCFA
+                            </span>
+                        </td>
+                        <td data-label="Statut">
+                            <span class="status-badge <?= $bordereau['statut_bordereau'] === 'soldé' ? 'status-solde' : 'status-pending' ?>">
+                                <i class="fas fa-<?= $bordereau['statut_bordereau'] === 'soldé' ? 'check-circle' : 'clock' ?> mr-1"></i>
+                                <?= ucfirst($bordereau['statut_bordereau']) ?>
+                            </span>
+                        </td>
+                        <td data-label="Agent">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-user-tie text-primary mr-2"></i>
+                                <strong><?= $bordereau['nom_complet_agent'] ?></strong>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="11" class="text-center py-5">
+                        <div class="d-flex flex-column align-items-center">
+                            <i class="fas fa-search text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+                            <h5 class="text-muted mb-2">Aucun bordereau trouvé</h5>
+                            <p class="text-muted mb-3">Aucun bordereau ne correspond à vos critères de recherche</p>
+                        </div>
+                    </td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination Professional -->
+<?php if ($total_pages > 1): ?>
+<div class="pagination-container">
+    <!-- Navigation précédente -->
     <?php if($page > 1): ?>
-        <a href="?page=<?= $page - 1 ?><?= isset($_GET['usine']) ? '&usine='.$_GET['usine'] : '' ?><?= isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '' ?><?= isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '' ?><?= isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '' ?>" class="btn btn-primary"><</a>
+        <a href="?page=<?= $page - 1 ?><?= isset($_GET['usine']) ? '&usine='.$_GET['usine'] : '' ?><?= isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '' ?><?= isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '' ?><?= isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '' ?>" 
+           class="pagination-btn" 
+           title="Page précédente">
+            <i class="fas fa-chevron-left"></i>
+        </a>
     <?php endif; ?>
     
     <?php
@@ -465,65 +1255,186 @@ label {
             (isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '') . 
             (isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '') . 
             (isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '') . 
-            '" class="btn btn-primary">1</a>';
+            '" class="pagination-btn">1</a>';
         if ($start > 2) {
-            echo '<span class="px-2 text-white">...</span>';
+            echo '<span class="pagination-info">...</span>';
         }
     }
     
     // Afficher les pages autour de la page courante
     for ($i = $start; $i <= $end; $i++) {
         if ($i == $page) {
-            echo '<span class="btn btn-secondary active">' . $i . '</span>';
+            echo '<span class="pagination-btn active">' . $i . '</span>';
         } else {
             echo '<a href="?page=' . $i . 
                 (isset($_GET['usine']) ? '&usine='.$_GET['usine'] : '') . 
                 (isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '') . 
                 (isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '') . 
                 (isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '') . 
-                '" class="btn btn-primary">' . $i . '</a>';
+                '" class="pagination-btn">' . $i . '</a>';
         }
     }
     
     // Afficher la dernière page si on n'y est pas
     if ($end < $total_pages) {
         if ($end < $total_pages - 1) {
-            echo '<span class="px-2 text-white">...</span>';
+            echo '<span class="pagination-info">...</span>';
         }
         echo '<a href="?page=' . $total_pages . 
             (isset($_GET['usine']) ? '&usine='.$_GET['usine'] : '') . 
             (isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '') . 
             (isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '') . 
             (isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '') . 
-            '" class="btn btn-primary">' . $total_pages . '</a>';
+            '" class="pagination-btn">' . $total_pages . '</a>';
     }
     ?>
     
+    <!-- Navigation suivante -->
     <?php if($page < $total_pages): ?>
-        <a href="?page=<?= $page + 1 ?><?= isset($_GET['usine']) ? '&usine='.$_GET['usine'] : '' ?><?= isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '' ?><?= isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '' ?><?= isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '' ?>" class="btn btn-primary">></a>
+        <a href="?page=<?= $page + 1 ?><?= isset($_GET['usine']) ? '&usine='.$_GET['usine'] : '' ?><?= isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '' ?><?= isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '' ?><?= isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '' ?>" 
+           class="pagination-btn"
+           title="Page suivante">
+            <i class="fas fa-chevron-right"></i>
+        </a>
     <?php endif; ?>
-  </div>
-  <form action="" method="get" class="items-per-page-form ml-3">
-        <?php if(isset($_GET['usine'])): ?>
-            <input type="hidden" name="usine" value="<?= htmlspecialchars($_GET['usine']) ?>">
-        <?php endif; ?>
-        <?php if(isset($_GET['date_creation'])): ?>
-            <input type="hidden" name="date_creation" value="<?= htmlspecialchars($_GET['date_creation']) ?>">
-        <?php endif; ?>
-        <?php if(isset($_GET['chauffeur'])): ?>
-            <input type="hidden" name="chauffeur" value="<?= htmlspecialchars($_GET['chauffeur']) ?>">
-        <?php endif; ?>
-        <?php if(isset($_GET['agent_id'])): ?>
-            <input type="hidden" name="agent_id" value="<?= htmlspecialchars($_GET['agent_id']) ?>">
-        <?php endif; ?>
-        <label for="limit">Afficher :</label>
-        <select name="limit" id="limit" class="items-per-page-select">
-            <option value="5" <?= $limit == 5 ? 'selected' : '' ?>>5</option>
-            <option value="10" <?= $limit == 10 ? 'selected' : '' ?>>10</option>
-            <option value="15" <?= $limit == 15 ? 'selected' : '' ?>>15</option>
-        </select>
-        <button type="submit" class="submit-button">Valider</button>
-    </form>
+</div>
+<?php endif; ?>
+<!-- JavaScript pour améliorer l'expérience utilisateur -->
+<script>
+$(document).ready(function() {
+    // Animation de chargement
+    setTimeout(function() {
+        $('#loader').fadeOut(500, function() {
+            $('#table-container').fadeIn(500);
+        });
+    }, 1000);
+    
+    // Confirmation de suppression
+    $('.action-btn-delete').on('click', function(e) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer ce bordereau ?')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    // Animation des boutons au survol
+    $('.btn-professional').hover(
+        function() {
+            $(this).addClass('shadow-lg');
+        },
+        function() {
+            $(this).removeClass('shadow-lg');
+        }
+    );
+    
+    // Gestion des filtres avancés
+    let advancedVisible = false;
+    const advancedFields = ['#montant_min_filter', '#montant_max_filter', '#tickets_min_filter', '#numero_filter'];
+    
+    // Masquer les champs avancés au démarrage
+    advancedFields.forEach(field => {
+        $(field).closest('.col-md-3').hide();
+    });
+    
+    // Toggle des options avancées
+    $('#toggleAdvanced').on('click', function() {
+        advancedVisible = !advancedVisible;
+        const $btn = $(this);
+        
+        if (advancedVisible) {
+            advancedFields.forEach(field => {
+                $(field).closest('.col-md-3').slideDown(300);
+            });
+            $btn.html('<i class="fas fa-eye-slash mr-2"></i>Masquer Options Avancées');
+            $btn.removeClass('btn-outline-info').addClass('btn-outline-warning');
+        } else {
+            advancedFields.forEach(field => {
+                $(field).closest('.col-md-3').slideUp(300);
+            });
+            $btn.html('<i class="fas fa-cog mr-2"></i>Options Avancées');
+            $btn.removeClass('btn-outline-warning').addClass('btn-outline-info');
+        }
+    });
+    
+    // Gestion intelligente des périodes prédéfinies
+    $('#periode_filter').on('change', function() {
+        const periode = $(this).val();
+        const today = new Date();
+        let startDate = '';
+        
+        switch(periode) {
+            case 'aujourd_hui':
+                startDate = today.toISOString().split('T')[0];
+                $('#date_creation_filter').val(startDate);
+                break;
+            case 'cette_semaine':
+                const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+                startDate = startOfWeek.toISOString().split('T')[0];
+                $('#date_creation_filter').val(startDate);
+                break;
+            case 'ce_mois':
+                startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+                $('#date_creation_filter').val(startDate);
+                break;
+            case 'mois_dernier':
+                const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                startDate = lastMonth.toISOString().split('T')[0];
+                $('#date_creation_filter').val(startDate);
+                break;
+            default:
+                $('#date_creation_filter').val('');
+        }
+    });
+    
+    // Validation des montants
+    $('#montant_min_filter, #montant_max_filter').on('input', function() {
+        const min = parseInt($('#montant_min_filter').val()) || 0;
+        const max = parseInt($('#montant_max_filter').val()) || 999999999;
+        
+        if (min > max) {
+            $(this).addClass('is-invalid');
+            $(this).after('<div class="invalid-feedback">Le montant minimum ne peut pas être supérieur au maximum</div>');
+        } else {
+            $(this).removeClass('is-invalid');
+            $(this).next('.invalid-feedback').remove();
+        }
+    });
+    
+    // Sauvegarde des filtres dans localStorage
+    $('#advancedFilterForm').on('submit', function() {
+        const formData = $(this).serialize();
+        localStorage.setItem('bordereaux_filters', formData);
+    });
+    
+    // Restauration des filtres depuis localStorage
+    const savedFilters = localStorage.getItem('bordereaux_filters');
+    if (savedFilters && window.location.search === '') {
+        // Seulement si aucun paramètre GET n'est présent
+        console.log('🔄 Filtres sauvegardés détectés');
+    }
+    
+    // Animation des badges de filtres actifs
+    $('.badge-filter').each(function(index) {
+        $(this).css('animation-delay', (index * 0.1) + 's');
+        $(this).addClass('animate__animated animate__fadeInUp');
+    });
+    
+    // Compteur de résultats en temps réel
+    function updateResultsCounter() {
+        const totalResults = $('.table-professional tbody tr').length - 1; // -1 pour exclure la ligne "aucun résultat"
+        $('.badge.badge-info').html('<i class="fas fa-database mr-1"></i>' + totalResults + ' bordereaux');
+    }
+    
+    // Auto-submit sur changement de filtre (optionnel)
+    $('.form-control-modern').on('change', function() {
+        // Décommenter pour auto-submit
+        // $('#advancedFilterForm').submit();
+    });
+    
+    console.log('✅ Système de filtres avancés initialisé');
+    console.log('🔍 ' + Object.keys(<?= json_encode($active_filters) ?>).length + ' filtres actifs détectés');
+});
+</script>
 
   <div class="modal fade" id="add-ticket" tabindex="-1" role="dialog" aria-labelledby="addTicketModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">

@@ -182,295 +182,1146 @@ $(document).ready(function() {
 });
 </script>
 
-<!-- Main row -->
+<!-- Styles Ultra-Professionnels pour Demandes -->
 <style>
-  .pagination-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 20px;
-}
+    /* ===== STYLES ULTRA-PROFESSIONNELS POUR DEMANDES ===== */
+    
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --danger-gradient: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --glass-border: rgba(255, 255, 255, 0.3);
+        --shadow-light: 0 8px 32px rgba(31, 38, 135, 0.15);
+        --shadow-heavy: 0 15px 35px rgba(31, 38, 135, 0.25);
+        --border-radius: 20px;
+        --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-.pagination-link {
-    padding: 8px;
-    text-decoration: none;
-    color: white;
-    background-color: #007bff; 
-    border: 1px solid #007bff;
-    border-radius: 4px; 
-    margin-right: 4px;
-}
+    /* Page Header */
+    .page-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 2rem 1.5rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-heavy);
+        position: relative;
+        overflow: hidden;
+    }
 
-.items-per-page-form {
-    margin-left: 20px;
-}
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: translate(50%, -50%);
+    }
 
-label {
-    margin-right: 5px;
-}
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
 
-.items-per-page-select {
-    padding: 6px;
-    border-radius: 4px; 
-}
+    .page-header p {
+        font-size: 1.1rem;
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+    }
 
-.submit-button {
-    padding: 6px 10px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px; 
-    cursor: pointer;
-}
- .custom-icon {
-            color: green;
-            font-size: 24px;
-            margin-right: 8px;
- }
- .spacing {
-    margin-right: 10px; 
-    margin-bottom: 20px;
-}
+    /* Action Buttons Container */
+    .action-buttons-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btn-professional {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        box-shadow: var(--shadow-light);
+        min-width: 200px;
+        justify-content: center;
+    }
+
+    .btn-professional:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-heavy);
+        text-decoration: none;
+        color: white;
+    }
+
+    .btn-professional.primary {
+        background: var(--primary-gradient);
+        color: white;
+    }
+
+    .btn-professional.danger {
+        background: var(--danger-gradient);
+        color: white;
+    }
+
+    .btn-professional.success {
+        background: var(--success-gradient);
+        color: white;
+    }
+
+    .btn-professional.dark {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+    }
+
+    /* Filters Container */
+    .filters-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+    }
+
+    .filters-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f8f9fa;
+    }
+
+    .filters-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-reset-filters {
+        padding: 0.5rem 1rem;
+        background: var(--warning-gradient);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-reset-filters:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .filter-group label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: end;
+    }
+
+    .btn-filter {
+        padding: 0.75rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .btn-filter.primary {
+        background: var(--primary-gradient);
+        color: white;
+    }
+
+    .btn-filter.secondary {
+        background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        color: white;
+    }
+
+    .btn-filter:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Active Filters Indicator */
+    .active-filters {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: #667eea;
+    }
+
+    .filter-tag {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .filter-tag .remove-filter {
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+    }
+
+    .filter-tag .remove-filter:hover {
+        opacity: 1;
+    }
+
+    /* Table Professional */
+    .table-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+        overflow: hidden;
+    }
+
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f8f9fa;
+    }
+
+    .table-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .table-professional {
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-professional thead th {
+        background: var(--primary-gradient);
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1rem 0.75rem;
+        border: none;
+        font-size: 0.8rem;
+        text-align: center;
+    }
+
+    .table-professional tbody tr {
+        background: white;
+        transition: var(--transition);
+    }
+
+    .table-professional tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-professional tbody td {
+        padding: 1rem 0.75rem;
+        border-bottom: 1px solid #f8f9fa;
+        font-size: 0.9rem;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .table-professional tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-badge.warning {
+        background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%);
+        color: white;
+    }
+
+    .status-badge.success {
+        background: var(--success-gradient);
+        color: white;
+    }
+
+    .status-badge.danger {
+        background: var(--danger-gradient);
+        color: white;
+    }
+
+    .status-badge.info {
+        background: var(--info-gradient);
+        color: white;
+    }
+
+    /* Action Buttons in Table */
+    .btn-action {
+        padding: 0.4rem 0.8rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        margin: 0.1rem;
+    }
+
+    .btn-action.edit {
+        background: var(--info-gradient);
+        color: white;
+    }
+
+    .btn-action.delete {
+        background: var(--danger-gradient);
+        color: white;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Date/Status Buttons */
+    .status-button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        width: 100%;
+        cursor: default;
+    }
+
+    .status-button.pending {
+        background: var(--danger-gradient);
+        color: white;
+    }
+
+    .status-button.completed {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+    }
+
+    /* Pagination Professional */
+    .pagination-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-top: 2rem;
+        box-shadow: var(--shadow-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .pagination-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pagination-btn {
+        padding: 0.5rem 1rem;
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+    }
+
+    .pagination-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .pagination-info {
+        padding: 0.5rem 1rem;
+        color: #7f8c8d;
+        font-weight: 500;
+    }
+
+    .items-per-page-form {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .items-per-page-select {
+        padding: 0.5rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        background: white;
+        font-size: 0.9rem;
+    }
+
+    .submit-button {
+        padding: 0.5rem 1rem;
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .submit-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Modal Improvements */
+    .modal-content {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-heavy);
+    }
+
+    .modal-header {
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+        padding: 1.5rem;
+    }
+
+    .modal-title {
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+
+    /* Styles pour les champs de montant */
+    .input-group-text {
+        font-weight: 600;
+        border: 2px solid #e9ecef;
+    }
+
+    .form-control.focused {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    }
+
+    /* Amélioration des modaux */
+    .modal-header.bg-primary {
+        background: var(--primary-gradient) !important;
+    }
+
+    .modal-header.bg-info {
+        background: var(--info-gradient) !important;
+    }
+
+    .input-group-text.bg-primary {
+        background: var(--primary-gradient) !important;
+        border-color: transparent !important;
+    }
+
+    .input-group-text.bg-info {
+        background: var(--info-gradient) !important;
+        border-color: transparent !important;
+    }
+
+    /* Animation pour les champs de saisie */
+    .form-control {
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        transform: translateY(-1px);
+    }
+
+    /* Styles pour le compteur de caractères */
+    .char-counter {
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        transition: color 0.3s ease;
+    }
+
+    .char-counter.text-warning {
+        color: #f39c12 !important;
+    }
+
+    .char-counter.text-danger {
+        color: #e74c3c !important;
+        font-weight: 600;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        transition: var(--transition);
+    }
+
+    .form-group:focus-within label {
+        color: #667eea;
+    }
+
+    /* Alert Improvements */
+    .alert {
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-light);
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, rgba(86, 171, 47, 0.1) 0%, rgba(168, 230, 207, 0.1) 100%);
+        border-left: 4px solid #56ab2f;
+        color: #2d5016;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, rgba(255, 65, 108, 0.1) 0%, rgba(255, 75, 43, 0.1) 100%);
+        border-left: 4px solid #ff416c;
+        color: #8b1538;
+    }
+
+    .alert-warning {
+        background: linear-gradient(135deg, rgba(240, 147, 251, 0.1) 0%, rgba(245, 87, 108, 0.1) 100%);
+        border-left: 4px solid #f093fb;
+        color: #7d1a7d;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 2rem;
+        }
+        
+        .action-buttons-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .btn-professional {
+            min-width: auto;
+            width: 100%;
+        }
+
+        .filters-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-actions {
+            flex-direction: column;
+        }
+
+        .filters-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+
+        .active-filters {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .filter-tag {
+            margin-right: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .table-container {
+            padding: 1rem;
+            overflow-x: auto;
+        }
+        
+        .pagination-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table-professional thead {
+            display: none;
+        }
+        
+        .table-professional tbody tr {
+            display: block;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+        }
+        
+        .table-professional tbody td {
+            display: block;
+            text-align: left;
+            border: none;
+            padding: 0.5rem 0;
+        }
+        
+        .table-professional tbody td::before {
+            content: attr(data-label) ": ";
+            font-weight: 700;
+            color: #667eea;
+            display: inline-block;
+            width: 120px;
+        }
+    }
 </style>
 
-  <style>
-        @media only screen and (max-width: 767px) {
+
+<!-- Page Header -->
+<div class="page-header">
+    <h1><i class="fas fa-file-invoice mr-3"></i>Gestion des Demandes de Sortie</h1>
+    <p>Gérez et suivez toutes les demandes de sortie avec des outils d'analyse et de traitement avancés</p>
+</div>
+
+<!-- Alerts Section -->
+<?php if (isset($_SESSION['warning'])): ?>
+    <div class="alert alert-warning alert-dismissible fade show animate-fade-in" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i>
+        <?= $_SESSION['warning'] ?>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <?php unset($_SESSION['warning']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['popup'])): ?>
+    <div class="alert alert-success alert-dismissible fade show animate-fade-in" role="alert">
+        <i class="fas fa-check-circle mr-2"></i>
+        Demande enregistrée avec succès
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <?php unset($_SESSION['popup']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['delete_pop'])): ?>
+    <div class="alert alert-danger alert-dismissible fade show animate-fade-in" role="alert">
+        <i class="fas fa-times-circle mr-2"></i>
+        Une erreur s'est produite lors de l'opération
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <?php unset($_SESSION['delete_pop']); ?>
+<?php endif; ?>
+
+<!-- Action Buttons -->
+<div class="action-buttons-container">
+    <button type="button" class="btn-professional primary" data-toggle="modal" data-target="#add-demande">
+        <i class="fas fa-plus-circle"></i>
+        Nouvelle Demande
+    </button>
+
+    <button type="button" class="btn-professional danger" data-toggle="modal" data-target="#print-bordereau">
+        <i class="fas fa-print"></i>
+        Imprimer Liste
+    </button>
+</div>
+
+<!-- Filters Section -->
+<div class="filters-container">
+    <div class="filters-header">
+        <div class="filters-title">
+            <i class="fas fa-filter"></i>
+            Filtres de Recherche
+        </div>
+        <button type="button" class="btn-reset-filters" onclick="resetFilters()">
+            <i class="fas fa-undo"></i>
+            Réinitialiser
+        </button>
+    </div>
+    
+    <form method="GET" action="" class="filters-form">
+        <div class="filters-grid">
+            <div class="filter-group">
+                <label for="filter_statut">
+                    <i class="fas fa-flag mr-1"></i>
+                    Statut
+                </label>
+                <select name="statut" id="filter_statut" class="form-control">
+                    <option value="all" <?= $statut === 'all' ? 'selected' : '' ?>>Tous les statuts</option>
+                    <option value="en_attente" <?= $statut === 'en_attente' ? 'selected' : '' ?>>En attente</option>
+                    <option value="approuve" <?= $statut === 'approuve' ? 'selected' : '' ?>>Approuvé</option>
+                    <option value="rejete" <?= $statut === 'rejete' ? 'selected' : '' ?>>Rejeté</option>
+                    <option value="paye" <?= $statut === 'paye' ? 'selected' : '' ?>>Payé</option>
+                </select>
+            </div>
             
-            th {
-                display: none; 
-            }
-            tbody tr {
-                display: block;
-                margin-bottom: 20px;
-                border: 1px solid #ccc;
-                padding: 10px;
-            }
-            tbody tr td::before {
-
-                font-weight: bold;
-                margin-right: 5px;
-            }
-        }
-        .margin-right-15 {
-        margin-right: 15px;
-       }
-        .block-container {
-      background-color:  #d7dbdd ;
-      padding: 20px;
-      border-radius: 5px;
-      width: 100%;
-      margin-bottom: 20px;
-    }
-    </style>
-
-
-<div class="row">
-    <?php if (isset($_SESSION['warning'])): ?>
-        <div class="col-12">
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                <?= $_SESSION['warning'] ?>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+            <div class="filter-group">
+                <label for="filter_date_debut">
+                    <i class="fas fa-calendar-alt mr-1"></i>
+                    Date début
+                </label>
+                <input type="date" name="date_debut" id="filter_date_debut" class="form-control" value="<?= htmlspecialchars($date_debut) ?>">
+            </div>
+            
+            <div class="filter-group">
+                <label for="filter_date_fin">
+                    <i class="fas fa-calendar-check mr-1"></i>
+                    Date fin
+                </label>
+                <input type="date" name="date_fin" id="filter_date_fin" class="form-control" value="<?= htmlspecialchars($date_fin) ?>">
+            </div>
+            
+            <div class="filter-group">
+                <label for="filter_search">
+                    <i class="fas fa-search mr-1"></i>
+                    Recherche
+                </label>
+                <input type="text" name="search" id="filter_search" class="form-control" 
+                       placeholder="N° demande ou motif..." value="<?= htmlspecialchars($search) ?>">
+            </div>
+            
+            <div class="filter-group filter-actions">
+                <button type="submit" class="btn-filter primary">
+                    <i class="fas fa-search"></i>
+                    Filtrer
+                </button>
+                <button type="button" class="btn-filter secondary" onclick="clearFilters()">
+                    <i class="fas fa-times"></i>
+                    Effacer
                 </button>
             </div>
         </div>
-        <?php unset($_SESSION['warning']); ?>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['popup'])): ?>
-        <div class="col-12">
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                Ticket enregistré avec succès
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        </div>
-        <?php unset($_SESSION['popup']); ?>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['delete_pop'])): ?>
-        <div class="col-12">
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                Une erreur s'est produite
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        </div>
-        <?php unset($_SESSION['delete_pop']); ?>
-    <?php endif; ?>
-
-    <div class="block-container">
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-demande">
-      <i class="fa fa-edit"></i>Enregistrer une demande
-    </button>
-
-    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#print-bordereau">
-      <i class="fa fa-print"></i> Imprimer la liste des demandes
-    </button>
-
-    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#search_ticket">
-      <i class="fa fa-search"></i> Rechercher une demande
-    </button>
-
-    <button type="button" class="btn btn-dark" onclick="window.location.href='export_tickets.php'">
-              <i class="fa fa-print"></i> Exporter la liste des demandes
-             </button>
-</div>
-
-
-
-  <div class="table-responsive">
-  <table class="table table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>N° Demande</th>
-                                            <th>Montant</th>
-                                            <th>Motif</th>
-                                            <th>Statut</th>
-                                            <th>Date Approbation</th>
-                                            <th>Approuvé par</th>
-                                            <th>Date Paiement</th>
-                                            <th>Payé par</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($demandes as $demande): ?>
-                                            <tr>
-                                                <td><?= date('d/m/Y H:i', strtotime($demande['date_demande'])) ?></td>
-                                                <td><?= htmlspecialchars($demande['numero_demande']) ?></td>
-                                                <td><?= number_format($demande['montant'], 0, ',', ' ') ?> FCFA</td>
-                                                <td><?= htmlspecialchars($demande['motif']) ?></td>
-                                                <td>
-                                                    <span class="badge badge-<?= getStatusBadgeClass($demande['statut']) ?>">
-                                                        <?= getStatusLabel($demande['statut']) ?>
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <?php if (empty($demande['date_approbation'])): ?>
-                                                        <button class="btn btn-danger btn-block" disabled>
-                                                            En attente de validation
-                                                        </button>
-                                                    <?php else: ?>
-                                                        <button class="btn btn-dark btn-block" disabled>
-                                                            <?= date('d/m/Y H:i', strtotime($demande['date_approbation'])) ?>
-                                                        </button>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td>
-                                                    <?php
-                                                    if (!empty($demande['approbateur_nom'])) {
-                                                        echo htmlspecialchars($demande['approbateur_nom'] . ' ' . $demande['approbateur_prenoms']);
-                                                    } else {
-                                                        echo '-';
-                                                    }
-                                                    ?>
-                                                </td>
-                                                <td>
-                                                    <?php if (empty($demande['date_paiement'])): ?>
-                                                        <button class="btn btn-danger btn-block" disabled>
-                                                            En attente de paiement
-                                                        </button>
-                                                    <?php else: ?>
-                                                        <button class="btn btn-dark btn-block" disabled>
-                                                            <?= date('d/m/Y H:i', strtotime($demande['date_paiement'])) ?>
-                                                        </button>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td>
-                                                    <?php
-                                                    if (!empty($demande['payeur_nom'])) {
-                                                        echo htmlspecialchars($demande['payeur_nom'] . ' ' . $demande['payeur_prenoms']);
-                                                    } else {
-                                                        echo '-';
-                                                    }
-                                                    ?>
-                                                </td>
-                                                <td>
-                                                    <?php if ($demande['statut'] === 'en_attente'): ?>
-                                                        <div class="btn-group">
-                                                            <button type="button" class="btn btn-info btn-sm" onclick="editDemande(<?= $demande['id_demande'] ?>)" title="Modifier">
-                                                                <i class="fas fa-edit"></i>
-                                                            </button>
-                                                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteDemande(<?= $demande['id_demande'] ?>)" title="Supprimer">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-
-</div>
-
-  <div class="pagination-container bg-secondary d-flex justify-content-center w-100 text-white p-3">
-    <?php if($page > 1): ?>
-        <a href="?page=<?= $page - 1 ?><?= isset($_GET['usine']) ? '&usine='.$_GET['usine'] : '' ?><?= isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '' ?><?= isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '' ?><?= isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '' ?>" class="btn btn-primary"><</a>
-    <?php endif; ?>
-    
-    <span class="mx-2"><?= $page . '/' . $total_pages ?></span>
-
-    <?php if($page < $total_pages): ?>
-        <a href="?page=<?= $page + 1 ?><?= isset($_GET['usine']) ? '&usine='.$_GET['usine'] : '' ?><?= isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '' ?><?= isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '' ?><?= isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '' ?>" class="btn btn-primary">></a>
-    <?php endif; ?>
-    
-    <form action="" method="get" class="items-per-page-form ml-3">
-        <?php if(isset($_GET['usine'])): ?>
-            <input type="hidden" name="usine" value="<?= htmlspecialchars($_GET['usine']) ?>">
-        <?php endif; ?>
-        <?php if(isset($_GET['date_creation'])): ?>
-            <input type="hidden" name="date_creation" value="<?= htmlspecialchars($_GET['date_creation']) ?>">
-        <?php endif; ?>
-        <?php if(isset($_GET['chauffeur'])): ?>
-            <input type="hidden" name="chauffeur" value="<?= htmlspecialchars($_GET['chauffeur']) ?>">
-        <?php endif; ?>
-        <?php if(isset($_GET['agent_id'])): ?>
-            <input type="hidden" name="agent_id" value="<?= htmlspecialchars($_GET['agent_id']) ?>">
-        <?php endif; ?>
-        <label for="limit">Afficher :</label>
-        <select name="limit" id="limit" class="items-per-page-select">
-            <option value="5" <?= $limit == 5 ? 'selected' : '' ?>>5</option>
-            <option value="10" <?= $limit == 10 ? 'selected' : '' ?>>10</option>
-            <option value="15" <?= $limit == 15 ? 'selected' : '' ?>>15</option>
-        </select>
-        <button type="submit" class="submit-button">Valider</button>
     </form>
 </div>
+
+
+
+<!-- Active Filters Indicator -->
+<?php 
+$active_filters = [];
+if ($statut !== 'all') $active_filters[] = 'Statut: ' . getStatusLabel($statut);
+if ($date_debut) $active_filters[] = 'Début: ' . date('d/m/Y', strtotime($date_debut));
+if ($date_fin) $active_filters[] = 'Fin: ' . date('d/m/Y', strtotime($date_fin));
+if ($search) $active_filters[] = 'Recherche: ' . htmlspecialchars($search);
+?>
+
+<?php if (!empty($active_filters)): ?>
+<div class="active-filters">
+    <i class="fas fa-filter mr-2"></i>
+    <strong>Filtres actifs:</strong>
+    <?php foreach ($active_filters as $filter): ?>
+        <span class="filter-tag">
+            <?= $filter ?>
+            <i class="fas fa-times remove-filter" onclick="removeFilter('<?= explode(':', $filter)[0] ?>')"></i>
+        </span>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
+
+<!-- Table Container -->
+<div class="table-container">
+    <div class="table-header">
+        <div class="table-title">
+            <i class="fas fa-list-alt"></i>
+            Liste des Demandes de Sortie
+            <?php if (!empty($active_filters)): ?>
+                <small class="text-muted">(filtrées)</small>
+            <?php endif; ?>
+        </div>
+        <div class="badge badge-info">
+            <i class="fas fa-database mr-1"></i>
+            <?= count($demandes) ?> demande<?= count($demandes) > 1 ? 's' : '' ?>
+            <?php if ($total_rows > count($demandes)): ?>
+                <small>sur <?= $total_rows ?> total</small>
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table-professional w-100">
+            <thead>
+                <tr>
+                    <th data-label="Date"><i class="fas fa-calendar mr-1"></i>Date</th>
+                    <th data-label="N° Demande"><i class="fas fa-hashtag mr-1"></i>N° Demande</th>
+                    <th data-label="Montant"><i class="fas fa-money-bill-wave mr-1"></i>Montant</th>
+                    <th data-label="Motif"><i class="fas fa-comment mr-1"></i>Motif</th>
+                    <th data-label="Statut"><i class="fas fa-flag mr-1"></i>Statut</th>
+                    <th data-label="Date Approbation"><i class="fas fa-check mr-1"></i>Approbation</th>
+                    <th data-label="Approuvé par"><i class="fas fa-user-check mr-1"></i>Approuvé par</th>
+                    <th data-label="Date Paiement"><i class="fas fa-credit-card mr-1"></i>Paiement</th>
+                    <th data-label="Payé par"><i class="fas fa-user-tie mr-1"></i>Payé par</th>
+                    <th data-label="Actions"><i class="fas fa-cogs mr-1"></i>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($demandes)): ?>
+                    <?php foreach ($demandes as $demande): ?>
+                        <tr>
+                            <td data-label="Date">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar-day text-primary mr-2"></i>
+                                    <?= date('d/m/Y H:i', strtotime($demande['date_demande'])) ?>
+                                </div>
+                            </td>
+                            <td data-label="N° Demande">
+                                <span class="font-weight-bold text-primary">
+                                    #<?= htmlspecialchars($demande['numero_demande']) ?>
+                                </span>
+                            </td>
+                            <td data-label="Montant">
+                                <div class="font-weight-bold text-success">
+                                    <?= number_format($demande['montant'], 0, ',', ' ') ?> <small>FCFA</small>
+                                </div>
+                            </td>
+                            <td data-label="Motif">
+                                <div class="text-truncate" style="max-width: 150px;" title="<?= htmlspecialchars($demande['motif']) ?>">
+                                    <?= htmlspecialchars($demande['motif']) ?>
+                                </div>
+                            </td>
+                            <td data-label="Statut">
+                                <span class="status-badge <?= getStatusBadgeClass($demande['statut']) ?>">
+                                    <?= getStatusLabel($demande['statut']) ?>
+                                </span>
+                            </td>
+                            <td data-label="Date Approbation">
+                                <?php if (empty($demande['date_approbation'])): ?>
+                                    <button class="status-button pending" disabled>
+                                        <i class="fas fa-clock mr-1"></i>
+                                        En attente
+                                    </button>
+                                <?php else: ?>
+                                    <button class="status-button completed" disabled>
+                                        <i class="fas fa-check mr-1"></i>
+                                        <?= date('d/m/Y H:i', strtotime($demande['date_approbation'])) ?>
+                                    </button>
+                                <?php endif; ?>
+                            </td>
+                            <td data-label="Approuvé par">
+                                <?php if (!empty($demande['approbateur_nom'])): ?>
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center mr-2" style="width: 30px; height: 30px; font-size: 0.7rem;">
+                                            <?= strtoupper(substr($demande['approbateur_nom'], 0, 2)) ?>
+                                        </div>
+                                        <small><?= htmlspecialchars($demande['approbateur_nom'] . ' ' . $demande['approbateur_prenoms']) ?></small>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td data-label="Date Paiement">
+                                <?php if (empty($demande['date_paiement'])): ?>
+                                    <button class="status-button pending" disabled>
+                                        <i class="fas fa-clock mr-1"></i>
+                                        En attente
+                                    </button>
+                                <?php else: ?>
+                                    <button class="status-button completed" disabled>
+                                        <i class="fas fa-credit-card mr-1"></i>
+                                        <?= date('d/m/Y H:i', strtotime($demande['date_paiement'])) ?>
+                                    </button>
+                                <?php endif; ?>
+                            </td>
+                            <td data-label="Payé par">
+                                <?php if (!empty($demande['payeur_nom'])): ?>
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center mr-2" style="width: 30px; height: 30px; font-size: 0.7rem;">
+                                            <?= strtoupper(substr($demande['payeur_nom'], 0, 2)) ?>
+                                        </div>
+                                        <small><?= htmlspecialchars($demande['payeur_nom'] . ' ' . $demande['payeur_prenoms']) ?></small>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td data-label="Actions">
+                                <?php if ($demande['statut'] === 'en_attente'): ?>
+                                    <div class="d-flex gap-1">
+                                        <button type="button" class="btn-action edit" onclick="editDemande(<?= $demande['id_demande'] ?>)" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn-action delete" onclick="deleteDemande(<?= $demande['id_demande'] ?>)" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="text-muted">
+                                        <i class="fas fa-lock mr-1"></i>
+                                        Verrouillé
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="10" class="text-center py-5">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="fas fa-file-invoice text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+                                <h5 class="text-muted mb-2">Aucune demande trouvée</h5>
+                                <p class="text-muted mb-3">Aucune demande ne correspond aux critères actuels</p>
+                                <button class="btn-professional primary" data-toggle="modal" data-target="#add-demande">
+                                    <i class="fas fa-plus-circle mr-2"></i>
+                                    Créer une nouvelle demande
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination Professional -->
+<?php if ($total_pages > 1): ?>
+<div class="pagination-container">
+    <div class="pagination-nav">
+        <?php if($page > 1): ?>
+            <a href="?page=<?= $page - 1 ?><?= isset($_GET['statut']) ? '&statut='.$_GET['statut'] : '' ?><?= isset($_GET['date_debut']) ? '&date_debut='.$_GET['date_debut'] : '' ?><?= isset($_GET['date_fin']) ? '&date_fin='.$_GET['date_fin'] : '' ?><?= isset($_GET['search']) ? '&search='.$_GET['search'] : '' ?>" class="pagination-btn" title="Page précédente">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        <?php endif; ?>
+        
+        <div class="pagination-info">
+            Page <?= $page ?> sur <?= $total_pages ?>
+        </div>
+
+        <?php if($page < $total_pages): ?>
+            <a href="?page=<?= $page + 1 ?><?= isset($_GET['statut']) ? '&statut='.$_GET['statut'] : '' ?><?= isset($_GET['date_debut']) ? '&date_debut='.$_GET['date_debut'] : '' ?><?= isset($_GET['date_fin']) ? '&date_fin='.$_GET['date_fin'] : '' ?><?= isset($_GET['search']) ? '&search='.$_GET['search'] : '' ?>" class="pagination-btn" title="Page suivante">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        <?php endif; ?>
+    </div>
+    
+    <form action="" method="get" class="items-per-page-form">
+        <?php if(isset($_GET['statut'])): ?>
+            <input type="hidden" name="statut" value="<?= htmlspecialchars($_GET['statut']) ?>">
+        <?php endif; ?>
+        <?php if(isset($_GET['date_debut'])): ?>
+            <input type="hidden" name="date_debut" value="<?= htmlspecialchars($_GET['date_debut']) ?>">
+        <?php endif; ?>
+        <?php if(isset($_GET['date_fin'])): ?>
+            <input type="hidden" name="date_fin" value="<?= htmlspecialchars($_GET['date_fin']) ?>">
+        <?php endif; ?>
+        <?php if(isset($_GET['search'])): ?>
+            <input type="hidden" name="search" value="<?= htmlspecialchars($_GET['search']) ?>">
+        <?php endif; ?>
+        <label for="limit" class="text-muted mr-2">
+            <i class="fas fa-list mr-1"></i>Afficher :
+        </label>
+        <select name="limit" id="limit" class="items-per-page-select">
+            <option value="5" <?= $limit == 5 ? 'selected' : '' ?>>5 demandes</option>
+            <option value="10" <?= $limit == 10 ? 'selected' : '' ?>>10 demandes</option>
+            <option value="15" <?= $limit == 15 ? 'selected' : '' ?>>15 demandes</option>
+            <option value="25" <?= $limit == 25 ? 'selected' : '' ?>>25 demandes</option>
+        </select>
+        <button type="submit" class="submit-button ml-2">
+            <i class="fas fa-check mr-1"></i>Appliquer
+        </button>
+    </form>
+</div>
+<?php endif; ?>
 
   <div class="modal fade" id="add-demande" tabindex="-1" role="dialog" aria-labelledby="addDemandeModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" id="addDemandeModalLabel">Enregistrer une demande</h4>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <div class="modal-header bg-primary text-white">
+          <h4 class="modal-title" id="addDemandeModalLabel">
+            <i class="fas fa-plus-circle mr-2"></i>Enregistrer une demande
+          </h4>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          <form class="forms-sample" method="post" action="traitement_demande.php">
-            <div class="card-body">
-              <div class="form-group">
-                <label for="montant">Montant</label>
-                <div class="input-group">
-                  <input type="number" step="0.01" min="0" class="form-control" id="montant" name="montant" placeholder="Montant demandé" required>
-                  <div class="input-group-append">
-                    <span class="input-group-text">FCFA</span>
-                  </div>
+          <form class="forms-sample" method="post" action="traitement_demande.php" id="form-add-demande">
+            <div class="form-group">
+              <label for="montant">
+                <i class="fas fa-money-bill-wave mr-1"></i>
+                Montant (FCFA)
+              </label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="montant" name="montant" 
+                       placeholder="Saisissez le montant..." 
+                       autocomplete="off" required>
+                <div class="input-group-append">
+                  <span class="input-group-text bg-primary text-white">FCFA</span>
                 </div>
               </div>
-              <div class="form-group">
-                <label for="motif">Motif de la sortie</label>
-                <textarea class="form-control" id="motif" name="motif" rows="3" placeholder="Décrivez le motif de votre demande de sortie" required></textarea>
+              <small class="form-text text-muted">
+                <i class="fas fa-info-circle mr-1"></i>
+                Le montant sera automatiquement formaté
+              </small>
+            </div>
+            
+            <div class="form-group">
+              <label for="motif">
+                <i class="fas fa-comment mr-1"></i>
+                Motif de la sortie
+              </label>
+              <textarea class="form-control" id="motif" name="motif" rows="4" 
+                        placeholder="Décrivez le motif de votre demande de sortie (minimum 10 caractères)..." 
+                        required maxlength="500"></textarea>
+              <small class="form-text text-muted">
+                <i class="fas fa-keyboard mr-1"></i>
+                <span class="char-counter">0/500 caractères</span>
+              </small>
+            </div>
+            
+            <input type="hidden" name="statut" value="en_attente">
+            
+            <div class="form-group mb-0">
+              <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                  <i class="fas fa-times mr-1"></i>Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" name="saveDemande">
+                  <i class="fas fa-save mr-1"></i>Enregistrer
+                </button>
               </div>
-              <input type="hidden" name="statut" value="en_attente">
-
-              <button type="submit" class="btn btn-primary mr-2" name="saveDemande">Enregistrer</button>
-              <button type="button" class="btn btn-light" data-dismiss="modal">Annuler</button>
             </div>
           </form>
         </div>
@@ -788,32 +1639,58 @@ document.getElementById('searchByBetweendateForm').addEventListener('submit', fu
 <div class="modal fade" id="edit-demande" tabindex="-1" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Modifier la demande</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <div class="modal-header bg-info text-white">
+                <h4 class="modal-title">
+                    <i class="fas fa-edit mr-2"></i>Modifier la demande
+                </h4>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="modifier_demande.php" method="post">
+            <form action="modifier_demande.php" method="post" id="form-edit-demande">
                 <div class="modal-body">
                     <input type="hidden" id="edit_id_demande" name="id_demande">
+                    
                     <div class="form-group">
-                        <label for="edit_montant">Montant</label>
+                        <label for="edit_montant">
+                            <i class="fas fa-money-bill-wave mr-1"></i>
+                            Montant (FCFA)
+                        </label>
                         <div class="input-group">
-                            <input type="number" class="form-control" id="edit_montant" name="montant" required min="0">
+                            <input type="text" class="form-control" id="edit_montant" name="montant" 
+                                   placeholder="Saisissez le montant..." 
+                                   autocomplete="off" required>
                             <div class="input-group-append">
-                                <span class="input-group-text">FCFA</span>
+                                <span class="input-group-text bg-info text-white">FCFA</span>
                             </div>
                         </div>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Le montant sera automatiquement formaté
+                        </small>
                     </div>
+                    
                     <div class="form-group">
-                        <label for="edit_motif">Motif</label>
-                        <textarea class="form-control" id="edit_motif" name="motif" rows="3" required></textarea>
+                        <label for="edit_motif">
+                            <i class="fas fa-comment mr-1"></i>
+                            Motif de la sortie
+                        </label>
+                        <textarea class="form-control" id="edit_motif" name="motif" rows="4" 
+                                  placeholder="Décrivez le motif de votre demande de sortie (minimum 10 caractères)..." 
+                                  required maxlength="500"></textarea>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-keyboard mr-1"></i>
+                            <span class="char-counter">0/500 caractères</span>
+                        </small>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary" name="update_demande">Enregistrer</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times mr-1"></i>Annuler
+                    </button>
+                    <button type="submit" class="btn btn-info" name="update_demande">
+                        <i class="fas fa-save mr-1"></i>Enregistrer les modifications
+                    </button>
                 </div>
             </form>
         </div>
@@ -972,34 +1849,329 @@ console.log('Bootstrap modal:', typeof $.fn.modal !== 'undefined' ? 'chargé' : 
 
 <script>
 $(document).ready(function() {
-    console.log('Document ready');
+    console.log('✅ Page Demandes initialisée avec succès');
     
-    // Fonction pour éditer une demande
+    // Animation des éléments au chargement
+    $('.action-buttons-container .btn-professional').each(function(index) {
+        $(this).css('animation-delay', (index * 0.1) + 's');
+        $(this).addClass('animate-fade-in-up');
+    });
+
+    // Animation des lignes du tableau
+    $('.table-professional tbody tr').each(function(index) {
+        $(this).css('animation-delay', (index * 0.05) + 's');
+        $(this).addClass('animate-fade-in');
+    });
+    
+    // Fonction pour éditer une demande (améliorée)
     window.editDemande = function(id) {
         console.log('Edit clicked:', id);
         
         // Récupérer les données de la ligne
         var row = $('button[onclick="editDemande(' + id + ')"]').closest('tr');
-        var montant = row.find('td:eq(2)').text().replace(' FCFA', '').replace(/\s/g, '');
-        var motif = row.find('td:eq(3)').text();
+        var montantText = row.find('td[data-label="Montant"] .font-weight-bold').text();
+        var montant = montantText.replace(' FCFA', '').replace(/\s/g, '').replace('FCFA', '');
+        var motif = row.find('td[data-label="Motif"] .text-truncate').attr('title') || row.find('td[data-label="Motif"] .text-truncate').text();
         
         console.log('Data:', { montant, motif });
         
         // Remplir le formulaire
         $('#edit_id_demande').val(id);
         $('#edit_montant').val(montant);
-        $('#edit_motif').val(motif);
+        $('#edit_motif').val(motif.trim());
         
-        // Afficher le modal
+        // Afficher le modal avec animation
         $('#edit-demande').modal('show');
+        
+        // Animation du modal
+        setTimeout(() => {
+            $('#edit-demande .modal-content').addClass('animate-fade-in-up');
+        }, 100);
     };
     
-    // Fonction pour supprimer une demande
+    // Fonction pour supprimer une demande (avec confirmation moderne)
     window.deleteDemande = function(id) {
         console.log('Delete clicked:', id);
-        $('#delete_id_demande').val(id);
-        $('#delete-demande').modal('show');
+        
+        Swal.fire({
+            title: 'Êtes-vous sûr ?',
+            text: "Cette demande sera définitivement supprimée !",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff416c',
+            cancelButtonColor: '#667eea',
+            confirmButtonText: 'Oui, supprimer !',
+            cancelButtonText: 'Annuler',
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdrop: 'rgba(0, 0, 0, 0.4)'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#delete_id_demande').val(id);
+                $('#delete-demande').modal('show');
+            }
+        });
     };
+
+    // Validation du formulaire d'ajout (améliorée)
+    $('#form-add-demande').on('submit', function(e) {
+        const montantField = $('#montant');
+        const montantValue = montantField.attr('data-value') || montantField.val().replace(/\s/g, '').replace(/[^\d]/g, '');
+        const motif = $('#motif').val().trim();
+        
+        if (!montantValue || parseInt(montantValue) <= 0) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Montant invalide',
+                text: 'Veuillez saisir un montant valide supérieur à 0',
+                confirmButtonColor: '#667eea'
+            });
+            montantField.focus();
+            return false;
+        }
+        
+        if (!motif || motif.length < 10) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Motif insuffisant',
+                text: 'Veuillez saisir un motif d\'au moins 10 caractères',
+                confirmButtonColor: '#667eea'
+            });
+            $('#motif').focus();
+            return false;
+        }
+        
+        // Restaurer la valeur numérique avant soumission
+        montantField.val(montantValue);
+        
+        // Animation de soumission
+        $(this).find('button[type="submit"]').html('<i class="fas fa-spinner fa-spin mr-2"></i>Enregistrement...');
+    });
+
+    // Validation du formulaire de modification (améliorée)
+    $('#form-edit-demande').on('submit', function(e) {
+        const montantField = $('#edit_montant');
+        const montantValue = montantField.attr('data-value') || montantField.val().replace(/\s/g, '').replace(/[^\d]/g, '');
+        const motif = $('#edit_motif').val().trim();
+        
+        if (!montantValue || parseInt(montantValue) <= 0) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Montant invalide',
+                text: 'Veuillez saisir un montant valide supérieur à 0',
+                confirmButtonColor: '#667eea'
+            });
+            montantField.focus();
+            return false;
+        }
+        
+        if (!motif || motif.length < 10) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Motif insuffisant',
+                text: 'Veuillez saisir un motif d\'au moins 10 caractères',
+                confirmButtonColor: '#667eea'
+            });
+            $('#edit_motif').focus();
+            return false;
+        }
+        
+        // Restaurer la valeur numérique avant soumission
+        montantField.val(montantValue);
+        
+        // Animation de soumission
+        $(this).find('button[type="submit"]').html('<i class="fas fa-spinner fa-spin mr-2"></i>Modification...');
+    });
+
+    // Formatage automatique des montants (amélioré)
+    $('#montant, #edit_montant').on('input', function() {
+        let value = $(this).val().replace(/\s/g, '');
+        
+        // Permettre seulement les chiffres
+        value = value.replace(/[^\d]/g, '');
+        
+        if (value && value.length > 0) {
+            // Stocker la valeur numérique dans un attribut data
+            $(this).attr('data-value', value);
+            
+            // Éviter le formatage pendant la saisie si le champ est focalisé
+            if (!$(this).hasClass('focused')) {
+                // Afficher la valeur formatée seulement si pas en cours de saisie
+                $(this).val(parseInt(value).toLocaleString('fr-FR'));
+            }
+        } else {
+            $(this).removeAttr('data-value');
+            $(this).val('');
+        }
+    });
+
+    // Gérer le focus pour une meilleure UX
+    $('#montant, #edit_montant').on('focus', function() {
+        $(this).addClass('focused');
+        const numericValue = $(this).attr('data-value');
+        if (numericValue) {
+            // Afficher la valeur numérique pure pendant l'édition
+            $(this).val(numericValue);
+        }
+    });
+
+    $('#montant, #edit_montant').on('blur', function() {
+        $(this).removeClass('focused');
+        const value = $(this).val().replace(/\s/g, '').replace(/[^\d]/g, '');
+        if (value && value.length > 0) {
+            $(this).attr('data-value', value);
+            // Formater à la perte de focus
+            $(this).val(parseInt(value).toLocaleString('fr-FR'));
+        } else {
+            $(this).removeAttr('data-value');
+            $(this).val('');
+        }
+    });
+
+    // Réinitialiser les champs quand les modaux s'ouvrent
+    $('#add-demande').on('show.bs.modal', function() {
+        $('#montant').val('').removeAttr('data-value').removeClass('focused');
+        $('#motif').val('');
+        $('.char-counter').text('0/500 caractères');
+    });
+
+    $('#edit-demande').on('show.bs.modal', function() {
+        $('#edit_montant').removeClass('focused');
+        $('.char-counter').text($('#edit_motif').val().length + '/500 caractères');
+    });
+
+    // Compteur de caractères pour le motif (amélioré)
+    $('#motif, #edit_motif').on('input', function() {
+        const maxLength = 500;
+        const currentLength = $(this).val().length;
+        const remaining = maxLength - currentLength;
+        
+        // Trouver le compteur dans le même groupe de formulaire
+        let counterElement = $(this).closest('.form-group').find('.char-counter');
+        
+        if (counterElement.length > 0) {
+            counterElement.text(`${currentLength}/${maxLength} caractères`);
+            
+            if (remaining < 50) {
+                counterElement.removeClass('text-muted').addClass('text-warning');
+            } else if (remaining < 20) {
+                counterElement.removeClass('text-muted text-warning').addClass('text-danger');
+            } else {
+                counterElement.removeClass('text-warning text-danger').addClass('text-muted');
+            }
+        }
+    });
+
+    // Initialiser les compteurs au chargement
+    $('#motif, #edit_motif').each(function() {
+        $(this).trigger('input');
+    });
+
+    // Gestion des filtres
+    window.resetFilters = function() {
+        window.location.href = window.location.pathname;
+    };
+
+    window.clearFilters = function() {
+        $('#filter_statut').val('all');
+        $('#filter_date_debut').val('');
+        $('#filter_date_fin').val('');
+        $('#filter_search').val('');
+    };
+
+    window.removeFilter = function(filterType) {
+        const url = new URL(window.location);
+        
+        switch(filterType) {
+            case 'Statut':
+                url.searchParams.delete('statut');
+                break;
+            case 'Début':
+                url.searchParams.delete('date_debut');
+                break;
+            case 'Fin':
+                url.searchParams.delete('date_fin');
+                break;
+            case 'Recherche':
+                url.searchParams.delete('search');
+                break;
+        }
+        
+        // Réinitialiser la page à 1
+        url.searchParams.delete('page');
+        
+        window.location.href = url.toString();
+    };
+
+    // Validation des dates
+    $('#filter_date_debut, #filter_date_fin').on('change', function() {
+        const dateDebut = $('#filter_date_debut').val();
+        const dateFin = $('#filter_date_fin').val();
+        
+        if (dateDebut && dateFin && dateDebut > dateFin) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Dates invalides',
+                text: 'La date de début doit être antérieure à la date de fin',
+                confirmButtonColor: '#667eea'
+            });
+            
+            if ($(this).attr('id') === 'filter_date_fin') {
+                $(this).val('');
+            } else {
+                $('#filter_date_fin').val('');
+            }
+        }
+    });
+
+    // Animation des filtres
+    $('.filters-container .filter-group').each(function(index) {
+        $(this).css('animation-delay', (index * 0.1) + 's');
+        $(this).addClass('animate-fade-in-up');
+    });
+
+    // Animation des tags de filtres actifs
+    $('.filter-tag').each(function(index) {
+        $(this).css('animation-delay', (index * 0.1) + 's');
+        $(this).addClass('animate-fade-in');
+    });
+
+    // Recherche en temps réel (optionnelle)
+    let searchTimeout;
+    $('#filter_search').on('input', function() {
+        clearTimeout(searchTimeout);
+        const searchTerm = $(this).val();
+        
+        if (searchTerm.length >= 3 || searchTerm.length === 0) {
+            searchTimeout = setTimeout(() => {
+                // Auto-submit après 1 seconde de pause
+                // $(this).closest('form').submit();
+            }, 1000);
+        }
+    });
+
+    // Soumission du formulaire de filtres
+    $('.filters-form').on('submit', function(e) {
+        // Réinitialiser la page à 1 lors d'un nouveau filtre
+        $('<input>').attr({
+            type: 'hidden',
+            name: 'page',
+            value: '1'
+        }).appendTo(this);
+        
+        // Animation du bouton
+        $(this).find('.btn-filter.primary').html('<i class="fas fa-spinner fa-spin mr-2"></i>Filtrage...');
+    });
+
+    console.log('📊 Statistiques chargées:', {
+        totalDemandes: <?= count($demandes) ?>,
+        totalPages: <?= $total_pages ?>,
+        pageActuelle: <?= $page ?>,
+        filtresActifs: <?= count($active_filters) ?>
+    });
 });
 </script>
 </body>

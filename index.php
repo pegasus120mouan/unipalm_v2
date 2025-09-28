@@ -347,6 +347,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       transform: translateY(-50%) scale(1.1);
     }
     
+    /* Bouton afficher/masquer mot de passe */
+    .toggle-password {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+    .toggle-password:hover {
+      color: #ffffff;
+    }
+    
     /* Bouton de connexion */
     .login-button {
       width: 100%;
@@ -552,6 +570,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               required
               autocomplete="current-password"
             >
+            <button type="button" class="toggle-password" aria-label="Afficher le mot de passe">
+              <i class="fa-solid fa-eye"></i>
+            </button>
           </div>
         </div>
 
@@ -632,6 +653,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           }
         });
       });
+
+      // Afficher / masquer le mot de passe
+      const togglePwdBtn = document.querySelector('.toggle-password');
+      const pwdInput = document.getElementById('password');
+      if (togglePwdBtn && pwdInput) {
+        togglePwdBtn.addEventListener('click', function() {
+          const isHidden = pwdInput.getAttribute('type') === 'password';
+          pwdInput.setAttribute('type', isHidden ? 'text' : 'password');
+          this.innerHTML = isHidden 
+            ? '<i class="fa-solid fa-eye-slash"></i>' 
+            : '<i class="fa-solid fa-eye"></i>';
+          this.setAttribute('aria-label', isHidden ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+        });
+      }
     });
     
     // Effet de parallaxe léger
