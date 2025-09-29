@@ -6,8 +6,12 @@ $isLocal = (
     $_SERVER['HTTP_HOST'] === 'localhost' || 
     $_SERVER['HTTP_HOST'] === '127.0.0.1' || 
     strpos($_SERVER['HTTP_HOST'], 'localhost:') === 0 ||
-    strpos($_SERVER['HTTP_HOST'], '.local') !== false
+    strpos($_SERVER['HTTP_HOST'], '.local') !== false ||
+    strpos($_SERVER['HTTP_HOST'], 'unipalm.test') !== false  // Ajout pour Laragon
 );
+
+// FORCER LOCAL pour debug (à supprimer après test)
+$isLocal = true;
 
 // Configuration des erreurs selon l'environnement
 if ($isLocal) {
@@ -27,7 +31,8 @@ $__PUBLIC_SCRIPTS = [
     'login_verification.php',
     'register.php',
     'connexion-test.php',
-    'debug_online.php'
+    'debug_online.php',
+    'ponts.php'  // Temporaire pour test
 ];
 
 $__current_script = basename($_SERVER['SCRIPT_NAME'] ?? '');

@@ -1054,6 +1054,25 @@ if (!isset($_SESSION['user_id'])) {
               </ul>
             </li>
 
+
+            <li class="nav-item">
+              <a href="javascript:void(0)" class="nav-link">
+                <i class="nav-icon fas fa-door-open"></i>
+                <p>
+                  Gestion des ponts
+                  <i class="fas fa-angle-left right"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="ponts.php" class="nav-link">
+                    <i class="fas fa-list nav-icon"></i>
+                    <p>Liste des ponts</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+
             <li class="nav-header"><strong>TRANSACTIONS</strong></li>
             <li class="nav-item">
               <a href="approvisionnement.php" class="nav-link">
