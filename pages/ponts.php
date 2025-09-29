@@ -916,6 +916,11 @@ include('header.php');
                 </div>
                 
                 <div id="qrCodeInfo" style="display:none;">
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-mobile-alt mr-2"></i>
+                        <strong>Scannez ce QR code</strong> pour accéder à la page de vérification en ligne
+                    </div>
+                    
                     <div class="card mt-3">
                         <div class="card-header bg-light">
                             <h6 class="mb-0"><i class="fas fa-info-circle mr-2"></i>Informations du Pont-Bascule</h6>
@@ -934,6 +939,11 @@ include('header.php');
                             <p><strong>Coopérative:</strong> <span id="qr-cooperative"></span></p>
                         </div>
                     </div>
+                    
+                    <div class="small text-muted mt-2">
+                        URL de vérification: <br>
+                        <code id="verification-url"></code>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -942,6 +952,9 @@ include('header.php');
                 </button>
                 <button type="button" class="btn btn-primary" id="printQRCode" style="display:none;">
                     <i class="fas fa-print mr-1"></i>Imprimer
+                </button>
+                <button type="button" class="btn btn-info" id="testVerification" style="display:none;">
+                    <i class="fas fa-external-link-alt mr-1"></i>Tester la vérification
                 </button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
             </div>
@@ -1153,9 +1166,10 @@ function generateQRCode(id, code, gerant, latitude, longitude, cooperative) {
     document.getElementById('downloadQRCode').style.display = 'none';
     document.getElementById('printQRCode').style.display = 'none';
     
-    var qrText = 'UNIPALM - Pont-Bascule\nCode: ' + code + '\nGérant: ' + gerant + '\nCoopérative: ' + (cooperative || 'Non spécifiée') + '\nGPS: ' + latitude + ', ' + longitude + '\nCarte: https://maps.google.com/?q=' + latitude + ',' + longitude + '\nGénéré le: ' + new Date().toLocaleDateString('fr-FR');
+    // Créer l'URL de vérification avec le code du pont
+    var verificationUrl = 'https://unipalm.ci/verification_pont.php?code=' + encodeURIComponent(code);
     
-    var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(qrText) + '&format=png&margin=10';
+    var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(verificationUrl) + '&format=png&margin=10';
     
     setTimeout(function() {
         var qrImage = document.createElement('img');
@@ -1172,10 +1186,12 @@ function generateQRCode(id, code, gerant, latitude, longitude, cooperative) {
         document.getElementById('qr-latitude').textContent = latitude;
         document.getElementById('qr-longitude').textContent = longitude;
         document.getElementById('qr-cooperative').textContent = cooperative || 'Non spécifiée';
+        document.getElementById('verification-url').textContent = verificationUrl;
         
         document.getElementById('qrCodeInfo').style.display = 'block';
         document.getElementById('downloadQRCode').style.display = 'inline-block';
         document.getElementById('printQRCode').style.display = 'inline-block';
+        document.getElementById('testVerification').style.display = 'inline-block';
         
         document.getElementById('downloadQRCode').onclick = function() {
             var link = document.createElement('a');
@@ -1184,6 +1200,10 @@ function generateQRCode(id, code, gerant, latitude, longitude, cooperative) {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        };
+        
+        document.getElementById('testVerification').onclick = function() {
+            window.open(verificationUrl, '_blank');
         };
         
     }, 1500);
