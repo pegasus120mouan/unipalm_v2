@@ -1,7 +1,7 @@
 <?php
 require_once '../inc/functions/connexion.php';
 //require_once '../inc/functions/requete/requetes_selection_boutique.php';
-include('header.php');
+include('header_operateurs.php');
 
 
 //$_SESSION['user_id'] = $user['id'];

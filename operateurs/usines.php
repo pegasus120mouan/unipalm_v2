@@ -6,7 +6,7 @@ require_once '../inc/functions/requete/requete_chef_equipes.php';
 require_once '../inc/functions/requete/requete_vehicules.php';
 require_once '../inc/functions/requete/requete_agents.php';
 //require_once '../inc/functions/requete/requetes_selection_boutique.php';
-include('header.php');
+include('header_operateurs.php');
 
 //$_SESSION['user_id'] = $user['id'];
  $id_user=$_SESSION['user_id'];

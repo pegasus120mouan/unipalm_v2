@@ -1,7 +1,7 @@
 <?php
 require_once '../inc/functions/connexion.php';
 require_once '../inc/functions/requete/requete_agents.php';
-include('header.php');
+include('header_operateurs.php');
 
 // Récupérer la liste des agents
 $agents = getAgents($conn);

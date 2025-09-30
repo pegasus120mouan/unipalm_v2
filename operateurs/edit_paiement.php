@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-include('header.php');
+include('header_operateurs.php');
 ?>
 
 <div class="container-fluid">

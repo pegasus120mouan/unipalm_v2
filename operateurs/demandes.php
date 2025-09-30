@@ -1,6 +1,6 @@
 <?php
 require_once '../inc/functions/connexion.php';
-include('header.php');
+include('header_operateurs.php');
 
 // Paramètres de pagination
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;

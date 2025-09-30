@@ -28,6 +28,12 @@ function getTickets($conn, $filters = []) {
         $params[':numero_ticket'] = $filters['numero_ticket'];
     }
 
+    // Filtre par utilisateur
+    if (!empty($filters['utilisateur'])) {
+        $where_conditions[] = "t.id_utilisateur = :utilisateur";
+        $params[':utilisateur'] = $filters['utilisateur'];
+    }
+
     // Filtre par date
     if (!empty($filters['date_debut']) && !empty($filters['date_fin'])) {
         $where_conditions[] = "DATE(t.date_ticket) BETWEEN :date_debut AND :date_fin";
@@ -79,7 +85,7 @@ function getTickets($conn, $filters = []) {
     }
 }
 
-function getTicketsJour($conn, $agent_id = null, $usine_id = null, $date_debut = null, $date_fin = null, $numero_ticket = null) {
+function getTicketsJour($conn, $agent_id = null, $usine_id = null, $date_debut = null, $date_fin = null, $numero_ticket = null, $utilisateur_id = null) {
     $sql = "SELECT t.*, 
             CONCAT(u.nom, ' ', u.prenoms) AS utilisateur_nom_complet,
             u.contact AS utilisateur_contact,
@@ -115,6 +121,10 @@ function getTicketsJour($conn, $agent_id = null, $usine_id = null, $date_debut =
         $sql .= " AND t.numero_ticket LIKE :numero_ticket";
     }
 
+    if ($utilisateur_id) {
+        $sql .= " AND t.id_utilisateur = :utilisateur_id";
+    }
+
     $sql .= " ORDER BY t.created_at DESC";
 
     try {
@@ -135,6 +145,9 @@ function getTicketsJour($conn, $agent_id = null, $usine_id = null, $date_debut =
         if ($numero_ticket) {
             $stmt->bindValue(':numero_ticket', '%' . $numero_ticket . '%', PDO::PARAM_STR);
         }
+        if ($utilisateur_id) {
+            $stmt->bindValue(':utilisateur_id', $utilisateur_id, PDO::PARAM_INT);
+        }
         
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -144,7 +157,7 @@ function getTicketsJour($conn, $agent_id = null, $usine_id = null, $date_debut =
     }
 }
 
-function getTicketsAttente($conn, $agent_id = null, $usine_id = null, $date_debut = null, $date_fin = null, $numero_ticket = null) {
+function getTicketsAttente($conn, $agent_id = null, $usine_id = null, $date_debut = null, $date_fin = null, $numero_ticket = null, $utilisateur_id = null) {
     $sql = "SELECT t.*, 
             CONCAT(u.nom, ' ', u.prenoms) AS utilisateur_nom_complet,
             u.contact AS utilisateur_contact,
@@ -181,6 +194,10 @@ function getTicketsAttente($conn, $agent_id = null, $usine_id = null, $date_debu
         $sql .= " AND t.numero_ticket LIKE :numero_ticket";
     }
 
+    if ($utilisateur_id) {
+        $sql .= " AND t.id_utilisateur = :utilisateur_id";
+    }
+
     $sql .= " ORDER BY t.created_at DESC";
 
     try {
@@ -200,6 +217,9 @@ function getTicketsAttente($conn, $agent_id = null, $usine_id = null, $date_debu
         }
         if ($numero_ticket) {
             $stmt->bindValue(':numero_ticket', '%' . $numero_ticket . '%', PDO::PARAM_STR);
+        }
+        if ($utilisateur_id) {
+            $stmt->bindValue(':utilisateur_id', $utilisateur_id, PDO::PARAM_INT);
         }
         
         $stmt->execute();
@@ -327,7 +347,7 @@ function getTicketsAttenteByUsine($conn, $id_usine) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getTicketsValides($conn, $agent_id = null, $usine_id = null, $date_debut = null, $date_fin = null) {
+function getTicketsValides($conn, $agent_id = null, $usine_id = null, $date_debut = null, $date_fin = null, $utilisateur_id = null) {
     $sql = "SELECT 
             t.*, 
             CONCAT(u.nom, ' ', u.prenoms) AS utilisateur_nom_complet,
@@ -360,6 +380,10 @@ function getTicketsValides($conn, $agent_id = null, $usine_id = null, $date_debu
         $sql .= " AND DATE(t.created_at) <= :date_fin";
     }
 
+    if ($utilisateur_id) {
+        $sql .= " AND t.id_utilisateur = :utilisateur_id";
+    }
+
     $sql .= " ORDER BY t.date_validation_boss DESC";
 
     try {
@@ -377,6 +401,9 @@ function getTicketsValides($conn, $agent_id = null, $usine_id = null, $date_debu
         if ($date_fin) {
             $stmt->bindValue(':date_fin', $date_fin, PDO::PARAM_STR);
         }
+        if ($utilisateur_id) {
+            $stmt->bindValue(':utilisateur_id', $utilisateur_id, PDO::PARAM_INT);
+        }
         
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -386,7 +413,7 @@ function getTicketsValides($conn, $agent_id = null, $usine_id = null, $date_debu
     }
 }
 
-function getTicketsPayes($conn, $agent_id = null, $usine_id = null, $date_debut = null, $date_fin = null, $numero_ticket = null) {
+function getTicketsPayes($conn, $agent_id = null, $usine_id = null, $date_debut = null, $date_fin = null, $numero_ticket = null, $utilisateur_id = null) {
     $sql = "SELECT 
         t.id_ticket,
         t.date_ticket,
@@ -436,6 +463,10 @@ function getTicketsPayes($conn, $agent_id = null, $usine_id = null, $date_debut 
         $sql .= " AND t.numero_ticket LIKE :numero_ticket";
     }
 
+    if ($utilisateur_id) {
+        $sql .= " AND t.id_utilisateur = :utilisateur_id";
+    }
+
     $sql .= " ORDER BY t.date_ticket DESC";
 
     try {
@@ -455,6 +486,9 @@ function getTicketsPayes($conn, $agent_id = null, $usine_id = null, $date_debut 
         }
         if ($numero_ticket) {
             $stmt->bindValue(':numero_ticket', '%' . $numero_ticket . '%', PDO::PARAM_STR);
+        }
+        if ($utilisateur_id) {
+            $stmt->bindValue(':utilisateur_id', $utilisateur_id, PDO::PARAM_INT);
         }
         
         $stmt->execute();
@@ -646,7 +680,7 @@ function updateTicket($conn, $id_ticket, $date_ticket, $numero_ticket) {
     }
 }
 
-function searchTickets($conn, $usine = null, $date = null, $chauffeur = null, $agent = null, $numero_ticket = null) {
+function searchTickets($conn, $usine = null, $date = null, $chauffeur = null, $agent = null, $numero_ticket = null, $utilisateur = null) {
     $sql = "SELECT 
         t.*,
         CONCAT(u.nom, ' ', u.prenoms) AS utilisateur_nom_complet,
@@ -690,6 +724,11 @@ function searchTickets($conn, $usine = null, $date = null, $chauffeur = null, $a
     if ($numero_ticket) {
         $sql .= " AND t.numero_ticket = :numero_ticket";
         $params[':numero_ticket'] = $numero_ticket;
+    }
+
+    if ($utilisateur) {
+        $sql .= " AND t.id_utilisateur = :utilisateur";
+        $params[':utilisateur'] = $utilisateur;
     }
 
     try {

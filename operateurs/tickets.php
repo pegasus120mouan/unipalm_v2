@@ -10,17 +10,34 @@ require_once '../inc/functions/requete/requete_agents.php';
 $limit = $_GET['limit'] ?? 15;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 
+// Récupérer l'ID de l'utilisateur connecté
+$id_user = $_SESSION['user_id'];
+
 // Récupérer les paramètres de recherche
 $search_usine = $_GET['usine'] ?? null;
 $search_date = $_GET['date_creation'] ?? null;
 $search_chauffeur = $_GET['chauffeur'] ?? null;
 $search_agent = $_GET['agent_id'] ?? null;
+$search_numero_ticket = $_GET['numero_ticket'] ?? null;
 
-// Récupérer les données (functions)
-if ($search_usine || $search_date || $search_chauffeur || $search_agent) {
-    $tickets = searchTickets($conn, $search_usine, $search_date, $search_chauffeur, $search_agent);
+// Préparer les filtres pour getTickets
+$filters = [];
+
+// Ajouter le filtre par utilisateur connecté
+$filters['utilisateur'] = $id_user;
+
+// Ajouter les autres filtres si présents
+if ($search_usine) $filters['usine'] = $search_usine;
+if ($search_agent) $filters['agent'] = $search_agent;
+if ($search_chauffeur) $filters['vehicule'] = $search_chauffeur;
+if ($search_numero_ticket) $filters['numero_ticket'] = $search_numero_ticket;
+if ($search_date) $filters['date_debut'] = $filters['date_fin'] = $search_date;
+
+// Récupérer les données avec filtres
+if ($search_usine || $search_date || $search_chauffeur || $search_agent || $search_numero_ticket) {
+    $tickets = searchTickets($conn, $search_usine, $search_date, $search_chauffeur, $search_agent, $search_numero_ticket, $id_user);
 } else {
-    $tickets = getTickets($conn);
+    $tickets = getTickets($conn, $filters);
 }
 
 // Vérifiez si des tickets existent avant de procéder
@@ -41,7 +58,7 @@ $chefs_equipes = getChefEquipes($conn);
 $vehicules = getVehicules($conn);
 $agents = getAgents($conn);
 
-include('header.php');
+include('header_operateurs.php');
 ?>
 
 <!-- Message d'erreur/succès -->
@@ -68,160 +85,375 @@ include('header.php');
 <!-- Reste du code HTML -->
 
 <style>
-/* Styles communs pour les formulaires */
-.form-group {
-    margin-bottom: 1rem;
+/* ===== STYLES PROFESSIONNELS POUR TICKETS.PHP ===== */
+
+/* Variables CSS pour cohérence */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+    --danger-color: #e74c3c;
+    --light-bg: #f8f9fa;
+    --border-color: #dee2e6;
+    --text-muted: #6c757d;
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --border-radius: 0.375rem;
+    --transition: all 0.3s ease;
 }
 
-.form-group label {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    display: block;
+/* Conteneur principal des actions */
+.actions-container {
+    background: linear-gradient(135deg, var(--light-bg) 0%, #ffffff 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
 }
 
-/* Styles pour les champs de saisie */
-#input,
-#input_agent,
-#input_vehicule {
-    padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    color: #495057;
-    background-color: #fff;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+.actions-container .btn {
+    margin: 0.25rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
 }
 
-#input:focus,
-#input_agent:focus,
-#input_vehicule:focus {
-    color: #495057;
-    background-color: #fff;
-    border-color: #80bdff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+.actions-container .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
-#input::placeholder,
-#input_agent::placeholder,
-#input_vehicule::placeholder {
-    color: #6c757d;
-    opacity: 1;
-}
-
-/* Styles pour la liste déroulante */
-.list {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
+/* Amélioration du tableau */
+.table-container {
     background: white;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    border: 1px solid #ddd;
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    z-index: 1000;
-    max-height: 200px;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    max-height: 70vh;
     overflow-y: auto;
-    display: none;
+    overflow-x: hidden;
 }
 
-.list li {
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+#example1 {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
-.list li:hover {
+#example1 thead th {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+    padding: 1rem 0.5rem;
+    border: none;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#example1 tbody tr {
+    transition: var(--transition);
+    border-bottom: 1px solid #f1f3f4;
+}
+
+#example1 tbody tr:hover {
     background-color: #f8f9fa;
+    transform: scale(1.01);
+    box-shadow: var(--shadow-sm);
 }
 
-.list li strong {
-    color: #007bff;
+#example1 tbody td {
+    padding: 1rem 0.5rem;
+    vertical-align: middle;
+    border-top: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
 }
 
-/* Styles pour le responsive */
-@media only screen and (max-width: 767px) {
-    th {
-        display: none; 
-    }
-    tbody tr {
-        display: block;
-        margin-bottom: 20px;
-        border: 1px solid #ccc;
-        padding: 10px;
-    }
-    tbody tr td::before {
-        font-weight: bold;
-        margin-right: 5px;
-    }
+/* Badges et statuts améliorés */
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: center;
+    min-width: 120px;
+    display: inline-block;
+    box-shadow: var(--shadow-sm);
 }
 
-/* Utilitaires */
-.margin-right-15 {
-    margin-right: 15px;
+.status-pending {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+    color: #2d3436;
 }
 
-.block-container {
-    background-color: #d7dbdd;
-    padding: 20px;
-    border-radius: 5px;
-    width: 100%;
-    margin-bottom: 20px;
+.status-validated {
+    background: linear-gradient(135deg, #81ecec 0%, #00cec9 100%);
+    color: white;
 }
 
-.pagination-container {
+.status-paid {
+    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+    color: white;
+}
+
+.status-unpaid {
+    background: linear-gradient(135deg, #fab1a0 0%, #e17055 100%);
+    color: white;
+}
+
+/* Boutons d'actions améliorés */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.action-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 20px;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-md);
+}
+
+.action-btn.edit {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #74b9ff 100%);
+    color: white;
+}
+
+.action-btn.delete {
+    background: linear-gradient(135deg, var(--danger-color) 0%, #fd79a8 100%);
+    color: white;
+}
+
+.action-btn:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Loader amélioré */
+#loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.loader-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--light-bg);
+    border-top: 4px solid var(--secondary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Pagination professionnelle */
+.pagination-container {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    margin-top: 1.5rem;
 }
 
 .pagination-link {
-    padding: 8px;
+    padding: 0.75rem 1rem;
+    margin: 0 0.25rem;
+    background: white;
+    color: var(--primary-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
     text-decoration: none;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.pagination-link:hover {
+    background: var(--secondary-color);
     color: white;
-    background-color: #007bff; 
-    border: 1px solid #007bff;
-    border-radius: 4px; 
-    margin-right: 4px;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
 }
 
-.items-per-page-form {
-    margin-left: 20px;
+/* Formulaires améliorés */
+.form-group label {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
 }
 
-label {
-    margin-right: 5px;
+.form-control {
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 0.75rem;
+    transition: var(--transition);
+    font-size: 1rem;
 }
 
-.items-per-page-select {
-    padding: 6px;
-    border-radius: 4px; 
+.form-control:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    outline: none;
 }
 
-.submit-button {
-    padding: 6px 10px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px; 
+/* Autocomplete amélioré */
+.list {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1050;
+}
+
+.list li {
+    padding: 0.75rem 1rem;
     cursor: pointer;
+    transition: var(--transition);
+    border-bottom: 1px solid #f1f3f4;
 }
 
-.custom-icon {
-    color: green;
-    font-size: 24px;
-    margin-right: 8px;
+.list li:hover {
+    background: var(--light-bg);
+    color: var(--secondary-color);
 }
 
-.spacing {
-    margin-right: 10px; 
-    margin-bottom: 20px;
+.list li:last-child {
+    border-bottom: none;
+}
+
+/* Responsive amélioré */
+@media (max-width: 768px) {
+    .actions-container {
+        padding: 1rem;
+    }
+    
+    .actions-container .btn {
+        width: 100%;
+        margin: 0.25rem 0;
+    }
+    
+    .table-responsive {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+    
+    #example1 thead {
+        display: none;
+    }
+    
+    #example1 tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        padding: 1rem;
+    }
+    
+    #example1 tbody td {
+        display: block;
+        text-align: left !important;
+        padding: 0.5rem 0;
+        border: none;
+    }
+    
+    #example1 tbody td:before {
+        content: attr(data-label) ": ";
+        font-weight: 600;
+        color: var(--primary-color);
+        display: inline-block;
+        width: 120px;
+    }
+}
+
+/* Modales améliorées */
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%);
+    color: white;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.modal-content {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+}
+
+.modal-footer .btn {
+    border-radius: var(--border-radius);
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+/* Utilitaires */
+.text-gradient {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.card-hover {
+    transition: var(--transition);
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
 }
 </style>
 
@@ -292,32 +524,48 @@ label {
         <?php unset($_SESSION['delete_pop']); ?>
     <?php endif; ?>
 
-    <div class="block-container">
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-ticket">
-      <i class="fa fa-edit"></i>Enregistrer un ticket
-    </button>
-    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#print-bordereau-agent">
-      <i class="fa fa-print"></i> Imprimer Bordereau
-    </button>
-    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#print-bordereau">
-      <i class="fas fa-file-pdf"></i> Imprimer ticket par usine
-    </button>
-    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#search_ticket">
-      <i class="fa fa-search"></i> Rechercher un ticket
-    </button>
-
-    <button type="button" class="btn btn-dark" onclick="window.location.href='export_tickets.php'">
-              <i class="fa fa-print"></i> Exporter tous  les tickets
-    </button>
-
-    <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#exportDateModal">
-              <i class="fas fa-file-excel"></i> Exporter  les tickets sur une période
-    </button>
- 
+<!-- Section des boutons d'actions -->
+<div class="actions-container fade-in-up">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                <div class="d-flex flex-wrap">
+                    <button type="button" class="btn btn-primary card-hover" data-toggle="modal" data-target="#add-ticket">
+                        <i class="fas fa-plus mr-2"></i>Enregistrer un ticket
+                    </button>
+                    <button type="button" class="btn btn-success card-hover" data-toggle="modal" data-target="#search_ticket">
+                        <i class="fas fa-search mr-2"></i>Rechercher un ticket
+                    </button>
+                    <button type="button" class="btn btn-info card-hover" data-toggle="modal" data-target="#print-bordereau">
+                        <i class="fas fa-file-pdf mr-2"></i>Imprimer par usine
+                    </button>
+                    <button type="button" class="btn btn-warning card-hover" data-toggle="modal" data-target="#print-bordereau-agent">
+                        <i class="fas fa-print mr-2"></i>Bordereau
+                    </button>
+                </div>
+                <div class="d-flex flex-wrap mt-2 mt-md-0">
+                    <button type="button" class="btn btn-dark card-hover" onclick="window.location.href='export_tickets.php'">
+                        <i class="fas fa-download mr-2"></i>Exporter tous
+                    </button>
+                    <button type="button" class="btn btn-outline-primary card-hover" data-toggle="modal" data-target="#exportDateModal">
+                        <i class="fas fa-calendar-alt mr-2"></i>Exporter période
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-  <div class="table-responsive">
-    <table id="example1" class="table table-bordered table-striped">
+<!-- Conteneur du tableau -->
+<div class="table-container fade-in-up">
+    <!-- Loader amélioré -->
+    <div id="loader" class="text-center">
+        <div class="loader-spinner"></div>
+        <h5 class="text-muted">Chargement des tickets...</h5>
+    </div>
+    <!-- Table qui sera initialement cachée -->
+    <div class="table-responsive" style="overflow-x: hidden;">
+        <table id="example1" class="table table-hover" style="display: none; width: 100%; table-layout: fixed;">
 
  <!-- <table style="max-height: 90vh !important; overflow-y: scroll !important" id="example1" class="table table-bordered table-striped">-->
     <thead>
@@ -352,75 +600,79 @@ label {
           <td><?= isset($ticket['utilisateur_nom_complet']) ? $ticket['utilisateur_nom_complet'] : '-' ?></td>
           <td><?= isset($ticket['created_at']) ? date('d/m/Y', strtotime($ticket['created_at'])) : '-' ?></td>
 
-         <td>
+         <td data-label="Prix Unitaire">
             <?php if (!isset($ticket['prix_unitaire']) || $ticket['prix_unitaire'] === null || $ticket['prix_unitaire'] == 0.00): ?>
-                <!-- Affichage d'un bouton rouge désactivé avec message -->
-                <button class="btn btn-danger btn-block" disabled>
-                    En Attente de validation
-                </button>
+                <span class="status-badge status-pending">
+                    <i class="fas fa-clock mr-1"></i>En Attente
+                </span>
             <?php else: ?>
-                <!-- Affichage du prix unitaire dans un bouton noir -->
-                <button class="btn btn-dark btn-block" disabled>
-                    <?= $ticket['prix_unitaire'] ?>
-                </button>
+                <span class="status-badge status-validated">
+                    <i class="fas fa-euro-sign mr-1"></i><?= number_format($ticket['prix_unitaire'], 2) ?>
+                </span>
             <?php endif; ?>
         </td>
 
-
-
-
-       <td>
+       <td data-label="Date validation">
             <?php if (!isset($ticket['date_validation_boss']) || $ticket['date_validation_boss'] === null): ?>
-        <button class="btn btn-warning btn-block" disabled>
-            En cours
-        </button>
-    <?php else: ?>
-        <?= date('d/m/Y', strtotime($ticket['date_validation_boss'])) ?>
-        <?php endif; ?>
+                <span class="status-badge status-pending">
+                    <i class="fas fa-hourglass-half mr-1"></i>En cours
+                </span>
+            <?php else: ?>
+                <span class="status-badge status-validated">
+                    <i class="fas fa-check mr-1"></i><?= date('d/m/Y', strtotime($ticket['date_validation_boss'])) ?>
+                </span>
+            <?php endif; ?>
        </td>
 
 
-    <td>
+    <td data-label="Montant">
                 <?php if (!isset($ticket['montant_paie']) || $ticket['montant_paie'] === null): ?>
-            <button class="btn btn-primary btn-block" disabled>
-                En attente de PU
-            </button>
+            <span class="status-badge status-pending">
+                <i class="fas fa-clock mr-1"></i>En attente de PU
+            </span>
         <?php else: ?>
-        <button class="btn btn-info btn-block" disabled>
-            <?= $ticket['montant_paie'] ?>
+            <span class="status-badge status-paid">
+                <i class="fas fa-euro-sign mr-1"></i><?= number_format($ticket['montant_paie'], 2) ?>
+            </span>
             <?php endif; ?>
-            </button>
           </td>
 
 
-              <td>
+              <td data-label="Date Paie">
                 <?php if (!isset($ticket['date_paie']) || $ticket['date_paie'] === null): ?>
-            <button class="btn btn-secondary btn-block" disabled>
-                Non payé
-            </button>
+            <span class="status-badge status-unpaid">
+                <i class="fas fa-times mr-1"></i>Non payé
+            </span>
         <?php else: ?>
-            <?= date('d/m/Y', strtotime($ticket['date_paie'])) ?>
+            <span class="status-badge status-paid">
+                <i class="fas fa-check mr-1"></i><?= date('d/m/Y', strtotime($ticket['date_paie'])) ?>
+            </span>
             <?php endif; ?>
           </td>
           
   
-          <td class="actions">
-         <?php if (!isset($ticket['date_paie']) || $ticket['date_paie'] === null): ?>
-            <a class="edit" data-toggle="modal" data-target="#editModalTicket<?= $ticket['id_ticket'] ?>">
-            <i class="fas fa-pen fa-xs" style="font-size:24px;color:blue"></i>
-            </a>
-            <a href="#" class="trash" data-toggle="modal" data-target="#confirmDeleteModal" data-id="<?= $ticket['id_ticket'] ?>">
-                <i class="fas fa-trash fa-xs" style="font-size:24px;color:red"></i>
-            </a>
-            <?php else: ?>
-            <i class="fas fa-pen fa-xs" style="font-size:24px;color:gray" title="Ticket déjà payé"></i>
-            <i class="fas fa-trash fa-xs" style="font-size:24px;color:gray" title="Ticket déjà payé"></i>
-            <?php endif; ?>
+          <td data-label="Actions" class="text-center">
+            <div class="action-buttons">
+                <?php if (!isset($ticket['date_paie']) || $ticket['date_paie'] === null): ?>
+                    <button type="button" class="action-btn edit" data-toggle="modal" data-target="#editModalTicket<?= $ticket['id_ticket'] ?>" title="Modifier">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button type="button" class="action-btn delete" data-toggle="modal" data-target="#confirmDeleteModal" data-id="<?= $ticket['id_ticket'] ?>" title="Supprimer">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                <?php else: ?>
+                    <span class="status-badge status-paid">
+                        <i class="fas fa-lock mr-1"></i>Payé
+                    </span>
+                <?php endif; ?>
+            </div>
           </td>
-           <!-- Lien pour déclencher la modale -->
-<!--a href="#" class="trash" data-toggle="modal" data-target="#confirmDeleteModal" data-id="<?= $ticket['id_ticket'] ?>">
-    <i class="fas fa-trash fa-xs" style="font-size:24px;color:red"></i>
-</a-->
+        </tr>
+      <?php endforeach; ?>
+    </tbody>
+        </table>
+    </div>
+</div>
 
 <!-- Modale de confirmation -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
@@ -443,9 +695,101 @@ label {
     </div>
 </div>
 
-          </td>
 
-          <div class="modal fade" id="editModalTicket<?= $ticket['id_ticket'] ?>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+<!-- Modals pour chaque ticket -->
+<?php foreach ($tickets_list as $ticket) : ?>
+<div class="modal fade" id="ticketModal<?= $ticket['id_ticket'] ?>" tabindex="-1" role="dialog" aria-labelledby="ticketModalLabel<?= $ticket['id_ticket'] ?>" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="ticketModalLabel<?= $ticket['id_ticket'] ?>">
+          <i class="fas fa-ticket-alt"></i> Détails du Ticket #<?= $ticket['numero_ticket'] ?>
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Date du ticket:</strong><br>
+            <?= isset($ticket['date_ticket']) ? date('d/m/Y', strtotime($ticket['date_ticket'])) : '-' ?>
+          </div>
+          <div class="col-md-6">
+            <strong>Prix unitaire:</strong><br>
+            <?= isset($ticket['prix_unitaire']) ? number_format($ticket['prix_unitaire'], 2, '.', ' ') : '-' ?>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Usine:</strong><br>
+            <?= isset($ticket['nom_usine']) ? $ticket['nom_usine'] : '-' ?>
+          </div>
+          <div class="col-md-6">
+            <strong>Montant à payer:</strong><br>
+            <?php if(isset($ticket['montant_paie'])): ?>
+              <span class="text-primary"><?= number_format($ticket['montant_paie'], 2, '.', ' ') ?></span>
+            <?php else: ?>
+              -
+            <?php endif; ?>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Agent:</strong><br>
+            <?= isset($ticket['nom_complet_agent']) ? $ticket['nom_complet_agent'] : '-' ?>
+          </div>
+          <div class="col-md-6">
+            <strong>Montant payé:</strong><br>
+            <?= isset($ticket['montant_paye']) ? number_format($ticket['montant_paye'], 2, '.', ' ') : '-' ?>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Véhicule:</strong><br>
+            <?= isset($ticket['matricule_vehicule']) ? $ticket['matricule_vehicule'] : '-' ?>
+          </div>
+          <div class="col-md-6">
+            <strong>Reste à payer:</strong><br>
+            <?= isset($ticket['reste_a_payer']) ? number_format($ticket['reste_a_payer'], 2, '.', ' ') : '-' ?>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Poids ticket:</strong><br>
+            <?= isset($ticket['poids']) ? $ticket['poids'] . ' kg' : '-' ?>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Créé par:</strong><br>
+            <?= isset($ticket['utilisateur_nom_complet']) ? $ticket['utilisateur_nom_complet'] : '-' ?>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Date de création:</strong><br>
+            <?= isset($ticket['created_at']) ? date('d/m/Y', strtotime($ticket['created_at'])) : '-' ?>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+<?php endforeach; ?>
+
+<!-- Modales d'édition pour chaque ticket -->
+<?php foreach ($tickets_list as $ticket) : ?>
+<div class="modal fade" id="editModalTicket<?= $ticket['id_ticket'] ?>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -456,7 +800,7 @@ label {
             </div>
             <div class="modal-body">
                 <!-- Formulaire de modification du ticket -->
-                <form action="tickets_update.php?id=<?= $ticket['id_ticket'] ?>" method="post">
+                <form action="tickets_update_numeros.php?id=<?= $ticket['id_ticket'] ?>" method="post">
                 <div class="form-group">
                 <label for="exampleInputEmail1">Date ticket</label>
                 <input type="date" class="form-control" id="exampleInputEmail1" placeholder="date ticket" name="date_ticket" value="<?= isset($ticket['date_ticket']) ? $ticket['date_ticket'] : '' ?>"> 
@@ -472,69 +816,385 @@ label {
     </div>
 </div>
 
-          
-
-
-         <div class="modal" id="valider_ticket<?= $ticket['id_ticket'] ?>">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-body">
-                <form action="traitement_tickets.php" method="post">
-                  <input type="hidden" name="id_ticket" value="<?= $ticket['id_ticket'] ?>">
-                  <div class="form-group">
-                    <label>Ajouter le prix unitaire</label>
-                  </div>
-                  <div class="form-group">
-                <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Prix unitaire" name="prix_unitaire">
-              </div>
-                  <button type="submit" class="btn btn-primary mr-2" name="saveCommande">Ajouter</button>
-                  <button class="btn btn-light">Annuler</button>
-                </form>
-              </div>
-            </div>
+<div class="modal" id="valider_ticket<?= $ticket['id_ticket'] ?>">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <form action="traitement_tickets.php" method="post">
+          <input type="hidden" name="id_ticket" value="<?= $ticket['id_ticket'] ?>">
+          <div class="form-group">
+            <label>Ajouter le prix unitaire</label>
           </div>
+          <div class="form-group">
+        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Prix unitaire" name="prix_unitaire">
+      </div>
+          <button type="submit" class="btn btn-primary mr-2" name="saveCommande">Ajouter</button>
+          <button class="btn btn-light">Annuler</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<?php endforeach; ?>
+
+<!-- Pagination Ultra-Professionnelle -->
+<div class="pagination-container-pro fade-in-up">
+    <div class="pagination-wrapper">
+        <!-- Navigation des pages -->
+        <div class="pagination-nav">
+            <?php if($page > 1): ?>
+                <a href="?page=1<?= isset($_GET['usine']) ? '&usine='.$_GET['usine'] : '' ?><?= isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '' ?><?= isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '' ?><?= isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '' ?><?= isset($_GET['numero_ticket']) ? '&numero_ticket='.$_GET['numero_ticket'] : '' ?>" class="pagination-btn pagination-btn-first" title="Première page">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="?page=<?= $page - 1 ?><?= isset($_GET['usine']) ? '&usine='.$_GET['usine'] : '' ?><?= isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '' ?><?= isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '' ?><?= isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '' ?><?= isset($_GET['numero_ticket']) ? '&numero_ticket='.$_GET['numero_ticket'] : '' ?>" class="pagination-btn pagination-btn-prev" title="Page précédente">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            <?php else: ?>
+                <span class="pagination-btn pagination-btn-disabled">
+                    <i class="fas fa-angle-double-left"></i>
+                </span>
+                <span class="pagination-btn pagination-btn-disabled">
+                    <i class="fas fa-angle-left"></i>
+                </span>
+            <?php endif; ?>
+
+            <!-- Indicateur de page actuelle -->
+            <div class="pagination-info">
+                <span class="current-page"><?= $page ?></span>
+                <span class="page-separator">/</span>
+                <span class="total-pages"><?= $total_pages ?></span>
+            </div>
+
+            <?php if($page < $total_pages): ?>
+                <a href="?page=<?= $page + 1 ?><?= isset($_GET['usine']) ? '&usine='.$_GET['usine'] : '' ?><?= isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '' ?><?= isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '' ?><?= isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '' ?><?= isset($_GET['numero_ticket']) ? '&numero_ticket='.$_GET['numero_ticket'] : '' ?>" class="pagination-btn pagination-btn-next" title="Page suivante">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="?page=<?= $total_pages ?><?= isset($_GET['usine']) ? '&usine='.$_GET['usine'] : '' ?><?= isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '' ?><?= isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '' ?><?= isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '' ?><?= isset($_GET['numero_ticket']) ? '&numero_ticket='.$_GET['numero_ticket'] : '' ?>" class="pagination-btn pagination-btn-last" title="Dernière page">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            <?php else: ?>
+                <span class="pagination-btn pagination-btn-disabled">
+                    <i class="fas fa-angle-right"></i>
+                </span>
+                <span class="pagination-btn pagination-btn-disabled">
+                    <i class="fas fa-angle-double-right"></i>
+                </span>
+            <?php endif; ?>
         </div>
 
+        <!-- Contrôle du nombre d'éléments par page -->
+        <div class="items-per-page-container">
+            <form action="" method="get" class="items-per-page-form-pro">
+                <?php if(isset($_GET['usine'])): ?>
+                    <input type="hidden" name="usine" value="<?= htmlspecialchars($_GET['usine']) ?>">
+                <?php endif; ?>
+                <?php if(isset($_GET['date_creation'])): ?>
+                    <input type="hidden" name="date_creation" value="<?= htmlspecialchars($_GET['date_creation']) ?>">
+                <?php endif; ?>
+                <?php if(isset($_GET['chauffeur'])): ?>
+                    <input type="hidden" name="chauffeur" value="<?= htmlspecialchars($_GET['chauffeur']) ?>">
+                <?php endif; ?>
+                <?php if(isset($_GET['agent_id'])): ?>
+                    <input type="hidden" name="agent_id" value="<?= htmlspecialchars($_GET['agent_id']) ?>">
+                <?php endif; ?>
+                <?php if(isset($_GET['numero_ticket'])): ?>
+                    <input type="hidden" name="numero_ticket" value="<?= htmlspecialchars($_GET['numero_ticket']) ?>">
+                <?php endif; ?>
+                
+                <div class="items-control-group">
+                    <label for="limit" class="items-label">
+                        <i class="fas fa-list-ol"></i>
+                        Afficher
+                    </label>
+                    <select name="limit" id="limit" class="items-select">
+                        <option value="5" <?= $limit == 5 ? 'selected' : '' ?>>5 éléments</option>
+                        <option value="10" <?= $limit == 10 ? 'selected' : '' ?>>10 éléments</option>
+                        <option value="15" <?= $limit == 15 ? 'selected' : '' ?>>15 éléments</option>
+                        <option value="25" <?= $limit == 25 ? 'selected' : '' ?>>25 éléments</option>
+                        <option value="50" <?= $limit == 50 ? 'selected' : '' ?>>50 éléments</option>
+                    </select>
+                    <button type="submit" class="items-submit-btn">
+                        <i class="fas fa-check"></i>
+                        Appliquer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-      <?php endforeach; ?>
-    </tbody>
-  </table>
-
+    <!-- Informations sur les résultats -->
+    <div class="pagination-stats">
+        <div class="stats-info">
+            <i class="fas fa-info-circle"></i>
+            Affichage de <?= ($page - 1) * $limit + 1 ?> à <?= min($page * $limit, $total_tickets ?? 0) ?> sur <?= $total_tickets ?? 0 ?> ticket(s)
+        </div>
+    </div>
 </div>
 
-  <div class="pagination-container bg-secondary d-flex justify-content-center w-100 text-white p-3">
-    <?php if($page > 1): ?>
-        <a href="?page=<?= $page - 1 ?><?= isset($_GET['usine']) ? '&usine='.$_GET['usine'] : '' ?><?= isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '' ?><?= isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '' ?><?= isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '' ?>" class="btn btn-primary"><</a>
-    <?php endif; ?>
-    
-    <span class="mx-2"><?= $page . '/' . $total_pages ?></span>
+<style>
+/* ===== STYLES POUR LA PAGINATION ULTRA-PROFESSIONNELLE ===== */
 
-    <?php if($page < $total_pages): ?>
-        <a href="?page=<?= $page + 1 ?><?= isset($_GET['usine']) ? '&usine='.$_GET['usine'] : '' ?><?= isset($_GET['date_creation']) ? '&date_creation='.$_GET['date_creation'] : '' ?><?= isset($_GET['chauffeur']) ? '&chauffeur='.$_GET['chauffeur'] : '' ?><?= isset($_GET['agent_id']) ? '&agent_id='.$_GET['agent_id'] : '' ?>" class="btn btn-primary">></a>
-    <?php endif; ?>
+.pagination-container-pro {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 1px solid rgba(52, 152, 219, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-top: 2rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.pagination-container-pro::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(155, 89, 182, 0.05) 100%);
+    border-radius: 20px;
+    z-index: 0;
+}
+
+.pagination-wrapper {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+/* Navigation des pages */
+.pagination-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pagination-btn {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.pagination-btn:not(.pagination-btn-disabled) {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.pagination-btn:not(.pagination-btn-disabled):hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+    background: linear-gradient(135deg, #2980b9 0%, #1f4e79 100%);
+}
+
+.pagination-btn:not(.pagination-btn-disabled):active {
+    transform: translateY(-1px);
+}
+
+.pagination-btn-disabled {
+    background: #bdc3c7;
+    color: #7f8c8d;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.pagination-btn-first,
+.pagination-btn-last {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+}
+
+.pagination-btn-first:hover,
+.pagination-btn-last:hover {
+    background: linear-gradient(135deg, #8e44ad 0%, #6a1b9a 100%);
+    box-shadow: 0 8px 25px rgba(155, 89, 182, 0.4);
+}
+
+/* Indicateur de page */
+.pagination-info {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    margin: 0 1rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    box-shadow: 0 6px 20px rgba(44, 62, 80, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 80px;
+    justify-content: center;
+}
+
+.current-page {
+    color: #3498db;
+    font-size: 1.2rem;
+}
+
+.page-separator {
+    opacity: 0.7;
+    margin: 0 0.25rem;
+}
+
+.total-pages {
+    opacity: 0.9;
+}
+
+/* Contrôle des éléments par page */
+.items-per-page-container {
+    display: flex;
+    align-items: center;
+}
+
+.items-control-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 2px solid rgba(52, 152, 219, 0.1);
+}
+
+.items-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.items-label i {
+    color: #3498db;
+}
+
+.items-select {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    background: white;
+    color: #2c3e50;
+    min-width: 130px;
+    transition: all 0.3s ease;
+}
+
+.items-select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    outline: none;
+}
+
+.items-submit-btn {
+    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0.5rem 1.25rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+}
+
+.items-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+}
+
+/* Statistiques */
+.pagination-stats {
+    margin-top: 1.5rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.stats-info {
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(155, 89, 182, 0.1) 100%);
+    color: #2c3e50;
+    padding: 0.75rem 1.5rem;
+    border-radius: 15px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(52, 152, 219, 0.2);
+}
+
+.stats-info i {
+    color: #3498db;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pagination-wrapper {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
     
-    <form action="" method="get" class="items-per-page-form ml-3">
-        <?php if(isset($_GET['usine'])): ?>
-            <input type="hidden" name="usine" value="<?= htmlspecialchars($_GET['usine']) ?>">
-        <?php endif; ?>
-        <?php if(isset($_GET['date_creation'])): ?>
-            <input type="hidden" name="date_creation" value="<?= htmlspecialchars($_GET['date_creation']) ?>">
-        <?php endif; ?>
-        <?php if(isset($_GET['chauffeur'])): ?>
-            <input type="hidden" name="chauffeur" value="<?= htmlspecialchars($_GET['chauffeur']) ?>">
-        <?php endif; ?>
-        <?php if(isset($_GET['agent_id'])): ?>
-            <input type="hidden" name="agent_id" value="<?= htmlspecialchars($_GET['agent_id']) ?>">
-        <?php endif; ?>
-        <label for="limit">Afficher :</label>
-        <select name="limit" id="limit" class="items-per-page-select">
-            <option value="5" <?= $limit == 5 ? 'selected' : '' ?>>5</option>
-            <option value="10" <?= $limit == 10 ? 'selected' : '' ?>>10</option>
-            <option value="15" <?= $limit == 15 ? 'selected' : '' ?>>15</option>
-        </select>
-        <button type="submit" class="submit-button">Valider</button>
-    </form>
-</div>
+    .pagination-nav {
+        order: 2;
+    }
+    
+    .items-per-page-container {
+        order: 1;
+        width: 100%;
+    }
+    
+    .items-control-group {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+    
+    .pagination-info {
+        margin: 0;
+        font-size: 1rem;
+    }
+    
+    .pagination-btn {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pagination-container-pro {
+        padding: 1.5rem;
+    }
+    
+    .items-control-group {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .items-select {
+        min-width: 100%;
+    }
+}
+</style>
 
   <div class="modal fade" id="add-ticket" tabindex="-1" role="dialog" aria-labelledby="addTicketModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -699,6 +1359,9 @@ label {
             </div>
             <div class="modal-body">
                 <div class="d-flex flex-column">
+                     <button type="button" class="btn btn-primary btn-block mb-3" data-toggle="modal" data-target="#searchByTicketModal" data-dismiss="modal">
+                        <i class="fas fa-user-tie mr-2"></i>Recherche par numero de ticket
+                    </button>
                     <button type="button" class="btn btn-primary btn-block mb-3" data-toggle="modal" data-target="#searchByAgentModal" data-dismiss="modal">
                         <i class="fas fa-user-tie mr-2"></i>Recherche par chargé de Mission
                     </button>
@@ -940,8 +1603,45 @@ label {
     </div>
 </div>
 
+<!-- Modal Recherche par Numero de Ticket -->
+<div class="modal fade" id="searchByTicketModal" tabindex="-1" role="dialog" aria-labelledby="searchByTicketModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="searchByTicketModalLabel">
+                    <i class="fas fa-ticket-alt mr-2"></i>Recherche par Numéro de Ticket
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="searchByTicketForm" action="tickets.php" method="GET">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="numero_ticket">Numéro de Ticket</label>
+                        <input type="text" class="form-control" id="numero_ticket" name="numero_ticket" required placeholder="Entrez le numéro du ticket">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Rechercher</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Afficher le loader
+    document.getElementById('loader').style.display = 'block';
+    
+    // Cacher le loader et afficher la table après un court délai
+    setTimeout(function() {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('example1').style.display = 'table';
+    }, 1000); // 1 seconde de délai
+    
     // Initialisation des modals
     $('.modal').modal({
         keyboard: false,
@@ -1063,6 +1763,13 @@ document.addEventListener('DOMContentLoaded', function() {
             list.style.display = 'none';
         });
     }
+
+    // Gestion du formulaire de recherche par numéro de ticket
+    document.getElementById('searchByTicketForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const numeroTicket = this.querySelector('[name="numero_ticket"]').value;
+        window.location.href = 'http://angenor.test/pages/tickets.php?numero_ticket=' + encodeURIComponent(numeroTicket);
+    });
 });
 </script>
 

@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Inclure le header après toutes les redirections potentielles
-include('header.php');
+include('header_operateurs.php');
 ?>
 
 <div class="container mt-4">

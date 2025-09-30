@@ -13,6 +13,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_approvisionnemen
             throw new Exception("Le montant est requis");
         }
         
+        if (!isset($_POST['source']) || empty(trim($_POST['source']))) {
+            throw new Exception("La source de l'approvisionnement est requise");
+        }
+        
         // Nettoyer le montant des espaces et autres caractères non numériques
         $montant = preg_replace('/[^0-9]/', '', $_POST['montant']);
         $montant = floatval($montant);
@@ -20,9 +24,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_approvisionnemen
         if ($montant <= 0) {
             throw new Exception("Le montant doit être supérieur à 0");
         }
+        
+        // Récupérer et nettoyer les autres champs
+        $source = trim($_POST['source']);
+        $motifs = 'Approvisionnement de la caisse'; // Motif par défaut pour les approvisionnements
 
-        // Debug log
+        // Debug logs
         writeLog("Montant reçu: " . $montant);
+        writeLog("Source reçue: " . $source);
+        writeLog("Motifs reçus: " . $motifs);
 
         // Récupérer le solde actuel
         $stmt = $conn->prepare("SELECT COALESCE(MAX(solde), 0) as solde FROM transactions");
@@ -43,20 +53,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_approvisionnemen
                 montant, 
                 date_transaction, 
                 motifs, 
+                source,
                 id_utilisateur,
                 solde
             ) VALUES (
                 'approvisionnement',
                 :montant,
                 NOW(),
-                'approvisionnement de la caisse',
+                :motifs,
+                :source,
                 :id_utilisateur,
                 :solde
             )
         ");
         
         $stmt->bindValue(':montant', $montant, PDO::PARAM_STR);
-        //$stmt->bindValue(':motifs', $_POST['motifs'], PDO::PARAM_STR);
+        $stmt->bindValue(':motifs', $motifs, PDO::PARAM_STR);
+        $stmt->bindValue(':source', $source, PDO::PARAM_STR);
         $stmt->bindValue(':id_utilisateur', $_SESSION['user_id'], PDO::PARAM_INT);
         $stmt->bindValue(':solde', $nouveau_solde, PDO::PARAM_STR);
         

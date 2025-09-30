@@ -1,10 +1,10 @@
 <?php
 require_once '../inc/functions/connexion.php';
 //require_once '../inc/functions/requete/requetes_selection_clients_boutique.php'; 
-include('header_livreurs.php');
+include('header_operateurs.php');
 $aujourdhui = date("d-m-Y");
 
-$id_user = $_SESSION['user_id'];
+$id_user = $_GET['id'];
 
 $sql = "SELECT utilisateurs.id as utilisateur_id, 
  concat(utilisateurs.nom,' ', utilisateurs.prenoms) as nom_utilisateurs,
@@ -29,11 +29,11 @@ $requete->execute();
 
 
 
-  <form action="traitement/traitement_livreurs_commandes_print.php" method="POST">
+  <form action="traitement_livreurs_commandes_print.php" method="POST">
     <div class="form-group row">
       <label for="client" class="col-4 col-form-label">Select</label>
       <div class="form-group">
-        <select name="client" class="form-control">
+        <select name="livreur_id" class="form-control">
           <?php
           while ($selection = $requete->fetch()) {
             echo '<option value="' . $selection['utilisateur_id'] . '">' . $selection['nom_utilisateurs'] . '</option>';

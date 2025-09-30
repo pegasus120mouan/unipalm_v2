@@ -1,6 +1,6 @@
 <?php
 require_once '../inc/functions/connexion.php';
-include('header.php');
+include('header_operateurs.php');
 ?>
 
 <div class="content-wrapper">

@@ -1,7 +1,7 @@
 <?php
 require_once '../inc/functions/connexion.php';
 require_once '../inc/functions/requete/requete_tickets.php';
-include('header.php');
+include('header_operateurs.php');
 
 // Récupérer l'ID de l'utilisateur
 $id_user = $_SESSION['user_id'];
@@ -284,13 +284,8 @@ label {
                                                                     name="source_paiement"
                                                                     required
                                                                     style="width: 100%">
-                                                                <option value="">Sélectionner une source</option>
-                                                                <option value="transactions">Transactions</option>
-                                                                <option value="financement">Financement</option>
+                                                                <option value="transactions">Sortie de caisse</option>
                                                             </select>
-                                                            <div class="invalid-feedback">
-                                                                Veuillez sélectionner une source de paiement
-                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
