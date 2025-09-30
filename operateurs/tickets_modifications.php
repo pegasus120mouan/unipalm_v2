@@ -721,8 +721,6 @@ tbody tr:hover {
                     <th><i class="fas fa-user me-2"></i>Agent</th>
                     <th><i class="fas fa-truck me-2"></i>Véhicule</th>
                     <th><i class="fas fa-weight me-2"></i>Poids</th>
-                    <th><i class="fas fa-coins me-2"></i>Prix Unitaire</th>
-                    <th><i class="fas fa-money-bill me-2"></i>Montant à Payer</th>
                     <th><i class="fas fa-cogs me-2"></i>Actions</th>
                   </tr>
                 </thead>
@@ -761,8 +759,6 @@ tbody tr:hover {
                                   <?= number_format($ticket['poids'], 0, ',', ' ') ?> kg
                                 </span>
                               </td>
-                              <td class="fw-bold text-success"><?= number_format($ticket['prix_unitaire'], 0, ',', ' ') ?></td>
-                              <td class="fw-bold text-primary"><?= number_format($ticket['montant_paie'], 0, ',', ' ') ?></td>
                               <td>
                                 <div class="btn-group">
                                   <button type="button" class="btn btn-info dropdown-toggle modern-btn" data-bs-toggle="dropdown" aria-expanded="false">
@@ -783,9 +779,6 @@ tbody tr:hover {
                                         <i class="fas fa-truck text-warning me-2"></i> Changer Véhicule
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item <?= $ticket['date_paie'] !== null ? 'disabled' : '' ?>" href="#" data-bs-toggle="modal" data-bs-target="#editModalPrixUnitaire<?= $ticket['id_ticket'] ?>">
-                                        <i class="fas fa-money-bill text-success me-2"></i> Changer Prix Unitaire
-                                    </a>
                                     <a class="dropdown-item <?= $ticket['date_paie'] !== null ? 'disabled' : '' ?>" href="#" data-bs-toggle="modal" data-bs-target="#editModalDateCreation<?= $ticket['id_ticket'] ?>">
                                         <i class="fas fa-calendar-alt text-danger me-2"></i> Changer Date Création
                                     </a>
@@ -1007,59 +1000,6 @@ tbody tr:hover {
         </div>
       </div>
 
-      <!-- Modal pour modifier le prix unitaire -->
-      <div class="modal fade" id="editModalPrixUnitaire<?= $ticket['id_ticket'] ?>">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Modifier le prix unitaire</h5>
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-              <form action="traitement_tickets.php" method="post">
-                <input type="hidden" name="id_ticket" value="<?= $ticket['id_ticket'] ?>">
-                <input type="hidden" name="action" value="update_prix_unitaire">
-                <div class="form-group">
-                  <label for="prix_unitaire<?= $ticket['id_ticket'] ?>">Prix unitaire</label>
-                  <div class="input-group">
-                    <input type="number" 
-                           class="form-control" 
-                           id="prix_unitaire<?= $ticket['id_ticket'] ?>" 
-                           value="<?= $ticket['prix_unitaire'] ?>" 
-                           name="prix_unitaire"
-                           min="1"
-                           step="1"
-                           required
-                           data-poids="<?= $ticket['poids'] ?>"
-                           data-montant-deja-paye="<?= $ticket['montant_payer'] ?>"
-                           oninput="updateTotal(this, <?= $ticket['poids'] ?>)">
-                    <div class="input-group-append">
-                      <span class="input-group-text">FCFA</span>
-                    </div>
-                  </div>
-                  <small class="form-text text-muted" id="total<?= $ticket['id_ticket'] ?>">
-                    Le montant à payer sera automatiquement recalculé (Prix unitaire × <?= $ticket['poids'] ?> kg = <?= number_format($ticket['prix_unitaire'] * $ticket['poids'], 0, ',', ' ') ?> FCFA)
-                  </small>
-                  <?php if ($ticket['montant_payer'] > 0): ?>
-                    <small class="form-text text-warning">
-                      <i class="fas fa-exclamation-triangle"></i>
-                      Attention : Ce ticket a déjà reçu <?= number_format($ticket['montant_payer'], 0, ',', ' ') ?> FCFA de paiement
-                    </small>
-                  <?php endif; ?>
-                </div>
-                <div class="modal-footer">
-                  <button type="submit" class="btn btn-success">
-                    <i class="fas fa-save"></i> Mettre à jour
-                  </button>
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <i class="fas fa-times"></i> Annuler
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- Modal pour modifier la date de création -->
       <div class="modal fade" id="editModalDateCreation<?= $ticket['id_ticket'] ?>">
@@ -1448,36 +1388,6 @@ $('.alert').each(function() {
 });
 </script>
 
-<script>
-function updateTotal(input, poids) {
-    const prix = parseFloat(input.value) || 0;
-    const total = prix * poids;
-    const montantDejaPaye = parseFloat(input.dataset.montantDejaPaye) || 0;
-    const ticketId = input.id.replace('prix_unitaire', '');
-    const submitBtn = input.closest('form').querySelector('button[type="submit"]');
-    
-    document.getElementById('total' + ticketId).innerHTML = 
-        `Le montant à payer sera automatiquement recalculé (Prix unitaire × ${poids} kg = ${total.toLocaleString('fr-FR')} FCFA)`;
-    
-    // Vérifier si le nouveau montant est valide
-    if (total < montantDejaPaye) {
-        input.setCustomValidity(`Le nouveau montant (${total.toLocaleString('fr-FR')} FCFA) ne peut pas être inférieur au montant déjà payé (${montantDejaPaye.toLocaleString('fr-FR')} FCFA)`);
-        submitBtn.disabled = true;
-    } else {
-        input.setCustomValidity('');
-        submitBtn.disabled = false;
-    }
-}
-
-// Initialiser le calcul au chargement de la page
-document.addEventListener('DOMContentLoaded', function() {
-    const inputs = document.querySelectorAll('input[id^="prix_unitaire"]');
-    inputs.forEach(input => {
-        const poids = parseFloat(input.dataset.poids);
-        if (poids) updateTotal(input, poids);
-    });
-});
-</script>
 
 <!-- Select2 and Advanced Interactions -->
 <script>

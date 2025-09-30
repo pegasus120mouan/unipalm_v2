@@ -1904,30 +1904,6 @@ $(document).ready(function() {
                                         <i class="fas fa-sort sort-icon"></i>
                                     </div>
                                 </th>
-                                <th class="sortable" data-sort="prix">
-                                    <div class="th-content">
-                                        <span>Prix Unitaire</span>
-                                        <i class="fas fa-sort sort-icon"></i>
-                                    </div>
-                                </th>
-                                <th class="sortable" data-sort="validation">
-                                    <div class="th-content">
-                                        <span>Date Validation</span>
-                                        <i class="fas fa-sort sort-icon"></i>
-                                    </div>
-                                </th>
-                                <th class="sortable" data-sort="montant">
-                                    <div class="th-content">
-                                        <span>Montant</span>
-                                        <i class="fas fa-sort sort-icon"></i>
-                                    </div>
-                                </th>
-                                <th class="sortable" data-sort="paie">
-                                    <div class="th-content">
-                                        <span>Date Paie</span>
-                                        <i class="fas fa-sort sort-icon"></i>
-                                    </div>
-                                </th>
                                 <th class="actions-column">
                                     <div class="th-content">
                                         <span>Actions</span>
@@ -2013,73 +1989,9 @@ $(document).ready(function() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="prix-cell">
-                                            <div class="cell-content">
-                                                <?php if ($ticket['prix_unitaire'] === null || $ticket['prix_unitaire'] == 0.00): ?>
-                                                    <div class="status-badge status-pending">
-                                                        <i class="fas fa-clock me-2"></i>
-                                                        <span>En Attente de validation</span>
-                                                    </div>
-                                                <?php else: ?>
-                                                    <div class="status-badge status-validated">
-                                                        <i class="fas fa-euro-sign me-2"></i>
-                                                        <span><?= $ticket['prix_unitaire'] ?> €</span>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                        <td class="validation-cell">
-                                            <div class="cell-content">
-                                                <?php if ($ticket['date_validation_boss'] === null): ?>
-                                                    <div class="status-badge status-in-progress">
-                                                        <i class="fas fa-spinner me-2"></i>
-                                                        <span>En cours</span>
-                                                    </div>
-                                                <?php else: ?>
-                                                    <div class="date-badge">
-                                                        <i class="fas fa-check-circle me-2"></i>
-                                                        <?= date('d/m/Y', strtotime($ticket['date_validation_boss'])) ?>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                        <td class="montant-cell">
-                                            <div class="cell-content">
-                                                <?php if ($ticket['montant_paie'] === null): ?>
-                                                    <div class="status-badge status-waiting">
-                                                        <i class="fas fa-hourglass-half me-2"></i>
-                                                        <span>En attente de PU</span>
-                                                    </div>
-                                                <?php else: ?>
-                                                    <div class="status-badge status-amount">
-                                                        <i class="fas fa-euro-sign me-2"></i>
-                                                        <span><?= $ticket['montant_paie'] ?> €</span>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                        <td class="paie-cell">
-                                            <div class="cell-content">
-                                                <?php if ($ticket['date_paie'] === null): ?>
-                                                    <div class="status-badge status-unpaid">
-                                                        <i class="fas fa-credit-card me-2"></i>
-                                                        <span>Paie non effectuée</span>
-                                                    </div>
-                                                <?php else: ?>
-                                                    <div class="date-badge">
-                                                        <i class="fas fa-money-check-alt me-2"></i>
-                                                        <?= date('d/m/Y', strtotime($ticket['date_paie'])) ?>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
                                         <td class="actions-cell">
                                             <div class="cell-content">
                                                 <div class="action-buttons">
-                                                    <button type="button" class="btn-action-table btn-validate" data-toggle="modal" data-target="#valider_un_ticket<?= $ticket['id_ticket'] ?>" title="Valider le ticket">
-                                                        <i class="fas fa-check"></i>
-                                                        <span>Valider</span>
-                                                    </button>
                                                     <button type="button" class="btn-action-table btn-view" onclick="viewTicketDetails(<?= $ticket['id_ticket'] ?>)" title="Voir les détails">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
@@ -2090,81 +2002,8 @@ $(document).ready(function() {
                                             </div>
                                         </td>
                                     </tr>
-          <div class="modal" id="valider_un_ticket<?= $ticket['id_ticket'] ?>">
-
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-body">
-                <form action="valider_un_tickets.php" method="post">
-                  <input type="hidden" name="id_ticket" value="<?= $ticket['id_ticket'] ?>">
-                  <input type="hidden" name="current_url" value="<?= $_SERVER['REQUEST_URI'] ?>">
-                  <div class="form-group">
-                    <label>Ajouter le prix unitaire</label>
-                  </div>
-                  <div class="form-group">
-                    <input type="number" 
-                           class="form-control" 
-                           name="prix_unitaire" 
-                           value="<?= $ticket['prix_unitaire'] ?>" 
-                           <?= ($ticket['prix_unitaire'] > 0) ? 'readonly' : '' ?> 
-                           min="0.01" 
-                           step="0.01" 
-                           required>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Valider</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
 
 <script>
-function submitValidation(event, ticketId) {
-    event.preventDefault();
-    const form = document.getElementById('form-validation-' + ticketId);
-    const prix_unitaire = form.querySelector('[name="prix_unitaire"]').value;
-    const id_ticket = form.querySelector('[name="id_ticket"]').value;
-
-    if (!prix_unitaire || prix_unitaire <= 0) {
-        alert('Veuillez entrer un prix unitaire valide');
-        return false;
-    }
-
-    $.ajax({
-        url: 'valider_tickets.php',
-        method: 'POST',
-        data: {
-            ticket_id: id_ticket,
-            prix_unitaire: prix_unitaire
-        },
-        success: function(response) {
-            try {
-                const data = typeof response === 'string' ? JSON.parse(response) : response;
-                if (data.success) {
-                    // Fermer le modal
-                    $(`#valider_ticket${ticketId}`).modal('hide');
-                    // Recharger la page
-                    window.location.reload();
-                } else {
-                    alert(data.message || 'Erreur lors de la validation du ticket');
-                }
-            } catch (e) {
-                console.error('Erreur de parsing:', e);
-                alert('Erreur lors du traitement de la réponse');
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('Erreur:', error);
-            console.error('Response:', xhr.responseText);
-            alert('Erreur lors de la validation du ticket');
-        }
-    });
-
-    return false;
-}
 
 // Pour la validation multiple
 function validerTicketsSelectionnes() {
@@ -2212,7 +2051,7 @@ function validerTicketsSelectionnes() {
       <?php endforeach; ?>
       <?php else: ?>
         <tr>
-          <td colspan="13" class="text-center">Pas de tickets en attente de validation</td>
+          <td colspan="9" class="text-center">Pas de tickets en attente de validation</td>
         </tr>
       <?php endif; ?>
     </tbody>

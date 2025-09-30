@@ -4,40 +4,44 @@ header('Content-Type: text/html; charset=UTF-8');
 setlocale(LC_TIME, 'fr_FR.utf8', 'fra');  // Force la configuration en français
 
 require_once '../inc/functions/connexion.php';
-require_once '../inc/functions/get_solde.php';
-
-// Nombre de ticket Total
-$sql_ticket_total = "SELECT COUNT(id_ticket) AS nb_ticket_tt FROM tickets";
-$requete_tt = $conn->prepare($sql_ticket_total);
-$requete_tt->execute();
-$ticket_total = $requete_tt->fetch(PDO::FETCH_ASSOC);
-
-// Nombre de ticket en attente
-$sql_ticket_nv = "SELECT COUNT(id_ticket) AS nb_ticket_nv FROM tickets WHERE  date_validation_boss IS NULL";
-$requete_tnv = $conn->prepare($sql_ticket_nv);
-$requete_tnv->execute();
-$ticket_non_valide = $requete_tnv->fetch(PDO::FETCH_ASSOC);
-
-// Nombre de tickets validés
-$sql_ticket_v = "SELECT COUNT(id_ticket) AS nb_ticket_nv FROM tickets
-WHERE date_validation_boss IS NOT NULL";
-$requete_tv = $conn->prepare($sql_ticket_v);
-$requete_tv->execute();
-$ticket_valide = $requete_tv->fetch(PDO::FETCH_ASSOC);
-
-// Nombre de colis tickés payes
-$sql_ticket_paye = "SELECT COUNT(id_ticket) AS nb_ticket_paye FROM tickets WHERE date_paie IS NULL AND date_validation_boss IS NOT NULL";
-$requete_tpaye = $conn->prepare($sql_ticket_paye);
-$requete_tpaye->execute();
-$ticket_paye = $requete_tpaye->fetch(PDO::FETCH_ASSOC);
-
-$solde_caisse = getSoldeCaisse();
 
 if (!isset($_SESSION['user_id'])) {
     // Redirigez vers la page de connexion si l'utilisateur n'est pas connecté
     header("Location: ../index.php");
     exit();
 }
+
+// Récupérer l'ID de l'utilisateur connecté
+$id_user = $_SESSION['user_id'];
+
+// Nombre de ticket total pour l'utilisateur connecté
+$sql_ticket_total = "SELECT COUNT(id_ticket) AS nb_ticket_tt FROM tickets WHERE id_utilisateur = :id_user";
+$requete_tt = $conn->prepare($sql_ticket_total);
+$requete_tt->bindValue(':id_user', $id_user, PDO::PARAM_INT);
+$requete_tt->execute();
+$ticket_total = $requete_tt->fetch(PDO::FETCH_ASSOC);
+
+// Nombre de ticket en attente pour l'utilisateur connecté
+$sql_ticket_nv = "SELECT COUNT(id_ticket) AS nb_ticket_nv FROM tickets WHERE date_validation_boss IS NULL AND id_utilisateur = :id_user";
+$requete_tnv = $conn->prepare($sql_ticket_nv);
+$requete_tnv->bindValue(':id_user', $id_user, PDO::PARAM_INT);
+$requete_tnv->execute();
+$ticket_non_valide = $requete_tnv->fetch(PDO::FETCH_ASSOC);
+
+// Nombre de tickets validés pour l'utilisateur connecté
+$sql_ticket_v = "SELECT COUNT(id_ticket) AS nb_ticket_nv FROM tickets
+WHERE date_validation_boss IS NOT NULL AND id_utilisateur = :id_user";
+$requete_tv = $conn->prepare($sql_ticket_v);
+$requete_tv->bindValue(':id_user', $id_user, PDO::PARAM_INT);
+$requete_tv->execute();
+$ticket_valide = $requete_tv->fetch(PDO::FETCH_ASSOC);
+
+// Nombre de tickets payés pour l'utilisateur connecté
+$sql_ticket_paye = "SELECT COUNT(id_ticket) AS nb_ticket_paye FROM tickets WHERE date_paie IS NULL AND date_validation_boss IS NOT NULL AND id_utilisateur = :id_user";
+$requete_tpaye = $conn->prepare($sql_ticket_paye);
+$requete_tpaye->bindValue(':id_user', $id_user, PDO::PARAM_INT);
+$requete_tpaye->execute();
+$ticket_paye = $requete_tpaye->fetch(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -662,18 +666,6 @@ if (!isset($_SESSION['user_id'])) {
             Tickets
           </a>
         </li>
-        <li class="nav-item d-none d-lg-inline-block">
-          <a href="paiements.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'paiements.php' ? 'active' : '' ?>">
-            <i class="fas fa-credit-card mr-2"></i>
-            Paiements
-          </a>
-        </li>
-        <li class="nav-item d-none d-xl-inline-block">
-          <a href="tickets_payes.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'tickets_payes.php' ? 'active' : '' ?>">
-            <i class="fas fa-money-check-alt mr-2"></i>
-            Tickets Payés
-          </a>
-        </li>
       </ul>
 
       <!-- Right navbar links -->
@@ -729,14 +721,6 @@ if (!isset($_SESSION['user_id'])) {
               <div>
                 <strong><?= $ticket_paye['nb_ticket_paye'] ?> tickets validés</strong>
                 <p class="text-muted text-sm mb-0">En attente de paiement</p>
-              </div>
-            </a>
-            <div class="dropdown-divider"></div>
-            <a href="javascript:void(0)" class="dropdown-item">
-              <i class="fas fa-chart-line text-info mr-3"></i>
-              <div>
-                <strong>Solde caisse: <?= number_format($solde_caisse, 0, ',', ' ') ?> FCFA</strong>
-                <p class="text-muted text-sm mb-0">Situation financière</p>
               </div>
             </a>
             <div class="dropdown-divider"></div>

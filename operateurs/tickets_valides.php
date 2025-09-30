@@ -789,10 +789,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <th><i class="fas fa-truck me-2"></i>Véhicule</th>
                         <th><i class="fas fa-weight me-2"></i>Poids</th>
                         <th><i class="fas fa-user-plus me-2"></i>Créé par</th>
-                        <th><i class="fas fa-coins me-2"></i>Prix Unit.</th>
-                        <th><i class="fas fa-check me-2"></i>Validation</th>
-                        <th><i class="fas fa-money-bill me-2"></i>Montant</th>
-                        <th><i class="fas fa-calendar-check me-2"></i>Date Paie</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -812,64 +808,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <strong><?= $ticket['poids'] ?> kg</strong>
                                 </td>
                                 <td data-label="Créé par"><?= $ticket['utilisateur_nom_complet'] ?></td>
-
-                                <td data-label="Prix Unitaire">
-                                    <?php if ($ticket['prix_unitaire'] === null || $ticket['prix_unitaire'] == 0.00): ?>
-                                        <span class="status-badge status-danger">
-                                            <i class="fas fa-clock me-1"></i>En Attente
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="status-badge status-dark">
-                                            <?= $ticket['prix_unitaire'] ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-
-
-
-
-                                <td data-label="Validation">
-                                    <?php if ($ticket['date_validation_boss'] === null): ?>
-                                        <span class="status-badge status-warning">
-                                            <i class="fas fa-hourglass-half me-1"></i>En cours
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="text-success">
-                                            <i class="fas fa-check-circle me-1"></i><?= $ticket['date_validation_boss'] ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-
-
-                                <td data-label="Montant">
-                                    <?php if ($ticket['montant_paie'] === null): ?>
-                                        <span class="status-badge status-info">
-                                            <i class="fas fa-clock me-1"></i>Attente PU
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="status-badge status-success">
-                                            <?= $ticket['montant_paie'] ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-
-
-                                <td data-label="Date Paie">
-                                    <?php if ($ticket['date_paie'] === null): ?>
-                                        <span class="status-badge status-dark">
-                                            <i class="fas fa-times me-1"></i>Non effectuée
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="text-success">
-                                            <i class="fas fa-calendar-check me-1"></i><?= $ticket['date_paie'] ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="11" class="text-center py-5">
+                            <td colspan="7" class="text-center py-5">
                                 <div class="text-muted">
                                     <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                                     <h5>Aucun ticket validé</h5>
@@ -883,63 +826,6 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 
-    <!-- Modals pour les tickets -->
-    <?php if (!empty($tickets_list)) : ?>
-        <?php foreach ($tickets_list as $ticket) : ?>
-            <!-- Modal de modification -->
-            <div class="modal fade" id="editModalTicket<?= $ticket['id_ticket'] ?>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editModalLabel">Modification Ticket <?= $ticket['id_ticket'] ?></h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <!-- Formulaire de modification du ticket -->
-                            <form action="commandes_update.php?id=<?= $ticket['id_ticket'] ?>" method="post">
-                                <div class="form-group">
-                                    <label for="numero_ticket">Numéro du ticket</label>
-                                    <input type="text" class="form-control" id="numero_ticket" name="numero_ticket" value="<?= $ticket['numero_ticket'] ?>" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="prix_unitaire">Prix Unitaire</label>
-                                    <input type="number" class="form-control" id="prix_unitaire" name="prix_unitaire" value="<?= $ticket['prix_unitaire'] ?>" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="date_validation_boss">Date de Validation</label>
-                                    <input type="date" class="form-control" id="date_validation_boss" name="date_validation_boss" value="<?= $ticket['date_validation_boss'] ?>" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Sauvegarder les modifications</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal de validation -->
-            <div class="modal" id="valider_ticket<?= $ticket['id_ticket'] ?>">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-body">
-                            <form action="traitement_tickets.php" method="post">
-                                <input type="hidden" name="id_ticket" value="<?= $ticket['id_ticket'] ?>">
-                                <div class="form-group">
-                                    <label>Ajouter le prix unitaire</label>
-                                </div>
-                                <div class="form-group">
-                                    <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Prix unitaire" name="prix_unitaire">
-                                </div>
-                                <button type="submit" class="btn btn-primary mr-2" name="saveCommande">Ajouter</button>
-                                <button class="btn btn-light">Annuler</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    <?php endif; ?>
 
     <!-- Pagination Container -->
     <div class="pagination-container">

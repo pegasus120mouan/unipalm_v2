@@ -1347,30 +1347,6 @@ $tickets_list = array_slice($tickets, $offset, $limit);
                         <span>Créé par</span>
                     </div>
                 </th>
-                <th class="th-price">
-                    <div class="th-content">
-                        <i class="fas fa-euro-sign me-2"></i>
-                        <span>Prix Unitaire</span>
-                    </div>
-                </th>
-                <th class="th-validation">
-                    <div class="th-content">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <span>Validation</span>
-                    </div>
-                </th>
-                <th class="th-montant">
-                    <div class="th-content">
-                        <i class="fas fa-coins me-2"></i>
-                        <span>Montant</span>
-                    </div>
-                </th>
-                <th class="th-paie">
-                    <div class="th-content">
-                        <i class="fas fa-credit-card me-2"></i>
-                        <span>Date Paie</span>
-                    </div>
-                </th>
             </tr>
         </thead>
         <tbody class="table-body">
@@ -1438,76 +1414,6 @@ $tickets_list = array_slice($tickets, $offset, $limit);
                                 </div>
                             </div>
                         </td>
-
-                        <td class="td-price">
-                            <div class="cell-content">
-                                <?php if ($ticket['prix_unitaire'] === null || $ticket['prix_unitaire'] == 0.00): ?>
-                                    <div class="status-badge status-pending">
-                                        <i class="fas fa-clock me-2"></i>
-                                        <span>En attente</span>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="price-badge">
-                                        <i class="fas fa-euro-sign me-1"></i>
-                                        <span class="price-value"><?= number_format($ticket['prix_unitaire'], 2) ?></span>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </td>
-
-
-
-
-                        <td class="td-validation">
-                            <div class="cell-content">
-                                <?php if ($ticket['date_validation_boss'] === null): ?>
-                                    <div class="status-badge status-progress">
-                                        <i class="fas fa-spinner fa-spin me-2"></i>
-                                        <span>En cours</span>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="date-badge validated">
-                                        <i class="fas fa-check-circle me-2"></i>
-                                        <?= date('d/m/Y', strtotime($ticket['date_validation_boss'])) ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </td>
-
-
-                        <td class="td-montant">
-                            <div class="cell-content">
-                                <?php if ($ticket['montant_paie'] === null): ?>
-                                    <div class="status-badge status-waiting">
-                                        <i class="fas fa-hourglass-half me-2"></i>
-                                        <span>Attente PU</span>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="amount-badge">
-                                        <i class="fas fa-coins me-1"></i>
-                                        <span class="amount-value"><?= number_format($ticket['montant_paie'], 2) ?></span>
-                                        <span class="currency">€</span>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </td>
-
-
-                        <td class="td-paie">
-                            <div class="cell-content">
-                                <?php if ($ticket['date_paie'] === null): ?>
-                                    <div class="status-badge status-unpaid">
-                                        <i class="fas fa-times-circle me-2"></i>
-                                        <span>Non payé</span>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="date-badge paid">
-                                        <i class="fas fa-check-double me-2"></i>
-                                        <?= date('d/m/Y', strtotime($ticket['date_paie'])) ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </td>
                     </tr>
           
   
@@ -1518,76 +1424,12 @@ $tickets_list = array_slice($tickets, $offset, $limit);
             <a href="delete_commandes.php?id=<?= $ticket['id_ticket'] ?>" class="trash"><i class="fas fa-trash fa-xs" style="font-size:24px;color:red"></i></a>
           </td>-->
 
-          <div class="modal fade" id="editModalTicket<?= $ticket['id_ticket'] ?>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Modification Ticket <?= $ticket['id_ticket'] ?></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- Formulaire de modification du ticket -->
-                <form action="commandes_update.php?id=<?= $ticket['id_ticket'] ?>" method="post">
-                <div class="form-group">
-                        <label for="prix_unitaire">Numéro du ticket</label>
-                        <input type="text" class="form-control" id="numero_ticket" name="numero_ticket" value="<?= $ticket['numero_ticket'] ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="prix_unitaire">Prix Unitaire</label>
-                        <input type="number" class="form-control" id="prix_unitaire" name="prix_unitaire" value="<?= $ticket['prix_unitaire'] ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="date_validation_boss">Date de Validation</label>
-                        <input type="date" class="form-control" id="date_validation_boss" name="date_validation_boss" value="<?= $ticket['date_validation_boss'] ?>" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Sauvegarder les modifications</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-        <!--  <td>
-            <button 
-            type="button" 
-            class="btn btn-success" 
-            data-toggle="modal" 
-            data-target="#valider_ticket<?= $ticket['id_ticket'] ?>" 
-            <?= $ticket['prix_unitaire'] == 0.00 ? '' : 'disabled title="Le prix est déjà validé"' ?>>
-            Valider un ticket
-           </button>
-
-        </td>-->
-          
-
-
-         <div class="modal" id="valider_ticket<?= $ticket['id_ticket'] ?>">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-body">
-                <form action="traitement_tickets.php" method="post">
-                  <input type="hidden" name="id_ticket" value="<?= $ticket['id_ticket'] ?>">
-                  <div class="form-group">
-                    <label>Ajouter le prix unitaire</label>
-                  </div>
-                  <div class="form-group">
-                <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Prix unitaire" name="prix_unitaire">
-              </div>
-                  <button type="submit" class="btn btn-primary mr-2" name="saveCommande">Ajouter</button>
-                  <button class="btn btn-light">Annuler</button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
 
 
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr class="empty-row">
-                    <td colspan="11" class="empty-cell">
+                    <td colspan="7" class="empty-cell">
                         <div class="empty-state">
                             <div class="empty-icon">
                                 <i class="fas fa-inbox"></i>

@@ -543,14 +543,6 @@ include('header_operateurs.php');
                         <i class="fas fa-print mr-2"></i>Bordereau
                     </button>
                 </div>
-                <div class="d-flex flex-wrap mt-2 mt-md-0">
-                    <button type="button" class="btn btn-dark card-hover" onclick="window.location.href='export_tickets.php'">
-                        <i class="fas fa-download mr-2"></i>Exporter tous
-                    </button>
-                    <button type="button" class="btn btn-outline-primary card-hover" data-toggle="modal" data-target="#exportDateModal">
-                        <i class="fas fa-calendar-alt mr-2"></i>Exporter période
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -579,10 +571,6 @@ include('header_operateurs.php');
         <th>Poids</th>
         <th>Ticket créé par</th>
         <th>Date Ajout</th>
-        <th>Prix Unitaire</th>
-        <th>Date validation</th>
-        <th>Montant</th>
-        <th>Date Paie</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -600,65 +588,12 @@ include('header_operateurs.php');
           <td><?= isset($ticket['utilisateur_nom_complet']) ? $ticket['utilisateur_nom_complet'] : '-' ?></td>
           <td><?= isset($ticket['created_at']) ? date('d/m/Y', strtotime($ticket['created_at'])) : '-' ?></td>
 
-         <td data-label="Prix Unitaire">
-            <?php if (!isset($ticket['prix_unitaire']) || $ticket['prix_unitaire'] === null || $ticket['prix_unitaire'] == 0.00): ?>
-                <span class="status-badge status-pending">
-                    <i class="fas fa-clock mr-1"></i>En Attente
-                </span>
-            <?php else: ?>
-                <span class="status-badge status-validated">
-                    <i class="fas fa-euro-sign mr-1"></i><?= number_format($ticket['prix_unitaire'], 2) ?>
-                </span>
-            <?php endif; ?>
-        </td>
-
-       <td data-label="Date validation">
-            <?php if (!isset($ticket['date_validation_boss']) || $ticket['date_validation_boss'] === null): ?>
-                <span class="status-badge status-pending">
-                    <i class="fas fa-hourglass-half mr-1"></i>En cours
-                </span>
-            <?php else: ?>
-                <span class="status-badge status-validated">
-                    <i class="fas fa-check mr-1"></i><?= date('d/m/Y', strtotime($ticket['date_validation_boss'])) ?>
-                </span>
-            <?php endif; ?>
-       </td>
-
-
-    <td data-label="Montant">
-                <?php if (!isset($ticket['montant_paie']) || $ticket['montant_paie'] === null): ?>
-            <span class="status-badge status-pending">
-                <i class="fas fa-clock mr-1"></i>En attente de PU
-            </span>
-        <?php else: ?>
-            <span class="status-badge status-paid">
-                <i class="fas fa-euro-sign mr-1"></i><?= number_format($ticket['montant_paie'], 2) ?>
-            </span>
-            <?php endif; ?>
-          </td>
-
-
-              <td data-label="Date Paie">
-                <?php if (!isset($ticket['date_paie']) || $ticket['date_paie'] === null): ?>
-            <span class="status-badge status-unpaid">
-                <i class="fas fa-times mr-1"></i>Non payé
-            </span>
-        <?php else: ?>
-            <span class="status-badge status-paid">
-                <i class="fas fa-check mr-1"></i><?= date('d/m/Y', strtotime($ticket['date_paie'])) ?>
-            </span>
-            <?php endif; ?>
-          </td>
-          
   
           <td data-label="Actions" class="text-center">
             <div class="action-buttons">
                 <?php if (!isset($ticket['date_paie']) || $ticket['date_paie'] === null): ?>
                     <button type="button" class="action-btn edit" data-toggle="modal" data-target="#editModalTicket<?= $ticket['id_ticket'] ?>" title="Modifier">
                         <i class="fas fa-edit"></i>
-                    </button>
-                    <button type="button" class="action-btn delete" data-toggle="modal" data-target="#confirmDeleteModal" data-id="<?= $ticket['id_ticket'] ?>" title="Supprimer">
-                        <i class="fas fa-trash"></i>
                     </button>
                 <?php else: ?>
                     <span class="status-badge status-paid">
