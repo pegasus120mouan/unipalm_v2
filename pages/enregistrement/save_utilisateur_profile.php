@@ -13,8 +13,12 @@ $prenoms = $_POST['prenoms'];
 $contact = $_POST['contact'];
 
 if (!isPhoneNumberValid($contact)) {
-        $_SESSION['delete_pop'] = true;
-        header('Location: ../liste_livreurs.php');
+        $_SESSION['error'] = "Numéro de téléphone invalide";
+        // Déterminer le chemin de redirection selon le referer
+        $redirect_path = (strpos($_SERVER['HTTP_REFERER'], '/operateurs/') !== false) 
+            ? '../operateurs/utilisateurs_profile.php?id=' . $id_utilisateur
+            : '../utilisateurs_profile.php?id=' . $id_utilisateur;
+        header('Location: ' . $redirect_path);
         exit(0);
 } else {
         $sql = "UPDATE utilisateurs
@@ -36,14 +40,21 @@ $query_execute = $requete->execute(array(
 //var_dump($query_exec/die();
 if($query_execute)
         {
-           // $_SESSION['message'] = "Insertion reussie";
-            $_SESSION['popup'] = true;
-	       header('Location: ../liste_livreurs.php');
-	       exit(0);
-
-            // Redirigez l'utilisateur vers la page d'accueil
-            //header("Location: home1.php");
-           // exit();
+            $_SESSION['success'] = "Profil mis à jour avec succès";
+            // Déterminer le chemin de redirection selon le referer
+            $redirect_path = (strpos($_SERVER['HTTP_REFERER'], '/operateurs/') !== false) 
+                ? '../operateurs/utilisateurs_profile.php?id=' . $id_utilisateur
+                : '../utilisateurs_profile.php?id=' . $id_utilisateur;
+            header('Location: ' . $redirect_path);
+            exit(0);
+        } else {
+            $_SESSION['error'] = "Erreur lors de la mise à jour du profil";
+            // Déterminer le chemin de redirection selon le referer
+            $redirect_path = (strpos($_SERVER['HTTP_REFERER'], '/operateurs/') !== false) 
+                ? '../operateurs/utilisateurs_profile.php?id=' . $id_utilisateur
+                : '../utilisateurs_profile.php?id=' . $id_utilisateur;
+            header('Location: ' . $redirect_path);
+            exit(0);
         }
 
 }

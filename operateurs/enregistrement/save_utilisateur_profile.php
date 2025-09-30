@@ -1,4 +1,5 @@
 <?php
+session_start();
 // Connexion à la base de données (à adapter avec vos informations)
 require_once '../../inc/functions/connexion.php'; 
 
@@ -13,8 +14,8 @@ $prenoms = $_POST['prenoms'];
 $contact = $_POST['contact'];
 
 if (!isPhoneNumberValid($contact)) {
-        $_SESSION['delete_pop'] = true;
-        header('Location: ../liste_livreurs.php');
+        $_SESSION['error'] = "Numéro de téléphone invalide";
+        header('Location: ../utilisateurs_profile.php?id=' . $id_utilisateur);
         exit(0);
 } else {
         $sql = "UPDATE utilisateurs
@@ -36,14 +37,13 @@ $query_execute = $requete->execute(array(
 //var_dump($query_exec/die();
 if($query_execute)
         {
-           // $_SESSION['message'] = "Insertion reussie";
-            $_SESSION['popup'] = true;
-	       header('Location: ../liste_livreurs.php');
-	       exit(0);
-
-            // Redirigez l'utilisateur vers la page d'accueil
-            //header("Location: home1.php");
-           // exit();
+            $_SESSION['success'] = "Profil mis à jour avec succès";
+            header('Location: ../utilisateurs_profile.php?id=' . $id_utilisateur);
+            exit(0);
+        } else {
+            $_SESSION['error'] = "Erreur lors de la mise à jour du profil";
+            header('Location: ../utilisateurs_profile.php?id=' . $id_utilisateur);
+            exit(0);
         }
 
 }

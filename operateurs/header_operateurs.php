@@ -744,7 +744,7 @@ $ticket_paye = $requete_tpaye->fetch(PDO::FETCH_ASSOC);
               <p class="text-muted text-sm mb-0"><?php echo $_SESSION['user_role']; ?></p>
             </div>
             <div class="dropdown-divider"></div>
-            <a href="profile.php" class="dropdown-item">
+            <a href="utilisateurs_profile.php?id=<?php echo $_SESSION['user_id']; ?>" class="dropdown-item">
               <i class="fas fa-user mr-2"></i> Mon Profil
             </a>
             <a href="settings.php" class="dropdown-item">

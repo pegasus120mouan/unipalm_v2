@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once '../inc/functions/connexion.php';   
 
     $id_utilisateur = $_POST['id'];

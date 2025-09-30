@@ -1637,10 +1637,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Gestion de la suppression
-    $('.trash').click(function(e) {
+    $('.delete').click(function(e) {
         e.preventDefault();
         var ticketId = $(this).data('id');
         $('#confirmDeleteBtn').attr('href', 'traitement_tickets.php?action=delete&id=' + ticketId);
+        $('#confirmDeleteModal').modal('show');
+    });
+
+    // Gestion du clic sur le bouton de confirmation de suppression
+    $('#confirmDeleteBtn').click(function(e) {
+        e.preventDefault();
+        var deleteUrl = $(this).attr('href');
+        
+        // Fermer le modal
+        $('#confirmDeleteModal').modal('hide');
+        
+        // Rediriger vers l'URL de suppression
+        window.location.href = deleteUrl;
     });
 
     // Configuration pour la sélection d'usine

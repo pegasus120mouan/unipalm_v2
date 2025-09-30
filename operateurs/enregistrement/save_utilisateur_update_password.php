@@ -1,4 +1,5 @@
 <?php
+session_start();
 // Connexion à la base de données (à adapter avec vos informations)
 require_once '../../inc/functions/connexion.php'; 
 require_once '../../inc/functions/verification_password.php';
@@ -15,14 +16,13 @@ $check_password = $_POST['check_password'];
 $hasedpassword=hash('sha256',$new_password);
 
 if ($new_password!==$check_password){
-
-    $_SESSION['delete_pop'] = true;
-    header('Location: ../liste_livreurs.php');
+    $_SESSION['error'] = "Les mots de passe ne correspondent pas";
+    header('Location: ../utilisateurs_profile.php?id=' . $id_utilisateur);
     exit(0);
 } 
 elseif (!isPasswordComplex($new_password, $check_password)) {
-    $_SESSION['delete_pop'] = true;
-    header('Location: ../liste_livreurs.php');
+    $_SESSION['error'] = "Le mot de passe ne respecte pas les critères de complexité";
+    header('Location: ../utilisateurs_profile.php?id=' . $id_utilisateur);
     exit(0);
 } else {
 
@@ -39,17 +39,20 @@ if ($userVerification->rowCount() > 0) {
 
     if($requeteUpdate)
         {
-           // $_SESSION['message'] = "Insertion reussie";
-            $_SESSION['popup'] = true;
-	       header('Location: ../liste_livreurs.php');
-	       exit(0);   // exit();
+            $_SESSION['success'] = "Mot de passe changé avec succès !";
+            header('Location: ../utilisateurs_profile.php?id=' . $id_utilisateur);
+            exit(0);
         }  else
         {
-            $_SESSION['delete_pop'] = true;
-            header('Location: ../liste_livreurs.php');
+            $_SESSION['error'] = "Erreur lors de la mise à jour du mot de passe";
+            header('Location: ../utilisateurs_profile.php?id=' . $id_utilisateur);
             exit(0);
         }
-
+} else {
+    // Ancien mot de passe incorrect
+    $_SESSION['error'] = "L'ancien mot de passe est incorrect";
+    header('Location: ../utilisateurs_profile.php?id=' . $id_utilisateur);
+    exit(0);
 }
 
 }
