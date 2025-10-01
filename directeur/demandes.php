@@ -307,15 +307,15 @@ label {
     </button>
 
     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#print-bordereau">
-      <i class="fa fa-print"></i> Imprimer un bordereau
+      <i class="fa fa-print"></i> Imprimer la liste des demandes
     </button>
 
     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#search_ticket">
-      <i class="fa fa-search"></i> Rechercher un ticket
+      <i class="fa fa-search"></i> Rechercher une demande
     </button>
 
     <button type="button" class="btn btn-dark" onclick="window.location.href='export_tickets.php'">
-              <i class="fa fa-print"></i> Exporter la liste les tickets
+              <i class="fa fa-print"></i> Exporter la liste des demandes
              </button>
 </div>
 

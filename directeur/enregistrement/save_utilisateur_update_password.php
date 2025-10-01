@@ -15,14 +15,21 @@ $check_password = $_POST['check_password'];
 $hasedpassword=hash('sha256',$new_password);
 
 if ($new_password!==$check_password){
-
-    $_SESSION['delete_pop'] = true;
-    header('Location: ../liste_livreurs.php');
+    $_SESSION['error'] = "Les mots de passe ne correspondent pas";
+    // Déterminer le chemin de redirection selon le referer
+    $redirect_path = (strpos($_SERVER['HTTP_REFERER'], '/operateurs/') !== false) 
+        ? '../operateurs/utilisateurs_profile.php?id=' . $id_utilisateur
+        : '../utilisateurs_profile.php?id=' . $id_utilisateur;
+    header('Location: ' . $redirect_path);
     exit(0);
 } 
 elseif (!isPasswordComplex($new_password, $check_password)) {
-    $_SESSION['delete_pop'] = true;
-    header('Location: ../liste_livreurs.php');
+    $_SESSION['error'] = "Le mot de passe ne respecte pas les critères de complexité";
+    // Déterminer le chemin de redirection selon le referer
+    $redirect_path = (strpos($_SERVER['HTTP_REFERER'], '/operateurs/') !== false) 
+        ? '../operateurs/utilisateurs_profile.php?id=' . $id_utilisateur
+        : '../utilisateurs_profile.php?id=' . $id_utilisateur;
+    header('Location: ' . $redirect_path);
     exit(0);
 } else {
 
@@ -39,17 +46,31 @@ if ($userVerification->rowCount() > 0) {
 
     if($requeteUpdate)
         {
-           // $_SESSION['message'] = "Insertion reussie";
-            $_SESSION['popup'] = true;
-	       header('Location: ../liste_livreurs.php');
-	       exit(0);   // exit();
+            // Déterminer le chemin de redirection selon le referer
+            $redirect_path = (strpos($_SERVER['HTTP_REFERER'], '/operateurs/') !== false) 
+                ? '../operateurs/utilisateurs_profile.php?id=' . $id_utilisateur . '&success=password_changed'
+                : '../utilisateurs_profile.php?id=' . $id_utilisateur . '&success=password_changed';
+            header('Location: ' . $redirect_path);
+            exit(0);
         }  else
         {
-            $_SESSION['delete_pop'] = true;
-            header('Location: ../liste_livreurs.php');
+            $_SESSION['error'] = "Erreur lors de la mise à jour du mot de passe";
+            // Déterminer le chemin de redirection selon le referer
+            $redirect_path = (strpos($_SERVER['HTTP_REFERER'], '/operateurs/') !== false) 
+                ? '../operateurs/utilisateurs_profile.php?id=' . $id_utilisateur
+                : '../utilisateurs_profile.php?id=' . $id_utilisateur;
+            header('Location: ' . $redirect_path);
             exit(0);
         }
-
+} else {
+    // Ancien mot de passe incorrect
+    $_SESSION['error'] = "L'ancien mot de passe est incorrect";
+    // Déterminer le chemin de redirection selon le referer
+    $redirect_path = (strpos($_SERVER['HTTP_REFERER'], '/operateurs/') !== false) 
+        ? '../operateurs/utilisateurs_profile.php?id=' . $id_utilisateur
+        : '../utilisateurs_profile.php?id=' . $id_utilisateur;
+    header('Location: ' . $redirect_path);
+    exit(0);
 }
 
 }
