@@ -1582,15 +1582,17 @@ $(document).ready(function() {
             <div class="modal-body">
                 <form method="post" action="save_bordereau.php">
                     <div class="form-group">
-                        <label for="id_agent">Chargé de Mission</label>
-                        <select name="id_agent" id="id_agent" class="form-control" required>
-                            <option value="">Sélectionner un chargé de mission</option>
-                            <?php foreach ($agents as $agent): ?>
-                                <option value="<?= htmlspecialchars($agent['id_agent']) ?>">
-                                    <?= htmlspecialchars($agent['nom_complet_agent']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <label for="agent_search">Chargé de Mission</label>
+                        <div class="autocomplete-container">
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="agent_search" 
+                                   placeholder="Tapez le nom du chargé de mission..."
+                                   autocomplete="off"
+                                   required>
+                            <input type="hidden" name="id_agent" id="id_agent" required>
+                            <div id="agent_suggestions" class="autocomplete-suggestions"></div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="date_debut">Date de début</label>
@@ -2057,6 +2059,211 @@ document.addEventListener('DOMContentLoaded', function() {
     // Gestion des modals
     $('.modal').on('show.bs.modal', function() {
         document.getElementById('loader').style.display = 'none';
+    });
+});
+</script>
+
+<!-- CSS pour l'autocomplétion -->
+<style>
+.autocomplete-container {
+    position: relative;
+}
+
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1050;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.autocomplete-suggestion {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.autocomplete-suggestion:hover,
+.autocomplete-suggestion.selected {
+    background-color: #f8f9fa;
+}
+
+.autocomplete-suggestion:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-suggestion .agent-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.autocomplete-loading {
+    padding: 10px 15px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+.autocomplete-no-results {
+    padding: 10px 15px;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+}
+</style>
+
+<!-- JavaScript pour l'autocomplétion -->
+<script>
+$(document).ready(function() {
+    let searchTimeout;
+    let selectedIndex = -1;
+    
+    // Fonction pour effectuer la recherche
+    function searchAgents(query) {
+        if (query.length < 2) {
+            $('#agent_suggestions').hide().empty();
+            return;
+        }
+        
+        // Afficher le loader
+        $('#agent_suggestions').show().html('<div class="autocomplete-loading">Recherche en cours...</div>');
+        
+        $.ajax({
+            url: '../api/search_agents.php',
+            method: 'GET',
+            data: { q: query },
+            dataType: 'json',
+            success: function(data) {
+                displaySuggestions(data);
+            },
+            error: function() {
+                $('#agent_suggestions').html('<div class="autocomplete-no-results">Erreur lors de la recherche</div>');
+            }
+        });
+    }
+    
+    // Fonction pour afficher les suggestions
+    function displaySuggestions(agents) {
+        const suggestionsDiv = $('#agent_suggestions');
+        
+        if (agents.length === 0) {
+            suggestionsDiv.html('<div class="autocomplete-no-results">Aucun résultat trouvé</div>');
+            return;
+        }
+        
+        let html = '';
+        agents.forEach(function(agent, index) {
+            html += `<div class="autocomplete-suggestion" data-id="${agent.id}" data-index="${index}">
+                        <div class="agent-name">${agent.text}</div>
+                     </div>`;
+        });
+        
+        suggestionsDiv.html(html);
+        selectedIndex = -1;
+    }
+    
+    // Événement de saisie dans le champ de recherche
+    $('#agent_search').on('input', function() {
+        const query = $(this).val().trim();
+        
+        // Réinitialiser la sélection
+        $('#id_agent').val('');
+        selectedIndex = -1;
+        
+        // Annuler la recherche précédente
+        clearTimeout(searchTimeout);
+        
+        // Lancer une nouvelle recherche après un délai
+        searchTimeout = setTimeout(function() {
+            searchAgents(query);
+        }, 300);
+    });
+    
+    // Gestion des touches du clavier
+    $('#agent_search').on('keydown', function(e) {
+        const suggestions = $('.autocomplete-suggestion');
+        
+        if (suggestions.length === 0) return;
+        
+        switch(e.keyCode) {
+            case 38: // Flèche haut
+                e.preventDefault();
+                selectedIndex = selectedIndex > 0 ? selectedIndex - 1 : suggestions.length - 1;
+                updateSelection();
+                break;
+                
+            case 40: // Flèche bas
+                e.preventDefault();
+                selectedIndex = selectedIndex < suggestions.length - 1 ? selectedIndex + 1 : 0;
+                updateSelection();
+                break;
+                
+            case 13: // Entrée
+                e.preventDefault();
+                if (selectedIndex >= 0) {
+                    selectSuggestion(suggestions.eq(selectedIndex));
+                }
+                break;
+                
+            case 27: // Échap
+                $('#agent_suggestions').hide();
+                selectedIndex = -1;
+                break;
+        }
+    });
+    
+    // Fonction pour mettre à jour la sélection visuelle
+    function updateSelection() {
+        $('.autocomplete-suggestion').removeClass('selected');
+        if (selectedIndex >= 0) {
+            $('.autocomplete-suggestion').eq(selectedIndex).addClass('selected');
+        }
+    }
+    
+    // Clic sur une suggestion
+    $(document).on('click', '.autocomplete-suggestion', function() {
+        selectSuggestion($(this));
+    });
+    
+    // Fonction pour sélectionner une suggestion
+    function selectSuggestion($suggestion) {
+        const agentId = $suggestion.data('id');
+        const agentName = $suggestion.find('.agent-name').text();
+        
+        $('#agent_search').val(agentName);
+        $('#id_agent').val(agentId);
+        $('#agent_suggestions').hide();
+        selectedIndex = -1;
+    }
+    
+    // Cacher les suggestions quand on clique ailleurs
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.autocomplete-container').length) {
+            $('#agent_suggestions').hide();
+            selectedIndex = -1;
+        }
+    });
+    
+    // Réinitialiser le formulaire quand le modal se ferme
+    $('#add-bordereau').on('hidden.bs.modal', function() {
+        $('#agent_search').val('');
+        $('#id_agent').val('');
+        $('#agent_suggestions').hide().empty();
+        selectedIndex = -1;
+    });
+    
+    // Focus sur le champ quand le modal s'ouvre
+    $('#add-bordereau').on('shown.bs.modal', function() {
+        $('#agent_search').focus();
     });
 });
 </script>

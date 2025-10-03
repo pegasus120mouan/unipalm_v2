@@ -5,8 +5,28 @@ ob_clean();
 require('../fpdf/fpdf.php');
 require_once '../inc/functions/connexion.php';
 
+// Démarrer la session si elle n'est pas déjà démarrée
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 if (isset($_GET['numero'])) {
     $numero_bordereau = $_GET['numero'];
+
+    // Récupérer les informations de l'utilisateur connecté
+    $utilisateur_connecte = '';
+    if (isset($_SESSION['user_id'])) {
+        $sql_user = "SELECT CONCAT(COALESCE(nom, ''), ' ', COALESCE(prenoms, '')) AS nom_complet 
+                     FROM utilisateurs 
+                     WHERE id = :user_id";
+        $stmt_user = $conn->prepare($sql_user);
+        $stmt_user->bindParam(':user_id', $_SESSION['user_id']);
+        $stmt_user->execute();
+        $user_info = $stmt_user->fetch(PDO::FETCH_ASSOC);
+        if ($user_info) {
+            $utilisateur_connecte = $user_info['nom_complet'];
+        }
+    }
 
     // Récupérer les informations du bordereau
     $sql_bordereau = "SELECT b.*, 
@@ -151,6 +171,14 @@ if (isset($_GET['numero'])) {
         
         $pdf->Cell(95, 20, '', 'B', 0, 'L');
         $pdf->Cell(95, 20, '', 'B', 1, 'L');
+        
+        // Afficher qui a généré le bordereau en bas
+        if (!empty($utilisateur_connecte)) {
+            $pdf->Ln(10);
+            $pdf->SetFont('Arial', 'I', 9);
+            $pdf->SetTextColor(128, 128, 128); // Gris
+            $pdf->Cell(0, 7, iconv('UTF-8', 'windows-1252', 'Bordereau généré par: ') . iconv('UTF-8', 'windows-1252', $utilisateur_connecte), 0, 1, 'C');
+        }
 
         $pdf->Output('I', 'Bordereau_' . $numero_bordereau . '.pdf');
     } else {

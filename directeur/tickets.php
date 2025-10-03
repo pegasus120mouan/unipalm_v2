@@ -1262,13 +1262,17 @@ include('header.php');
         <form action="print_tickets_usine.php" method="POST" target="_blank">
           <div class="modal-body">
             <div class="form-group">
-              <label for="id_usine">Sélectionner une usine</label>
-              <select class="form-control" name="id_usine" id="id_usine" required>
-                <option value="">Choisir une usine</option>
-                <?php foreach($usines as $usine): ?>
-                  <option value="<?= $usine['id_usine'] ?>"><?= htmlspecialchars($usine['nom_usine']) ?></option>
-                <?php endforeach; ?>
-              </select>
+              <label for="usine_search">Sélectionner une usine</label>
+              <div class="autocomplete-container">
+                <input type="text" 
+                       class="form-control" 
+                       id="usine_search" 
+                       placeholder="Tapez le nom de l'usine..."
+                       autocomplete="off"
+                       required>
+                <input type="hidden" name="id_usine" id="id_usine" required>
+                <div id="usine_suggestions" class="autocomplete-suggestions"></div>
+              </div>
             </div>
             <div class="form-group">
               <label for="date_debut">Date début</label>
@@ -1301,18 +1305,17 @@ include('header.php');
                 <form class="forms-sample" method="post" action="print_bordereau.php" target="_blank">
                     <div class="card-body">
                         <div class="form-group">
-                            <label>Chargé de Mission</label>
-                            <select id="select" name="id_agent" class="form-control">
-                                <?php
-                                if (!empty($agents)) {
-                                    foreach ($agents as $agent) {
-                                        echo '<option value="' . $agent['id_agent'] . '">' . $agent['nom_complet_agent'] . '</option>';
-                                    }
-                                } else {
-                                    echo '<option value="">Aucune chef équipe disponible</option>';
-                                }
-                                ?>
-                            </select>
+                            <label for="agent_search_print">Chargé de Mission</label>
+                            <div class="autocomplete-container">
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="agent_search_print" 
+                                       placeholder="Tapez le nom du chargé de mission..."
+                                       autocomplete="off"
+                                       required>
+                                <input type="hidden" name="id_agent" id="id_agent_print" required>
+                                <div id="agent_suggestions_print" class="autocomplete-suggestions"></div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="date_debut">Date de debut</label>
@@ -1833,6 +1836,280 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         <?php $_SESSION['delete_pop'] = false; ?>
     <?php endif; ?>
+});
+</script>
+
+<!-- CSS pour l'autocomplétion -->
+<style>
+.autocomplete-container {
+    position: relative;
+}
+
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1050;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.autocomplete-suggestion {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.autocomplete-suggestion:hover,
+.autocomplete-suggestion.selected {
+    background-color: #f8f9fa;
+}
+
+.autocomplete-suggestion:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-suggestion .agent-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.autocomplete-loading {
+    padding: 10px 15px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+.autocomplete-no-results {
+    padding: 10px 15px;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+}
+</style>
+
+<!-- JavaScript pour l'autocomplétion -->
+<script>
+$(document).ready(function() {
+    // ===== AUTOCOMPLÉTION POUR LES AGENTS =====
+    let searchTimeout;
+    let selectedIndex = -1;
+    
+    function searchAgents(query) {
+        if (query.length < 2) {
+            $('#agent_suggestions_print').hide().empty();
+            return;
+        }
+        
+        $('#agent_suggestions_print').show().html('<div class="autocomplete-loading">Recherche en cours...</div>');
+        
+        $.ajax({
+            url: '../api/search_agents.php',
+            method: 'GET',
+            data: { q: query },
+            dataType: 'json',
+            success: function(data) {
+                displaySuggestions(data);
+            },
+            error: function() {
+                $('#agent_suggestions_print').html('<div class="autocomplete-no-results">Erreur lors de la recherche</div>');
+            }
+        });
+    }
+    
+    function displaySuggestions(agents) {
+        const suggestionsDiv = $('#agent_suggestions_print');
+        
+        if (agents.length === 0) {
+            suggestionsDiv.html('<div class="autocomplete-no-results">Aucun résultat trouvé</div>');
+            return;
+        }
+        
+        let html = '';
+        agents.forEach(function(agent, index) {
+            html += `<div class="autocomplete-suggestion" data-id="${agent.id}" data-index="${index}">
+                        <div class="agent-name">${agent.text}</div>
+                     </div>`;
+        });
+        
+        suggestionsDiv.html(html);
+        selectedIndex = -1;
+    }
+    
+    $('#agent_search_print').on('input', function() {
+        const query = $(this).val().trim();
+        $('#id_agent_print').val('');
+        selectedIndex = -1;
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+            searchAgents(query);
+        }, 300);
+    });
+    
+    $('#agent_search_print').on('keydown', function(e) {
+        const suggestions = $('.autocomplete-suggestion');
+        if (suggestions.length === 0) return;
+        
+        switch(e.keyCode) {
+            case 38: e.preventDefault(); selectedIndex = selectedIndex > 0 ? selectedIndex - 1 : suggestions.length - 1; updateSelection(); break;
+            case 40: e.preventDefault(); selectedIndex = selectedIndex < suggestions.length - 1 ? selectedIndex + 1 : 0; updateSelection(); break;
+            case 13: e.preventDefault(); if (selectedIndex >= 0) { selectSuggestion(suggestions.eq(selectedIndex)); } break;
+            case 27: $('#agent_suggestions_print').hide(); selectedIndex = -1; break;
+        }
+    });
+    
+    function updateSelection() {
+        $('.autocomplete-suggestion').removeClass('selected');
+        if (selectedIndex >= 0) {
+            $('.autocomplete-suggestion').eq(selectedIndex).addClass('selected');
+        }
+    }
+    
+    $(document).on('click', '.autocomplete-suggestion', function() {
+        selectSuggestion($(this));
+    });
+    
+    function selectSuggestion($suggestion) {
+        const agentId = $suggestion.data('id');
+        const agentName = $suggestion.find('.agent-name').text();
+        
+        $('#agent_search_print').val(agentName);
+        $('#id_agent_print').val(agentId);
+        $('#agent_suggestions_print').hide();
+        selectedIndex = -1;
+    }
+    
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.autocomplete-container').length) {
+            $('#agent_suggestions_print').hide();
+            selectedIndex = -1;
+        }
+    });
+    
+    $('#print-bordereau-agent').on('hidden.bs.modal', function() {
+        $('#agent_search_print').val('');
+        $('#id_agent_print').val('');
+        $('#agent_suggestions_print').hide().empty();
+        selectedIndex = -1;
+    });
+    
+    $('#print-bordereau-agent').on('shown.bs.modal', function() {
+        $('#agent_search_print').focus();
+    });
+    
+    // ===== AUTOCOMPLÉTION POUR LES USINES =====
+    let searchUsineTimeout;
+    let selectedUsineIndex = -1;
+    
+    function searchUsines(query) {
+        if (query.length < 2) {
+            $('#usine_suggestions').hide().empty();
+            return;
+        }
+        
+        $('#usine_suggestions').show().html('<div class="autocomplete-loading">Recherche en cours...</div>');
+        
+        $.ajax({
+            url: '../api/search_usines.php',
+            method: 'GET',
+            data: { q: query },
+            dataType: 'json',
+            success: function(data) {
+                if (data.debug) {
+                    console.log('Debug info:', data);
+                    $('#usine_suggestions').html('<div class="autocomplete-no-results">Debug: ' + data.error + '</div>');
+                } else {
+                    displayUsineSuggestions(data);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Erreur AJAX:', error);
+                $('#usine_suggestions').html('<div class="autocomplete-no-results">Erreur lors de la recherche: ' + error + '</div>');
+            }
+        });
+    }
+    
+    function displayUsineSuggestions(usines) {
+        const suggestionsDiv = $('#usine_suggestions');
+        
+        if (usines.length === 0) {
+            suggestionsDiv.html('<div class="autocomplete-no-results">Aucun résultat trouvé</div>');
+            return;
+        }
+        
+        let html = '';
+        usines.forEach(function(usine, index) {
+            html += `<div class="autocomplete-suggestion" data-id="${usine.id}" data-index="${index}">
+                        <div class="agent-name">${usine.text}</div>
+                     </div>`;
+        });
+        
+        suggestionsDiv.html(html);
+        selectedUsineIndex = -1;
+    }
+    
+    $('#usine_search').on('input', function() {
+        const query = $(this).val().trim();
+        $('#id_usine').val('');
+        selectedUsineIndex = -1;
+        clearTimeout(searchUsineTimeout);
+        searchUsineTimeout = setTimeout(function() {
+            searchUsines(query);
+        }, 300);
+    });
+    
+    $('#usine_search').on('keydown', function(e) {
+        const suggestions = $('#usine_suggestions .autocomplete-suggestion');
+        if (suggestions.length === 0) return;
+        
+        switch(e.keyCode) {
+            case 38: e.preventDefault(); selectedUsineIndex = selectedUsineIndex > 0 ? selectedUsineIndex - 1 : suggestions.length - 1; updateUsineSelection(); break;
+            case 40: e.preventDefault(); selectedUsineIndex = selectedUsineIndex < suggestions.length - 1 ? selectedUsineIndex + 1 : 0; updateUsineSelection(); break;
+            case 13: e.preventDefault(); if (selectedUsineIndex >= 0) { selectUsineSuggestion(suggestions.eq(selectedUsineIndex)); } break;
+            case 27: $('#usine_suggestions').hide(); selectedUsineIndex = -1; break;
+        }
+    });
+    
+    function updateUsineSelection() {
+        $('#usine_suggestions .autocomplete-suggestion').removeClass('selected');
+        if (selectedUsineIndex >= 0) {
+            $('#usine_suggestions .autocomplete-suggestion').eq(selectedUsineIndex).addClass('selected');
+        }
+    }
+    
+    $(document).on('click', '#usine_suggestions .autocomplete-suggestion', function() {
+        selectUsineSuggestion($(this));
+    });
+    
+    function selectUsineSuggestion($suggestion) {
+        const usineId = $suggestion.data('id');
+        const usineName = $suggestion.find('.agent-name').text();
+        
+        $('#usine_search').val(usineName);
+        $('#id_usine').val(usineId);
+        $('#usine_suggestions').hide();
+        selectedUsineIndex = -1;
+    }
+    
+    $('#print-bordereau').on('hidden.bs.modal', function() {
+        $('#usine_search').val('');
+        $('#id_usine').val('');
+        $('#usine_suggestions').hide().empty();
+        selectedUsineIndex = -1;
+    });
+    
+    $('#print-bordereau').on('shown.bs.modal', function() {
+        $('#usine_search').focus();
+    });
 });
 </script>
 

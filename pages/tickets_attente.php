@@ -98,20 +98,19 @@ $usines = getUsines($conn);
                         <!-- Recherche par agent -->
                         <div class="col-lg-3 col-md-6">
                             <div class="filter-group">
-                                <label for="agent_select" class="filter-label">
+                                <label for="agent_search_filter" class="filter-label">
                                     <i class="fas fa-user-tie me-2"></i>Agent
                                 </label>
-                                <div class="filter-select-container">
-                                    <select class="filter-select" name="agent_id" id="agent_select">
-                                        <option value="">Tous les agents</option>
-                                        <?php foreach($agents as $agent): ?>
-                                            <option value="<?= $agent['id_agent'] ?>" <?= ($agent_id == $agent['id_agent']) ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($agent['nom_complet_agent']) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <div class="select-icon">
-                                        <i class="fas fa-chevron-down"></i>
+                                <div class="autocomplete-container">
+                                    <input type="text" 
+                                           class="filter-input" 
+                                           id="agent_search_filter" 
+                                           placeholder="Tapez le nom de l'agent..."
+                                           autocomplete="off">
+                                    <input type="hidden" name="agent_id" id="agent_id_filter" value="<?= htmlspecialchars($agent_id ?? '') ?>">
+                                    <div id="agent_suggestions_filter" class="autocomplete-suggestions"></div>
+                                    <div class="input-icon">
+                                        <i class="fas fa-search"></i>
                                     </div>
                                 </div>
                             </div>
@@ -120,20 +119,19 @@ $usines = getUsines($conn);
                         <!-- Recherche par usine -->
                         <div class="col-lg-3 col-md-6">
                             <div class="filter-group">
-                                <label for="usine_select" class="filter-label">
+                                <label for="usine_search_filter" class="filter-label">
                                     <i class="fas fa-industry me-2"></i>Usine
                                 </label>
-                                <div class="filter-select-container">
-                                    <select class="filter-select" name="usine_id" id="usine_select">
-                                        <option value="">Toutes les usines</option>
-                                        <?php foreach($usines as $usine): ?>
-                                            <option value="<?= $usine['id_usine'] ?>" <?= ($usine_id == $usine['id_usine']) ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($usine['nom_usine']) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <div class="select-icon">
-                                        <i class="fas fa-chevron-down"></i>
+                                <div class="autocomplete-container">
+                                    <input type="text" 
+                                           class="filter-input" 
+                                           id="usine_search_filter" 
+                                           placeholder="Tapez le nom de l'usine..."
+                                           autocomplete="off">
+                                    <input type="hidden" name="usine_id" id="usine_id_filter" value="<?= htmlspecialchars($usine_id ?? '') ?>">
+                                    <div id="usine_suggestions_filter" class="autocomplete-suggestions"></div>
+                                    <div class="input-icon">
+                                        <i class="fas fa-search"></i>
                                     </div>
                                 </div>
                             </div>
@@ -1290,7 +1288,6 @@ $(document).ready(function() {
 
 .results-count,
 .total-count {
-    font-weight: 700;
 }
 
 .bulk-actions {
@@ -1380,14 +1377,11 @@ $(document).ready(function() {
 }
 
 .table-head {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-}
-
-.table-head th {
+    background: var(--primary-gradient);
+    color: white;
     padding: 1rem 0.75rem;
     text-align: left;
     border-bottom: 2px solid #dee2e6;
-    font-weight: 700;
     color: var(--dark-color);
     position: relative;
 }
@@ -1493,48 +1487,80 @@ $(document).ready(function() {
 .createur-info {
     display: flex;
     align-items: center;
-    font-weight: 600;
-    color: var(--dark-color);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    white-space: nowrap;
 }
 
 .status-badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.4rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    white-space: nowrap;
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.status-badge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.status-badge:hover::before {
+    left: 100%;
+}
+
+.status-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .status-pending {
-    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
-    color: #d63031;
+    background: linear-gradient(135deg, #ff9a56 0%, #ff6b35 100%);
+    color: white;
+    border: 1px solid rgba(255, 154, 86, 0.3);
 }
 
 .status-validated {
-    background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
     color: white;
+    border: 1px solid rgba(78, 205, 196, 0.3);
 }
 
 .status-in-progress {
-    background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+    background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
     color: white;
+    border: 1px solid rgba(255, 167, 38, 0.3);
 }
 
 .status-waiting {
-    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
     color: white;
+    border: 1px solid rgba(66, 165, 245, 0.3);
 }
 
 .status-amount {
-    background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+    background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
     color: white;
+    border: 1px solid rgba(102, 187, 106, 0.3);
 }
 
 .status-unpaid {
-    background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+    background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
     color: white;
+    border: 1px solid rgba(239, 83, 80, 0.3);
 }
 
 /* Liens */
@@ -1542,7 +1568,6 @@ $(document).ready(function() {
 .usine-link {
     text-decoration: none;
     color: var(--primary-color);
-    font-weight: 600;
     transition: var(--transition);
 }
 
@@ -1563,7 +1588,6 @@ $(document).ready(function() {
     border: none;
     border-radius: var(--border-radius);
     font-size: 0.8rem;
-    font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
     display: flex;
@@ -1590,6 +1614,7 @@ $(document).ready(function() {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
+
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -1668,7 +1693,6 @@ $(document).ready(function() {
             }
             tbody tr td::before {
 
-                font-weight: bold;
                 margin-right: 5px;
             }
         }
@@ -1945,7 +1969,6 @@ $(document).ready(function() {
                                         <td class="date-cell">
                                             <div class="cell-content">
                                                 <div class="date-badge">
-                                                    <i class="fas fa-calendar-alt me-2"></i>
                                                     <?= date('d/m/Y', strtotime($ticket['date_ticket'])) ?>
                                                 </div>
                                             </div>
@@ -1954,7 +1977,6 @@ $(document).ready(function() {
                                             <div class="cell-content">
                                                 <a href="#" class="ticket-link" data-toggle="modal" data-target="#ticketModal<?= $ticket['id_ticket'] ?>">
                                                     <div class="ticket-number">
-                                                        <i class="fas fa-ticket-alt me-2"></i>
                                                         <?= $ticket['numero_ticket'] ?>
                                                     </div>
                                                 </a>
@@ -1964,7 +1986,6 @@ $(document).ready(function() {
                                             <div class="cell-content">
                                                 <a href="javascript:void(0)" class="usine-link" onclick="showUsineTickets(<?= $ticket['id_usine'] ?>, '<?= addslashes($ticket['nom_usine']) ?>')">
                                                     <div class="usine-badge">
-                                                        <i class="fas fa-industry me-2"></i>
                                                         <?= $ticket['nom_usine'] ?>
                                                     </div>
                                                 </a>
@@ -1973,7 +1994,6 @@ $(document).ready(function() {
                                         <td class="agent-cell">
                                             <div class="cell-content">
                                                 <div class="agent-info">
-                                                    <i class="fas fa-user-tie me-2"></i>
                                                     <?= $ticket['agent_nom_complet'] ?>
                                                 </div>
                                             </div>
@@ -1981,7 +2001,6 @@ $(document).ready(function() {
                                         <td class="vehicule-cell">
                                             <div class="cell-content">
                                                 <div class="vehicule-badge">
-                                                    <i class="fas fa-truck me-2"></i>
                                                     <?= $ticket['matricule_vehicule'] ?>
                                                 </div>
                                             </div>
@@ -1989,7 +2008,6 @@ $(document).ready(function() {
                                         <td class="poids-cell">
                                             <div class="cell-content">
                                                 <div class="poids-value">
-                                                    <i class="fas fa-weight-hanging me-2"></i>
                                                     <?= $ticket['poids'] ?> kg
                                                 </div>
                                             </div>
@@ -1997,7 +2015,6 @@ $(document).ready(function() {
                                         <td class="createur-cell">
                                             <div class="cell-content">
                                                 <div class="createur-info">
-                                                    <i class="fas fa-user-plus me-2"></i>
                                                     <?= $ticket['utilisateur_nom_complet'] ?>
                                                 </div>
                                             </div>
@@ -2005,8 +2022,7 @@ $(document).ready(function() {
                                         <td class="date-ajout-cell">
                                             <div class="cell-content">
                                                 <div class="date-badge">
-                                                    <i class="fas fa-plus-circle me-2"></i>
-                                                    <?= date('d/m/Y', strtotime($ticket['created_at'])) ?>
+                                                    <?= date('d/m/Y H:i', strtotime($ticket['created_at'])) ?>
                                                 </div>
                                             </div>
                                         </td>
@@ -2014,12 +2030,10 @@ $(document).ready(function() {
                                             <div class="cell-content">
                                                 <?php if ($ticket['prix_unitaire'] === null || $ticket['prix_unitaire'] == 0.00): ?>
                                                     <div class="status-badge status-pending">
-                                                        <i class="fas fa-clock me-2"></i>
                                                         <span>En Attente de validation</span>
                                                     </div>
                                                 <?php else: ?>
                                                     <div class="status-badge status-validated">
-                                                        <i class="fas fa-euro-sign me-2"></i>
                                                         <span><?= $ticket['prix_unitaire'] ?> €</span>
                                                     </div>
                                                 <?php endif; ?>
@@ -2029,12 +2043,10 @@ $(document).ready(function() {
                                             <div class="cell-content">
                                                 <?php if ($ticket['date_validation_boss'] === null): ?>
                                                     <div class="status-badge status-in-progress">
-                                                        <i class="fas fa-spinner me-2"></i>
                                                         <span>En cours</span>
                                                     </div>
                                                 <?php else: ?>
                                                     <div class="date-badge">
-                                                        <i class="fas fa-check-circle me-2"></i>
                                                         <?= date('d/m/Y', strtotime($ticket['date_validation_boss'])) ?>
                                                     </div>
                                                 <?php endif; ?>
@@ -2044,12 +2056,10 @@ $(document).ready(function() {
                                             <div class="cell-content">
                                                 <?php if ($ticket['montant_paie'] === null): ?>
                                                     <div class="status-badge status-waiting">
-                                                        <i class="fas fa-hourglass-half me-2"></i>
                                                         <span>En attente de PU</span>
                                                     </div>
                                                 <?php else: ?>
                                                     <div class="status-badge status-amount">
-                                                        <i class="fas fa-euro-sign me-2"></i>
                                                         <span><?= $ticket['montant_paie'] ?> €</span>
                                                     </div>
                                                 <?php endif; ?>
@@ -2059,12 +2069,10 @@ $(document).ready(function() {
                                             <div class="cell-content">
                                                 <?php if ($ticket['date_paie'] === null): ?>
                                                     <div class="status-badge status-unpaid">
-                                                        <i class="fas fa-credit-card me-2"></i>
                                                         <span>Paie non effectuée</span>
                                                     </div>
                                                 <?php else: ?>
                                                     <div class="date-badge">
-                                                        <i class="fas fa-money-check-alt me-2"></i>
                                                         <?= date('d/m/Y', strtotime($ticket['date_paie'])) ?>
                                                     </div>
                                                 <?php endif; ?>
@@ -2074,14 +2082,13 @@ $(document).ready(function() {
                                             <div class="cell-content">
                                                 <div class="action-buttons">
                                                     <button type="button" class="btn-action-table btn-validate" data-toggle="modal" data-target="#valider_un_ticket<?= $ticket['id_ticket'] ?>" title="Valider le ticket">
-                                                        <i class="fas fa-check"></i>
                                                         <span>Valider</span>
                                                     </button>
                                                     <button type="button" class="btn-action-table btn-view" onclick="viewTicketDetails(<?= $ticket['id_ticket'] ?>)" title="Voir les détails">
-                                                        <i class="fas fa-eye"></i>
+                                                        <span>Voir</span>
                                                     </button>
                                                     <button type="button" class="btn-action-table btn-reject" onclick="rejectTicket(<?= $ticket['id_ticket'] ?>)" title="Rejeter le ticket">
-                                                        <i class="fas fa-times"></i>
+                                                        <span>Rejeter</span>
                                                     </button>
                                                 </div>
                                             </div>
@@ -2501,41 +2508,41 @@ document.getElementById('searchByVehiculeForm').addEventListener('submit', funct
             <div class="col-md-6">
               <div class="info-group">
                 <label class="text-muted">Date du ticket:</label>
-                <p class="font-weight-bold"><?= date('d/m/Y', strtotime($ticket['date_ticket'])) ?></p>
+                <p><?= date('d/m/Y', strtotime($ticket['date_ticket'])) ?></p>
               </div>
               <div class="info-group">
                 <label class="text-muted">Usine:</label>
-                <p class="font-weight-bold"><?= $ticket['nom_usine'] ?></p>
+                <p><?= $ticket['nom_usine'] ?></p>
               </div>
               <div class="info-group">
                 <label class="text-muted">Agent:</label>
-                <p class="font-weight-bold"><?= $ticket['agent_nom_complet'] ?></p>
+                <p><?= $ticket['agent_nom_complet'] ?></p>
               </div>
               <div class="info-group">
                 <label class="text-muted">Véhicule:</label>
-                <p class="font-weight-bold"><?= $ticket['matricule_vehicule'] ?></p>
+                <p><?= $ticket['matricule_vehicule'] ?></p>
               </div>
               <div class="info-group">
                 <label class="text-muted">Poids ticket:</label>
-                <p class="font-weight-bold"><?= $ticket['poids'] ?> kg</p>
+                <p><?= $ticket['poids'] ?> kg</p>
               </div>
             </div>
             <div class="col-md-6">
               <div class="info-group">
                 <label class="text-muted">Prix unitaire:</label>
-                <p class="font-weight-bold"><?= number_format($ticket['prix_unitaire'], 2, ',', ' ') ?> FCFA</p>
+                <p><?= number_format($ticket['prix_unitaire'], 2, ',', ' ') ?> FCFA</p>
               </div>
               <div class="info-group">
                 <label class="text-muted">Montant à payer:</label>
-                <p class="font-weight-bold text-primary"><?= number_format($ticket['montant_paie'], 2, ',', ' ') ?> FCFA</p>
+                <p class="text-primary"><?= number_format($ticket['montant_paie'], 2, ',', ' ') ?> FCFA</p>
               </div>
               <div class="info-group">
                 <label class="text-muted">Montant payé:</label>
-                <p class="font-weight-bold text-success"><?= number_format($ticket['montant_payer'] ?? 0, 2, ',', ' ') ?> FCFA</p>
+                <p class="text-success"><?= number_format($ticket['montant_payer'] ?? 0, 2, ',', ' ') ?> FCFA</p>
               </div>
               <div class="info-group">
                 <label class="text-muted">Reste à payer:</label>
-                <p class="font-weight-bold <?= ($ticket['montant_reste'] == 0) ? 'text-success' : 'text-danger' ?>">
+                <p class="<?= ($ticket['montant_reste'] == 0) ? 'text-success' : 'text-danger' ?>">
                   <?= number_format($ticket['montant_reste'] ?? $ticket['montant_paie'], 2, ',', ' ') ?> FCFA
                 </p>
               </div>
@@ -2544,11 +2551,11 @@ document.getElementById('searchByVehiculeForm').addEventListener('submit', funct
           <div class="border-top pt-3">
             <div class="info-group">
               <label class="text-muted">Créé par:</label>
-              <p class="font-weight-bold"><?= $ticket['utilisateur_nom_complet'] ?></p>
+              <p><?= $ticket['utilisateur_nom_complet'] ?></p>
             </div>
             <div class="info-group">
               <label class="text-muted">Date de création:</label>
-              <p class="font-weight-bold"><?= date('d/m/Y', strtotime($ticket['created_at'])) ?></p>
+              <p><?= date('d/m/Y', strtotime($ticket['created_at'])) ?></p>
             </div>
           </div>
         </div>
@@ -2905,7 +2912,7 @@ function showSearchModal(modalId) {
                     <div class="row">
                         <!-- Sélection des agents -->
                         <div class="col-md-6 mb-3">
-                            <label for="agents" class="font-weight-bold">Agents</label>
+                            <label for="agents">Agents</label>
                             <select class="form-control select2-agents" id="agents" name="agents">
                                 <?php
                                 $agents = getAgents($conn);
@@ -2917,7 +2924,7 @@ function showSearchModal(modalId) {
                         </div>
                         <!-- Sélection des usines -->
                         <div class="col-md-6 mb-3">
-                            <label for="usines" class="font-weight-bold">Usines</label>
+                            <label for="usines">Usines</label>
                             <select class="form-control select2-usines" id="usines" name="usines">
                                 <?php
                                 $usines = getUsines($conn);
@@ -2931,12 +2938,12 @@ function showSearchModal(modalId) {
                     <div class="row">
                         <!-- Date début -->
                         <div class="col-md-6 mb-3">
-                            <label for="date_debut" class="font-weight-bold">Date début</label>
+                            <label for="date_debut">Date début</label>
                             <input type="date" class="form-control" id="fdate_debut" name="date_debut" required>
                         </div>
                         <!-- Date fin -->
                         <div class="col-md-6 mb-3">
-                            <label for="date_fin" class="font-weight-bold">Date fin</label>
+                            <label for="date_fin">Date fin</label>
                             <input type="date" class="form-control" id="fdate_fin" name="date_fin" required>
                         </div>
                     </div>
@@ -3334,4 +3341,277 @@ document.addEventListener('DOMContentLoaded', function() {
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
 }
+
+/* CSS pour l'autocomplétion */
+.autocomplete-container {
+    position: relative;
+}
+
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1050;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.autocomplete-suggestion {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.autocomplete-suggestion:hover,
+.autocomplete-suggestion.selected {
+    background-color: #f8f9fa;
+}
+
+.autocomplete-suggestion:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-suggestion .agent-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.autocomplete-loading {
+    padding: 12px 16px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+.autocomplete-no-results {
+    padding: 12px 16px;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+}
 </style>
+
+<!-- JavaScript pour l'autocomplétion -->
+<script>
+$(document).ready(function() {
+    // ===== AUTOCOMPLÉTION POUR LES AGENTS =====
+    let searchAgentTimeout;
+    let selectedAgentIndex = -1;
+    
+    function searchAgentsFilter(query) {
+        if (query.length < 2) {
+            $('#agent_suggestions_filter').hide().empty();
+            return;
+        }
+        
+        $('#agent_suggestions_filter').show().html('<div class="autocomplete-loading">Recherche en cours...</div>');
+        
+        $.ajax({
+            url: '../api/search_agents.php',
+            method: 'GET',
+            data: { q: query },
+            dataType: 'json',
+            success: function(data) {
+                displayAgentSuggestions(data);
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX error:', error, 'Status:', status, 'Response:', xhr.responseText);
+                $('#agent_suggestions_filter').html('<div class="autocomplete-no-results">Erreur lors de la recherche: ' + error + '</div>');
+            }
+        });
+    }
+    
+    function displayAgentSuggestions(agents) {
+        const suggestionsDiv = $('#agent_suggestions_filter');
+        
+        if (agents.length === 0) {
+            suggestionsDiv.html('<div class="autocomplete-no-results">Aucun résultat trouvé</div>');
+            return;
+        }
+        
+        let html = '';
+        agents.forEach(function(agent, index) {
+            html += `<div class="autocomplete-suggestion" data-id="${agent.id}" data-index="${index}">
+                        <div class="agent-name">${agent.text}</div>
+                     </div>`;
+        });
+        
+        suggestionsDiv.html(html);
+        selectedAgentIndex = -1;
+    }
+    
+    $('#agent_search_filter').on('input', function() {
+        const query = $(this).val().trim();
+        $('#agent_id_filter').val('');
+        selectedAgentIndex = -1;
+        clearTimeout(searchAgentTimeout);
+        searchAgentTimeout = setTimeout(function() {
+            searchAgentsFilter(query);
+        }, 300);
+    });
+    
+    $('#agent_search_filter').on('keydown', function(e) {
+        const suggestions = $('#agent_suggestions_filter .autocomplete-suggestion');
+        if (suggestions.length === 0) return;
+        
+        switch(e.keyCode) {
+            case 38: e.preventDefault(); selectedAgentIndex = selectedAgentIndex > 0 ? selectedAgentIndex - 1 : suggestions.length - 1; updateAgentSelection(); break;
+            case 40: e.preventDefault(); selectedAgentIndex = selectedAgentIndex < suggestions.length - 1 ? selectedAgentIndex + 1 : 0; updateAgentSelection(); break;
+            case 13: e.preventDefault(); if (selectedAgentIndex >= 0) { selectAgentSuggestion(suggestions.eq(selectedAgentIndex)); } break;
+            case 27: $('#agent_suggestions_filter').hide(); selectedAgentIndex = -1; break;
+        }
+    });
+    
+    function updateAgentSelection() {
+        $('#agent_suggestions_filter .autocomplete-suggestion').removeClass('selected');
+        if (selectedAgentIndex >= 0) {
+            $('#agent_suggestions_filter .autocomplete-suggestion').eq(selectedAgentIndex).addClass('selected');
+        }
+    }
+    
+    $(document).on('click', '#agent_suggestions_filter .autocomplete-suggestion', function() {
+        selectAgentSuggestion($(this));
+    });
+    
+    function selectAgentSuggestion($suggestion) {
+        const agentId = $suggestion.data('id');
+        const agentName = $suggestion.find('.agent-name').text();
+        
+        $('#agent_search_filter').val(agentName);
+        $('#agent_id_filter').val(agentId);
+        $('#agent_suggestions_filter').hide();
+        selectedAgentIndex = -1;
+    }
+    
+    // ===== AUTOCOMPLÉTION POUR LES USINES =====
+    let searchUsineTimeout;
+    let selectedUsineIndex = -1;
+    
+    function searchUsinesFilter(query) {
+        if (query.length < 2) {
+            $('#usine_suggestions_filter').hide().empty();
+            return;
+        }
+        
+        $('#usine_suggestions_filter').show().html('<div class="autocomplete-loading">Recherche en cours...</div>');
+        
+        $.ajax({
+            url: '../api/search_usines.php',
+            method: 'GET',
+            data: { q: query },
+            dataType: 'json',
+            success: function(data) {
+                if (data.debug) {
+                    console.log('Debug info:', data);
+                    $('#usine_suggestions_filter').html('<div class="autocomplete-no-results">Debug: ' + data.error + '</div>');
+                } else {
+                    displayUsineSuggestions(data);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Erreur AJAX:', error);
+                $('#usine_suggestions_filter').html('<div class="autocomplete-no-results">Erreur lors de la recherche: ' + error + '</div>');
+            }
+        });
+    }
+    
+    function displayUsineSuggestions(usines) {
+        const suggestionsDiv = $('#usine_suggestions_filter');
+        
+        if (usines.length === 0) {
+            suggestionsDiv.html('<div class="autocomplete-no-results">Aucun résultat trouvé</div>');
+            return;
+        }
+        
+        let html = '';
+        usines.forEach(function(usine, index) {
+            html += `<div class="autocomplete-suggestion" data-id="${usine.id}" data-index="${index}">
+                        <div class="agent-name">${usine.text}</div>
+                     </div>`;
+        });
+        
+        suggestionsDiv.html(html);
+        selectedUsineIndex = -1;
+    }
+    
+    $('#usine_search_filter').on('input', function() {
+        const query = $(this).val().trim();
+        $('#usine_id_filter').val('');
+        selectedUsineIndex = -1;
+        clearTimeout(searchUsineTimeout);
+        searchUsineTimeout = setTimeout(function() {
+            searchUsinesFilter(query);
+        }, 300);
+    });
+    
+    $('#usine_search_filter').on('keydown', function(e) {
+        const suggestions = $('#usine_suggestions_filter .autocomplete-suggestion');
+        if (suggestions.length === 0) return;
+        
+        switch(e.keyCode) {
+            case 38: e.preventDefault(); selectedUsineIndex = selectedUsineIndex > 0 ? selectedUsineIndex - 1 : suggestions.length - 1; updateUsineSelection(); break;
+            case 40: e.preventDefault(); selectedUsineIndex = selectedUsineIndex < suggestions.length - 1 ? selectedUsineIndex + 1 : 0; updateUsineSelection(); break;
+            case 13: e.preventDefault(); if (selectedUsineIndex >= 0) { selectUsineSuggestion(suggestions.eq(selectedUsineIndex)); } break;
+            case 27: $('#usine_suggestions_filter').hide(); selectedUsineIndex = -1; break;
+        }
+    });
+    
+    function updateUsineSelection() {
+        $('#usine_suggestions_filter .autocomplete-suggestion').removeClass('selected');
+        if (selectedUsineIndex >= 0) {
+            $('#usine_suggestions_filter .autocomplete-suggestion').eq(selectedUsineIndex).addClass('selected');
+        }
+    }
+    
+    $(document).on('click', '#usine_suggestions_filter .autocomplete-suggestion', function() {
+        selectUsineSuggestion($(this));
+    });
+    
+    function selectUsineSuggestion($suggestion) {
+        const usineId = $suggestion.data('id');
+        const usineName = $suggestion.find('.agent-name').text();
+        
+        $('#usine_search_filter').val(usineName);
+        $('#usine_id_filter').val(usineId);
+        $('#usine_suggestions_filter').hide();
+        selectedUsineIndex = -1;
+    }
+    
+    // Cacher les suggestions quand on clique ailleurs
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.autocomplete-container').length) {
+            $('#agent_suggestions_filter').hide();
+            $('#usine_suggestions_filter').hide();
+            selectedAgentIndex = -1;
+            selectedUsineIndex = -1;
+        }
+    });
+    
+    // Initialiser les valeurs si elles existent déjà
+    <?php if (!empty($agent_id) && !empty($agents)): ?>
+        <?php foreach($agents as $agent): ?>
+            <?php if($agent['id_agent'] == $agent_id): ?>
+                $('#agent_search_filter').val('<?= htmlspecialchars($agent['nom_complet_agent']) ?>');
+                break;
+            <?php endif; ?>
+        <?php endforeach; ?>
+    <?php endif; ?>
+    
+    <?php if (!empty($usine_id) && !empty($usines)): ?>
+        <?php foreach($usines as $usine): ?>
+            <?php if($usine['id_usine'] == $usine_id): ?>
+                $('#usine_search_filter').val('<?= htmlspecialchars($usine['nom_usine']) ?>');
+                break;
+            <?php endif; ?>
+        <?php endforeach; ?>
+    <?php endif; ?>
+});
+</script>

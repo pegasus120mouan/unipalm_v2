@@ -140,17 +140,56 @@ class PDF extends FPDF {
         $this->SetFont('Arial', 'B', 10);
         $this->Cell(150, 6, $reste_a_payer_format . ' FCFA', 0, 1, 'L');
     
-        // Caissier
+        // Signatures
+        $y += 20;
+        
+        // Section signatures avec deux colonnes
+        $this->SetFont('Arial', 'B', 10);
+        
+        // Signature Caissier (à gauche)
+        $this->SetXY(20, $y);
+        $this->Cell(70, 6, 'Signature Caissier', 0, 0, 'C');
+        
+        // Signature Récepteur (à droite)
+        $this->SetXY(120, $y);
+        $this->Cell(70, 6, utf8_decode('Signature Récepteur'), 0, 1, 'C');
+        
+        // Nom du caissier
+        $y += 8;
+        $this->SetFont('Arial', '', 9);
+        $this->SetXY(20, $y);
+        $this->Cell(70, 6, utf8_decode($paiement['nom_caissier']), 0, 0, 'C');
+        
+        // Nom de l'agent (récepteur)
+        $this->SetXY(120, $y);
+        $this->Cell(70, 6, utf8_decode($paiement['nom_agent']), 0, 1, 'C');
+        
+        // Séparateur avec pointillés "DÉCOUPER ICI"
         $y += 15;
-        $this->SetFont('Arial', '', 10);
-        $this->SetXY(10, $y);
-        $this->Cell(190, 6, 'Caissier: ' . utf8_decode($paiement['nom_caissier']), 0, 1, 'C');
-
-    
-        $y += 6;
+        $this->SetFont('Arial', '', 8);
+        $this->SetTextColor(128, 128, 128); // Couleur grise
+        
+        // Dessiner les pointillés à gauche
+        for ($x = 10; $x < 80; $x += 3) {
+            $this->Line($x, $y, $x + 1, $y);
+        }
+        
+        // Texte "DÉCOUPER ICI" au centre
+        $this->SetXY(80, $y - 2);
+        $this->Cell(40, 4, utf8_decode('DÉCOUPER ICI'), 0, 0, 'C');
+        
+        // Dessiner les pointillés à droite
+        for ($x = 120; $x < 200; $x += 3) {
+            $this->Line($x, $y, $x + 1, $y);
+        }
+        
+        $this->SetTextColor(0, 0, 0); // Remettre la couleur noire
+        
+        // Date et lieu
+        $y += 10;
         $this->SetFont('Arial', 'I', 8);
         $this->SetXY(10, $y);
-        $this->Cell(190, 6, 'Ce recu est genere electroniquement et ne necessite pas de signature.', 0, 1, 'C');
+        $this->Cell(190, 6, utf8_decode('Fait à Abidjan, le ') . date('d/m/Y'), 0, 1, 'C');
     }
     
     function RotatedText($x, $y, $txt, $angle) {
