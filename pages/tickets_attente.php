@@ -486,22 +486,74 @@ function updateBulkActions() {
 
 // Fonction pour valider tous les tickets sélectionnés
 function validerTousLesTickets() {
+    const selectedTickets = [];
+    $('.ticket-checkbox:checked').each(function() {
+        selectedTickets.push($(this).val());
+    });
+
     if (selectedTickets.length === 0) {
-        showNotification('Veuillez sélectionner au moins un ticket', 'warning');
+        alert('Veuillez sélectionner au moins un ticket à valider');
         return;
     }
     
-    if (confirm(`Êtes-vous sûr de vouloir valider ${selectedTickets.length} ticket(s) ?`)) {
-        showModernLoader();
-        
-        // Simulation d'une requête AJAX
-        setTimeout(() => {
-            showNotification(`${selectedTickets.length} ticket(s) validé(s) avec succès!`, 'success');
-            hideModernLoader();
-            // Recharger la page ou mettre à jour l'interface
-            location.reload();
-        }, 2000);
+    // Mettre à jour le message du modal avec le nombre de tickets sélectionnés
+    $('#ticketCountMessage').text(selectedTickets.length + ' ticket(s) sélectionné(s)');
+    
+    // Ouvrir le modal de saisie du prix unitaire
+    $('#prixUnitaireModal').modal('show');
+}
+
+// Fonction pour confirmer la validation avec le prix unitaire saisi
+function confirmerValidationAvecPrix() {
+    const prixUnitaire = $('#prixUnitaire').val();
+    
+    if (!prixUnitaire || prixUnitaire <= 0) {
+        alert('Veuillez saisir un prix unitaire valide');
+        return;
     }
+    
+    const selectedTickets = [];
+    $('.ticket-checkbox:checked').each(function() {
+        selectedTickets.push($(this).val());
+    });
+    
+    if (selectedTickets.length === 0) {
+        alert('Aucun ticket sélectionné');
+        return;
+    }
+    
+    // Fermer le modal
+    $('#prixUnitaireModal').modal('hide');
+    
+    // Envoyer la requête AJAX pour valider les tickets avec le prix unitaire
+    $.ajax({
+        url: 'valider_tickets.php',
+        method: 'POST',
+        data: {
+            ticket_ids: selectedTickets,
+            prix_unitaire: prixUnitaire,
+            is_mass_validation: true
+        },
+        success: function(response) {
+            try {
+                const data = typeof response === 'string' ? JSON.parse(response) : response;
+                if (data.success) {
+                    alert('Tickets validés avec succès !');
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Erreur lors de la validation des tickets');
+                }
+            } catch (e) {
+                console.error('Erreur de parsing:', e);
+                alert('Erreur lors du traitement de la réponse');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Erreur:', error);
+            console.error('Response:', xhr.responseText);
+            alert('Erreur lors de la validation des tickets: ' + error);
+        }
+    });
 }
 
 // Fonction pour rejeter la sélection
@@ -1311,7 +1363,7 @@ $(document).ready(function() {
     background: rgba(255, 255, 255, 0.2);
 }
 
-/* Loader moderne */
+/* Scripts modernes */
 .modern-loader {
     display: flex;
     justify-content: center;
@@ -1373,7 +1425,19 @@ $(document).ready(function() {
 .modern-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
+    font-size: 1.1rem;
+}
+
+.modern-table td {
+    padding: 1rem 0.75rem;
+    font-size: 1.1rem;
+    line-height: 1.4;
+}
+
+.modern-table th {
+    padding: 1.2rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
 }
 
 .table-head {
@@ -1487,18 +1551,18 @@ $(document).ready(function() {
 .createur-info {
     display: flex;
     align-items: center;
-    padding: 0.4rem 0.8rem;
+    padding: 0.5rem 1rem;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 1rem;
     white-space: nowrap;
 }
 
 .status-badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.6rem 1.2rem;
+    padding: 0.7rem 1.4rem;
     border-radius: 25px;
-    font-size: 0.85rem;
+    font-size: 1rem;
     font-weight: 500;
     letter-spacing: 0.3px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -1584,10 +1648,10 @@ $(document).ready(function() {
 }
 
 .btn-action-table {
-    padding: 0.4rem 0.8rem;
+    padding: 0.6rem 1.2rem;
     border: none;
     border-radius: var(--border-radius);
-    font-size: 0.8rem;
+    font-size: 1rem;
     cursor: pointer;
     transition: var(--transition);
     display: flex;
@@ -1639,7 +1703,7 @@ $(document).ready(function() {
     }
     
     .modern-table {
-        font-size: 0.8rem;
+        font-size: 1rem;
     }
     
     .action-buttons {
@@ -1649,6 +1713,97 @@ $(document).ready(function() {
     .active-filters-list {
         flex-direction: column;
     }
+}
+
+/* Amélioration de la lisibilité - Tailles de police plus grandes */
+.table tbody tr {
+    font-size: 1.1rem;
+}
+
+.table tbody td {
+    padding: 1.2rem;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+.table thead th {
+    padding: 1.2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.status-badge {
+    font-size: 1.1rem !important;
+    padding: 0.8rem 1.5rem !important;
+}
+
+.btn-action-table {
+    font-size: 1.1rem !important;
+    padding: 0.7rem 1.3rem !important;
+}
+
+/* Responsive pour les nouvelles tailles */
+@media (max-width: 768px) {
+    .table tbody td, .table thead th {
+        font-size: 1rem;
+        padding: 1rem;
+    }
+
+    .status-badge {
+        font-size: 1rem !important;
+        padding: 0.6rem 1.2rem !important;
+    }
+
+    .btn-action-table {
+        font-size: 1rem !important;
+        padding: 0.6rem 1rem !important;
+    }
+}
+
+/* Amélioration de la pagination */
+.pagination-container {
+    font-size: 1.2rem;
+    padding: 1.5rem;
+}
+
+.pagination-container .btn {
+    font-size: 1.1rem;
+    padding: 0.8rem 1.5rem;
+    margin: 0 0.5rem;
+}
+
+.pagination-container span {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Amélioration des filtres et labels */
+.filter-label {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.filter-input {
+    font-size: 1rem;
+    padding: 0.8rem 1rem;
+}
+
+.filter-tag-label {
+    font-size: 0.9rem;
+}
+
+.filter-tag-value {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+/* Amélioration des cartes statistiques */
+.stat-number {
+    font-size: 2.2rem;
+}
+
+.stat-label {
+    font-size: 1rem;
 }
 
 /* Animations d'entrée */
@@ -1675,28 +1830,7 @@ $(document).ready(function() {
 
 .stat-card:nth-child(1) { animation-delay: 0.1s; }
 .stat-card:nth-child(2) { animation-delay: 0.2s; }
-.stat-card:nth-child(3) { animation-delay: 0.3s; }
-.stat-card:nth-child(4) { animation-delay: 0.4s; }
-</style>
-
-  <style>
-        @media only screen and (max-width: 767px) {
-            
-            th {
-                display: none; 
-            }
-            tbody tr {
-                display: block;
-                margin-bottom: 20px;
-                border: 1px solid #ccc;
-                padding: 10px;
-            }
-            tbody tr td::before {
-
-                margin-right: 5px;
-            }
         }
-        .margin-right-15 {
         margin-right: 15px;
        }
         .block-container {
@@ -1880,73 +2014,48 @@ $(document).ready(function() {
                                 <th class="sortable" data-sort="date">
                                     <div class="th-content">
                                         <span>Date Ticket</span>
-                                        <i class="fas fa-sort sort-icon"></i>
                                     </div>
                                 </th>
                                 <th class="sortable" data-sort="numero">
                                     <div class="th-content">
                                         <span>Numéro Ticket</span>
-                                        <i class="fas fa-sort sort-icon"></i>
+                                      
                                     </div>
                                 </th>
                                 <th class="sortable" data-sort="usine">
                                     <div class="th-content">
                                         <span>Usine</span>
-                                        <i class="fas fa-sort sort-icon"></i>
                                     </div>
                                 </th>
                                 <th class="sortable" data-sort="agent">
                                     <div class="th-content">
                                         <span>Chargé de Mission</span>
-                                        <i class="fas fa-sort sort-icon"></i>
                                     </div>
                                 </th>
                                 <th class="sortable" data-sort="vehicule">
                                     <div class="th-content">
                                         <span>Véhicule</span>
-                                        <i class="fas fa-sort sort-icon"></i>
                                     </div>
                                 </th>
                                 <th class="sortable" data-sort="poids">
                                     <div class="th-content">
                                         <span>Poids</span>
-                                        <i class="fas fa-sort sort-icon"></i>
                                     </div>
                                 </th>
-                                <th class="sortable" data-sort="createur">
-                                    <div class="th-content">
-                                        <span>Ticket Créé Par</span>
-                                        <i class="fas fa-sort sort-icon"></i>
-                                    </div>
-                                </th>
+
                                 <th class="sortable" data-sort="date_ajout">
                                     <div class="th-content">
                                         <span>Date Ajout</span>
-                                        <i class="fas fa-sort sort-icon"></i>
                                     </div>
                                 </th>
                                 <th class="sortable" data-sort="prix">
                                     <div class="th-content">
                                         <span>Prix Unitaire</span>
-                                        <i class="fas fa-sort sort-icon"></i>
-                                    </div>
-                                </th>
-                                <th class="sortable" data-sort="validation">
-                                    <div class="th-content">
-                                        <span>Date Validation</span>
-                                        <i class="fas fa-sort sort-icon"></i>
                                     </div>
                                 </th>
                                 <th class="sortable" data-sort="montant">
                                     <div class="th-content">
                                         <span>Montant</span>
-                                        <i class="fas fa-sort sort-icon"></i>
-                                    </div>
-                                </th>
-                                <th class="sortable" data-sort="paie">
-                                    <div class="th-content">
-                                        <span>Date Paie</span>
-                                        <i class="fas fa-sort sort-icon"></i>
                                     </div>
                                 </th>
                                 <th class="actions-column">
@@ -2012,13 +2121,6 @@ $(document).ready(function() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="createur-cell">
-                                            <div class="cell-content">
-                                                <div class="createur-info">
-                                                    <?= $ticket['utilisateur_nom_complet'] ?>
-                                                </div>
-                                            </div>
-                                        </td>
                                         <td class="date-ajout-cell">
                                             <div class="cell-content">
                                                 <div class="date-badge">
@@ -2030,24 +2132,11 @@ $(document).ready(function() {
                                             <div class="cell-content">
                                                 <?php if ($ticket['prix_unitaire'] === null || $ticket['prix_unitaire'] == 0.00): ?>
                                                     <div class="status-badge status-pending">
-                                                        <span>En Attente de validation</span>
+                                                        <span>Attente</span>
                                                     </div>
                                                 <?php else: ?>
                                                     <div class="status-badge status-validated">
-                                                        <span><?= $ticket['prix_unitaire'] ?> €</span>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                        <td class="validation-cell">
-                                            <div class="cell-content">
-                                                <?php if ($ticket['date_validation_boss'] === null): ?>
-                                                    <div class="status-badge status-in-progress">
-                                                        <span>En cours</span>
-                                                    </div>
-                                                <?php else: ?>
-                                                    <div class="date-badge">
-                                                        <?= date('d/m/Y', strtotime($ticket['date_validation_boss'])) ?>
+                                                        <span><?= $ticket['prix_unitaire'] ?></span>
                                                     </div>
                                                 <?php endif; ?>
                                             </div>
@@ -2060,20 +2149,7 @@ $(document).ready(function() {
                                                     </div>
                                                 <?php else: ?>
                                                     <div class="status-badge status-amount">
-                                                        <span><?= $ticket['montant_paie'] ?> €</span>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                        <td class="paie-cell">
-                                            <div class="cell-content">
-                                                <?php if ($ticket['date_paie'] === null): ?>
-                                                    <div class="status-badge status-unpaid">
-                                                        <span>Paie non effectuée</span>
-                                                    </div>
-                                                <?php else: ?>
-                                                    <div class="date-badge">
-                                                        <?= date('d/m/Y', strtotime($ticket['date_paie'])) ?>
+                                                        <span><?= $ticket['montant_paie'] ?></span>
                                                     </div>
                                                 <?php endif; ?>
                                             </div>
@@ -2083,12 +2159,6 @@ $(document).ready(function() {
                                                 <div class="action-buttons">
                                                     <button type="button" class="btn-action-table btn-validate" data-toggle="modal" data-target="#valider_un_ticket<?= $ticket['id_ticket'] ?>" title="Valider le ticket">
                                                         <span>Valider</span>
-                                                    </button>
-                                                    <button type="button" class="btn-action-table btn-view" onclick="viewTicketDetails(<?= $ticket['id_ticket'] ?>)" title="Voir les détails">
-                                                        <span>Voir</span>
-                                                    </button>
-                                                    <button type="button" class="btn-action-table btn-reject" onclick="rejectTicket(<?= $ticket['id_ticket'] ?>)" title="Rejeter le ticket">
-                                                        <span>Rejeter</span>
                                                     </button>
                                                 </div>
                                             </div>
@@ -3126,6 +3196,50 @@ function validerEnMasse() {
     </div>
 </div>
 
+<!-- Modal pour saisir le prix unitaire -->
+<div class="modal fade" id="prixUnitaireModal" tabindex="-1" aria-labelledby="prixUnitaireModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background: var(--success-gradient); color: white;">
+                <h5 class="modal-title" id="prixUnitaireModalLabel">
+                    <i class="fas fa-euro-sign me-2"></i>Saisir le Prix Unitaire
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <span id="ticketCountMessage">0 ticket(s) sélectionné(s)</span>
+                </div>
+                <form id="prixUnitaireForm">
+                    <div class="mb-3">
+                        <label for="prixUnitaire" class="form-label">
+                            <i class="fas fa-money-bill-wave me-2"></i>Prix Unitaire (FCFA)
+                        </label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="prixUnitaire" 
+                               name="prix_unitaire" 
+                               step="0.01" 
+                               min="0" 
+                               placeholder="Entrez le prix unitaire"
+                               required>
+                        <div class="form-text">Le prix sera appliqué à tous les tickets sélectionnés</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-success" onclick="confirmerValidationAvecPrix()">
+                    <i class="fas fa-check me-2"></i>Valider avec ce prix
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Afficher le loader
@@ -3312,6 +3426,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .table {
     background-color: white;
+    font-size: 1.1rem;
+}
+
+.table td, .table th {
+    padding: 1rem;
+    font-size: 1.1rem;
+    line-height: 1.4;
+}
+
+.table thead th {
+    font-size: 1rem;
+    font-weight: 600;
 }
 
 /* Styles pour les filtres actifs */
@@ -3320,8 +3446,8 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .badge {
-    font-size: 0.9rem;
-    padding: 8px 12px;
+    font-size: 1rem;
+    padding: 10px 15px;
     margin-right: 8px;
     margin-bottom: 8px;
     border-radius: 20px;
@@ -3613,5 +3739,10 @@ $(document).ready(function() {
             <?php endif; ?>
         <?php endforeach; ?>
     <?php endif; ?>
+    
+    // Réinitialiser le formulaire quand le modal se ferme
+    $('#prixUnitaireModal').on('hidden.bs.modal', function () {
+        $('#prixUnitaireForm')[0].reset();
+    });
 });
 </script>

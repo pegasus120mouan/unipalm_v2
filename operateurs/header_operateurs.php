@@ -872,6 +872,23 @@ $ticket_paye = $requete_tpaye->fetch(PDO::FETCH_ASSOC);
                 </li>
               </ul>
             </li>
+            <li class="nav-item">
+              <a href="javascript:void(0)" class="nav-link">
+                <i class="nav-icon fas fa-cogs"></i>
+                <p>
+                  Gestion
+                  <i class="fas fa-angle-left right"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="vehicules.php" class="nav-link">
+                    <i class="fas fa-car"></i>
+                    <p>Gestion des véhicules</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
 
          
 

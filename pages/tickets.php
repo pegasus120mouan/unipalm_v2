@@ -591,7 +591,7 @@ include('header.php');
                 </span>
             <?php else: ?>
                 <span class="status-badge status-validated">
-                    <i class="fas fa-euro-sign mr-1"></i><?= number_format($ticket['prix_unitaire'], 2) ?>
+                    <?= number_format($ticket['prix_unitaire'], 0, '', '') ?>
                 </span>
             <?php endif; ?>
         </td>
@@ -616,7 +616,7 @@ include('header.php');
             </span>
         <?php else: ?>
             <span class="status-badge status-paid">
-                <i class="fas fa-euro-sign mr-1"></i><?= number_format($ticket['montant_paie'], 2) ?>
+                <?= number_format($ticket['montant_paie'], 0, '', '') ?>
             </span>
             <?php endif; ?>
           </td>

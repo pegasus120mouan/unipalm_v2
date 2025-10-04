@@ -1346,7 +1346,6 @@ $tickets_list = array_slice($tickets, $offset, $limit);
                 </th>
                 <th class="th-price">
                     <div class="th-content">
-                        <i class="fas fa-euro-sign me-2"></i>
                         <span>Prix Unitaire</span>
                     </div>
                 </th>
@@ -1445,7 +1444,6 @@ $tickets_list = array_slice($tickets, $offset, $limit);
                                     </div>
                                 <?php else: ?>
                                     <div class="price-badge">
-                                        <i class="fas fa-euro-sign me-1"></i>
                                         <span class="price-value"><?= number_format($ticket['prix_unitaire'], 2) ?></span>
                                     </div>
                                 <?php endif; ?>

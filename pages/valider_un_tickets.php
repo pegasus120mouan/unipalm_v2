@@ -12,14 +12,16 @@ $prix_unitaire = $_POST['prix_unitaire'];
 $sql = "UPDATE tickets 
             SET date_validation_boss = NOW(),
                 prix_unitaire = :prix_unitaire,
-                montant_paie = :prix_unitaire * poids
+                montant_paie = :prix_unitaire2 * poids
             WHERE id_ticket = :id_ticket";
 
 $stmt = $conn->prepare($sql);
-$stmt->bindParam(':prix_unitaire', $prix_unitaire);
-$stmt->bindParam(':id_ticket', $id_ticket);
 
-if ($stmt->execute()) {
+if ($stmt->execute([
+    ':prix_unitaire' => $prix_unitaire,
+    ':prix_unitaire2' => $prix_unitaire,
+    ':id_ticket' => $id_ticket
+])) {
     $_SESSION['popup'] = true;
     header('Location: tickets_attente.php');
     exit(0);
