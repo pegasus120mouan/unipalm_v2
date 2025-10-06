@@ -29,9 +29,17 @@ $getSortiesQuery = "SELECT * FROM sorties_diverses ORDER BY date_sortie DESC";
 $getSortiesStmt = $conn->query($getSortiesQuery);
 $sorties = $getSortiesStmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Debug: Afficher le nombre de sorties trouvées
+echo "<!-- DEBUG: Nombre de sorties trouvées: " . count($sorties) . " -->";
+if (count($sorties) > 0) {
+    echo "<!-- DEBUG: Première sortie: " . print_r($sorties[0], true) . " -->";
+}
+
 // Paginate results
 $sorties_pages = array_chunk($sorties, $limit);
 $sorties_list = $sorties_pages[$page - 1] ?? [];
+
+echo "<!-- DEBUG: Nombre de sorties dans la page actuelle: " . count($sorties_list) . " -->";
 ?>
 
 <style>
@@ -368,6 +376,12 @@ body {
 }
 </style>
 
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
+
 <div class="content-wrapper">
     <div class="container-fluid compact-layout" style="padding: 0.75rem 1.5rem;">
         <!-- Header -->
@@ -484,10 +498,31 @@ body {
                                     </div>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm" style="background: var(--info-gradient); color: white; border: none; border-radius: 8px; padding: 8px 12px;" title="Voir détails">
+                                    <button class="btn btn-sm btn-view-sortie" 
+                                            data-id="<?= $sortie['id_sorties'] ?>" 
+                                            data-numero="<?= $sortie['numero_sorties'] ?>" 
+                                            data-date="<?= $sortie['date_sortie'] ?>" 
+                                            data-montant="<?= $sortie['montant'] ?>" 
+                                            data-motifs="<?= htmlspecialchars($sortie['motifs']) ?>" 
+                                            style="background: var(--info-gradient); color: white; border: none; border-radius: 8px; padding: 8px 12px;" 
+                                            title="Voir détails">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="btn btn-sm" style="background: var(--danger-gradient); color: white; border: none; border-radius: 8px; padding: 8px 12px; margin-left: 5px;" title="Supprimer">
+                                    <button class="btn btn-sm btn-edit-sortie" 
+                                            data-id="<?= $sortie['id_sorties'] ?>" 
+                                            data-numero="<?= $sortie['numero_sorties'] ?>" 
+                                            data-date="<?= $sortie['date_sortie'] ?>" 
+                                            data-montant="<?= $sortie['montant'] ?>" 
+                                            data-motifs="<?= htmlspecialchars($sortie['motifs']) ?>" 
+                                            style="background: var(--warning-gradient); color: white; border: none; border-radius: 8px; padding: 8px 12px; margin-left: 5px;" 
+                                            title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-delete-sortie" 
+                                            data-id="<?= $sortie['id_sorties'] ?>" 
+                                            data-numero="<?= $sortie['numero_sorties'] ?>" 
+                                            style="background: var(--danger-gradient); color: white; border: none; border-radius: 8px; padding: 8px 12px; margin-left: 5px;" 
+                                            title="Supprimer">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
@@ -684,6 +719,175 @@ body {
     </div>
 </div>
 
+<!-- Modal de visualisation des détails -->
+<div class="modal fade" id="view-sortie-modal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: var(--shadow-heavy);">
+            <div class="modal-header" style="background: var(--info-gradient); color: white; border-radius: 20px 20px 0 0; border: none;">
+                <h4 class="modal-title" style="font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-eye"></i>
+                    Détails de la Sortie
+                </h4>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 1;">
+                    <span aria-hidden="true" style="font-size: 1.5rem;">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 2rem;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="detail-item mb-3">
+                            <label style="font-weight: 600; color: #2c3e50; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-hashtag text-primary"></i>
+                                Numéro de sortie
+                            </label>
+                            <div id="view-numero" style="font-size: 1.1rem; color: #495057; font-weight: 500;"></div>
+                        </div>
+                        <div class="detail-item mb-3">
+                            <label style="font-weight: 600; color: #2c3e50; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-calendar text-info"></i>
+                                Date de sortie
+                            </label>
+                            <div id="view-date" style="font-size: 1.1rem; color: #495057; font-weight: 500;"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-item mb-3">
+                            <label style="font-weight: 600; color: #2c3e50; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-money-bill-wave text-success"></i>
+                                Montant
+                            </label>
+                            <div id="view-montant" style="font-size: 1.3rem; color: #28a745; font-weight: 700;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <label style="font-weight: 600; color: #2c3e50; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                        <i class="fas fa-comment text-warning"></i>
+                        Motifs de la sortie
+                    </label>
+                    <div id="view-motifs" style="background: #f8f9fa; padding: 1rem; border-radius: 10px; border-left: 4px solid var(--info-gradient); font-size: 1rem; line-height: 1.5;"></div>
+                </div>
+            </div>
+            <div class="modal-footer" style="background: #f8f9fa; border-radius: 0 0 20px 20px; border: none; padding: 1.5rem 2rem;">
+                <button type="button" class="btn" data-dismiss="modal" style="background: #6c757d; color: white; border: none; border-radius: 10px; padding: 12px 24px; font-weight: 600;">
+                    <i class="fas fa-times me-2"></i>Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de modification -->
+<div class="modal fade" id="edit-sortie-modal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: var(--shadow-heavy);">
+            <div class="modal-header" style="background: var(--warning-gradient); color: white; border-radius: 20px 20px 0 0; border: none;">
+                <h4 class="modal-title" style="font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-edit"></i>
+                    Modifier la Sortie Diverse
+                </h4>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 1;">
+                    <span aria-hidden="true" style="font-size: 1.5rem;">&times;</span>
+                </button>
+            </div>
+            <form class="needs-validation" method="post" action="update_sortie_diverse.php" novalidate>
+                <div class="modal-body" style="padding: 2rem;">
+                    <input type="hidden" name="update_sortie" value="1">
+                    <input type="hidden" name="sortie_id" id="edit-sortie-id">
+                    
+                    <div class="form-group">
+                        <label for="edit-montant" style="font-weight: 600; color: #2c3e50; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-money-bill-wave text-warning"></i>
+                            Montant <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group" style="border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-light);">
+                            <input type="text" 
+                                class="form-control" 
+                                id="edit-montant" 
+                                name="montant"
+                                placeholder="Entrez le montant de la sortie"
+                                style="border: 2px solid #e9ecef; border-right: none; padding: 15px; font-size: 1.1rem; font-weight: 500;"
+                                required>
+                            <div class="input-group-append">
+                                <span class="input-group-text" style="background: var(--warning-gradient); color: white; border: 2px solid #e9ecef; border-left: none; font-weight: 600; padding: 15px;">
+                                    FCFA
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-4">
+                        <label for="edit-motifs" style="font-weight: 600; color: #2c3e50; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-comment text-info"></i>
+                            Motifs de la sortie <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" 
+                                id="edit-motifs" 
+                                name="motifs" 
+                                rows="4" 
+                                placeholder="Décrivez la raison de cette sortie diverse"
+                                style="border: 2px solid #e9ecef; border-radius: 12px; padding: 15px; font-size: 1rem; resize: vertical; box-shadow: var(--shadow-light);"
+                                required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="background: #f8f9fa; border-radius: 0 0 20px 20px; border: none; padding: 1.5rem 2rem;">
+                    <button type="button" class="btn" data-dismiss="modal" style="background: #6c757d; color: white; border: none; border-radius: 10px; padding: 12px 24px; font-weight: 600;">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </button>
+                    <button type="submit" class="btn" style="background: var(--warning-gradient); color: white; border: none; border-radius: 10px; padding: 12px 24px; font-weight: 600; box-shadow: var(--shadow-light);">
+                        <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="delete-sortie-modal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: var(--shadow-heavy);">
+            <div class="modal-header" style="background: var(--danger-gradient); color: white; border-radius: 20px 20px 0 0; border: none;">
+                <h4 class="modal-title" style="font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Confirmer la suppression
+                </h4>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 1;">
+                    <span aria-hidden="true" style="font-size: 1.5rem;">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 2rem; text-align: center;">
+                <div style="font-size: 4rem; color: #dc3545; margin-bottom: 1rem;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h5 style="color: #2c3e50; margin-bottom: 1rem;">Êtes-vous sûr de vouloir supprimer cette sortie ?</h5>
+                <p style="color: #6c757d; margin-bottom: 1.5rem;">Sortie N° <strong id="delete-numero"></strong></p>
+                <div class="alert alert-warning" style="border-radius: 12px; border: none; background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 107, 107, 0.1));">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>Attention :</strong> Cette action est irréversible !
+                </div>
+            </div>
+            <div class="modal-footer" style="background: #f8f9fa; border-radius: 0 0 20px 20px; border: none; padding: 1.5rem 2rem; justify-content: center;">
+                <button type="button" class="btn" data-dismiss="modal" style="background: #6c757d; color: white; border: none; border-radius: 10px; padding: 12px 24px; font-weight: 600; margin-right: 1rem;">
+                    <i class="fas fa-times me-2"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-confirm-delete" style="background: var(--danger-gradient); color: white; border: none; border-radius: 10px; padding: 12px 24px; font-weight: 600; box-shadow: var(--shadow-light);">
+                    <i class="fas fa-trash me-2"></i>Supprimer définitivement
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery et Bootstrap CDN -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables CDN -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
+
 <!-- Modern JavaScript -->
 <script>
 $(document).ready(function() {
@@ -700,6 +904,9 @@ $(document).ready(function() {
             // Add modern styling to DataTable elements
             $('.dataTables_length select').addClass('form-select form-select-sm');
             $('.dataTables_filter input').addClass('form-control form-control-sm');
+            
+            // Réattacher les événements après redraw de DataTables
+            attachSortieEvents();
         }
     });
 
@@ -803,6 +1010,98 @@ $(document).ready(function() {
             $(this).css('transform', 'translateY(0) scale(1)');
         }
     );
+
+    // Fonction pour attacher les événements des boutons
+    function attachSortieEvents() {
+        // Supprimer les anciens événements pour éviter les doublons
+        $('.btn-view-sortie, .btn-edit-sortie, .btn-delete-sortie').off('click');
+        
+        // Bouton Voir détails
+        $('.btn-view-sortie').on('click', function(e) {
+            e.preventDefault();
+            const data = $(this).data();
+            
+            $('#view-numero').text(data.numero);
+            $('#view-date').text(new Date(data.date).toLocaleDateString('fr-FR', {
+                year: 'numeric',
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }));
+            $('#view-montant').text(parseInt(data.montant).toLocaleString('fr-FR') + ' FCFA');
+            $('#view-motifs').text(data.motifs);
+            
+            $('#view-sortie-modal').modal('show');
+        });
+        
+        // Bouton Modifier
+        $('.btn-edit-sortie').on('click', function(e) {
+            e.preventDefault();
+            console.log('Clic sur modifier détecté');
+            
+            const data = $(this).data();
+            console.log('Données:', data);
+            
+            // Vérifier si Bootstrap est chargé
+            if (typeof $.fn.modal === 'undefined') {
+                console.error('Bootstrap modal n\'est pas chargé');
+                alert('Erreur: Bootstrap n\'est pas chargé correctement');
+                return;
+            }
+            
+            $('#edit-sortie-id').val(data.id);
+            $('#edit-montant').val(parseInt(data.montant).toLocaleString('fr-FR'));
+            $('#edit-motifs').val(data.motifs);
+            
+            console.log('Ouverture du modal...');
+            $('#edit-sortie-modal').modal('show');
+        });
+        
+        // Bouton Supprimer
+        $('.btn-delete-sortie').on('click', function(e) {
+            e.preventDefault();
+            const data = $(this).data();
+            
+            $('#delete-numero').text(data.numero);
+            $('.btn-confirm-delete').data('id', data.id);
+            
+            $('#delete-sortie-modal').modal('show');
+        });
+    }
+    
+    // Attacher les événements au chargement initial
+    attachSortieEvents();
+    
+    // Formatage du montant dans le modal de modification
+    $('#edit-montant').on('input', function(e) {
+        let value = this.value.replace(/\D/g, '');
+        if (value !== '') {
+            value = parseInt(value).toLocaleString('fr-FR');
+        }
+        this.value = value;
+    });
+    
+    // Soumission du formulaire de modification
+    $('form[action="update_sortie_diverse.php"]').on('submit', function(e) {
+        let montantInput = $('#edit-montant');
+        let cleanValue = montantInput.val().replace(/\s/g, '');
+        montantInput.val(cleanValue);
+        
+        // Show loading state
+        $(this).find('button[type="submit"]').html('<i class="fas fa-spinner fa-spin me-2"></i>Modification...');
+    });
+    
+    // Confirmation de suppression
+    $(document).on('click', '.btn-confirm-delete', function() {
+        const sortieId = $(this).data('id');
+        
+        // Show loading state
+        $(this).html('<i class="fas fa-spinner fa-spin me-2"></i>Suppression...');
+        
+        // Redirection vers le script de suppression
+        window.location.href = 'delete_sortie_diverse.php?id=' + sortieId;
+    });
 
     // Success/Error message handling
     <?php if (isset($_SESSION['success_message'])): ?>
