@@ -42,6 +42,9 @@ $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 try {
     // Préparation des filtres
     $filters = [];
+    // Filtrage par utilisateur connecté
+    $filters['utilisateur'] = $id_user;
+    
     if (!empty($agent_id)) {
         $filters['agent'] = $agent_id;
     }
@@ -57,7 +60,7 @@ try {
 
     if (!empty($numero_ticket)) {
         // Si un numéro de ticket est spécifié, on ne récupère que ce ticket
-        $tickets = searchTickets($conn, null, null, null, null, $numero_ticket);
+        $tickets = searchTickets($conn, null, null, null, null, $numero_ticket, $id_user);
         $tickets_list = $tickets; // Pas besoin de pagination pour une recherche spécifique
         $total_pages = 1;
     } else {
@@ -82,6 +85,8 @@ try {
     $chefs_equipes = is_array($chefs_equipes) ? $chefs_equipes : [];
     $vehicules = is_array($vehicules) ? $vehicules : [];
     $agents = is_array($agents) ? $agents : [];
+    
+    
 
 } catch (Exception $e) {
     error_log("Erreur lors de la récupération des données: " . $e->getMessage());
@@ -718,8 +723,6 @@ tbody tr:hover {
                     <th><i class="fas fa-user me-2"></i>Agent</th>
                     <th><i class="fas fa-truck me-2"></i>Véhicule</th>
                     <th><i class="fas fa-weight me-2"></i>Poids</th>
-                    <th><i class="fas fa-coins me-2"></i>Prix Unitaire</th>
-                    <th><i class="fas fa-money-bill me-2"></i>Montant à Payer</th>
                     <th><i class="fas fa-cogs me-2"></i>Actions</th>
                   </tr>
                 </thead>
@@ -758,8 +761,6 @@ tbody tr:hover {
                                   <?= number_format($ticket['poids'], 0, ',', ' ') ?> kg
                                 </span>
                               </td>
-                              <td class="fw-bold text-success"><?= number_format($ticket['prix_unitaire'], 0, ',', ' ') ?></td>
-                              <td class="fw-bold text-primary"><?= number_format($ticket['montant_paie'], 0, ',', ' ') ?></td>
                               <td>
                                 <div class="btn-group">
                                   <button type="button" class="btn btn-info dropdown-toggle modern-btn" data-bs-toggle="dropdown" aria-expanded="false">
@@ -780,9 +781,6 @@ tbody tr:hover {
                                         <i class="fas fa-truck text-warning me-2"></i> Changer Véhicule
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item <?= $ticket['date_paie'] !== null ? 'disabled' : '' ?>" href="#" data-bs-toggle="modal" data-bs-target="#editModalPrixUnitaire<?= $ticket['id_ticket'] ?>">
-                                        <i class="fas fa-money-bill text-success me-2"></i> Changer Prix Unitaire
-                                    </a>
                                     <a class="dropdown-item <?= $ticket['date_paie'] !== null ? 'disabled' : '' ?>" href="#" data-bs-toggle="modal" data-bs-target="#editModalDateCreation<?= $ticket['id_ticket'] ?>">
                                         <i class="fas fa-calendar-alt text-danger me-2"></i> Changer Date Création
                                     </a>
@@ -868,26 +866,38 @@ tbody tr:hover {
     <!-- Modales pour chaque ticket -->
     <?php foreach ($tickets_list as $ticket) : ?>
       <!-- Modal pour modifier le numéro de ticket -->
-      <div class="modal fade" id="editModalNumeroTicket<?= $ticket['id_ticket'] ?>">
-        <div class="modal-dialog">
+      <div class="modal fade" id="editModalNumeroTicket<?= $ticket['id_ticket'] ?>" tabindex="-1" role="dialog" aria-labelledby="editModalNumeroTicketLabel<?= $ticket['id_ticket'] ?>">
+        <div class="modal-dialog" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Modifier le numéro de ticket</h5>
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <div class="modal-header bg-warning text-dark">
+              <h5 class="modal-title" id="editModalNumeroTicketLabel<?= $ticket['id_ticket'] ?>">
+                <i class="fas fa-hashtag me-2"></i>Modifier le numéro de ticket
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body">
               <form action="traitement_tickets.php" method="post">
                 <input type="hidden" name="id_ticket" value="<?= $ticket['id_ticket'] ?>">
-                <div class="form-group">
-                  <label>Nouveau numéro de ticket</label>
-                  <input type="text" name="numero_ticket" class="form-control" value="<?= $ticket['numero_ticket'] ?>" required>
+                
+                <div class="mb-3">
+                  <label for="numero_ticket<?= $ticket['id_ticket'] ?>" class="form-label fw-bold">
+                    <i class="fas fa-ticket-alt me-2"></i>Nouveau numéro de ticket
+                  </label>
+                  <input type="text" 
+                         name="numero_ticket" 
+                         id="numero_ticket<?= $ticket['id_ticket'] ?>"
+                         class="form-control" 
+                         value="<?= htmlspecialchars($ticket['numero_ticket']) ?>" 
+                         placeholder="Saisir le nouveau numéro"
+                         required>
                 </div>
-                <div class="modal-footer">
-                  <button type="submit" class="btn btn-success" name="updateNumeroTicket">
-                    <i class="fas fa-save"></i> Mettre à jour
+
+                <div class="modal-footer bg-light">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Annuler
                   </button>
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <i class="fas fa-times"></i> Annuler
+                  <button type="submit" class="btn btn-success" name="updateNumeroTicket">
+                    <i class="fas fa-save me-1"></i> Enregistrer
                   </button>
                 </div>
               </form>
@@ -897,20 +907,25 @@ tbody tr:hover {
       </div>
 
       <!-- Modal pour modifier l'usine -->
-      <div class="modal fade" id="editModalUsine<?= $ticket['id_ticket'] ?>">
-        <div class="modal-dialog">
+      <div class="modal fade" id="editModalUsine<?= $ticket['id_ticket'] ?>" tabindex="-1" role="dialog" aria-labelledby="editModalUsineLabel<?= $ticket['id_ticket'] ?>">
+        <div class="modal-dialog" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Modifier l'usine</h5>
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <div class="modal-header bg-success text-white">
+              <h5 class="modal-title" id="editModalUsineLabel<?= $ticket['id_ticket'] ?>">
+                <i class="fas fa-industry me-2"></i>Modifier l'usine
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body">
               <form action="traitement_tickets.php" method="post">
                 <input type="hidden" name="id_ticket" value="<?= $ticket['id_ticket'] ?>">
-                <div class="form-group">
-                  <label for="usine<?= $ticket['id_ticket'] ?>" class="font-weight-bold mb-2">Sélectionner la nouvelle usine</label>
-                  <select name="usine" id="usine<?= $ticket['id_ticket'] ?>" class="form-control select2-usine" style="width: 100%;">
-                    <option value="">Sélectionner une usine</option>
+                
+                <div class="mb-3">
+                  <label for="usine<?= $ticket['id_ticket'] ?>" class="form-label fw-bold">
+                    <i class="fas fa-building me-2"></i>Sélectionner une usine
+                  </label>
+                  <select name="usine" id="usine<?= $ticket['id_ticket'] ?>" class="form-select" required>
+                    <option value="">-- Sélectionner une usine --</option>
                     <?php foreach ($usines as $usine) : ?>
                       <option value="<?= htmlspecialchars($usine['id_usine']) ?>" <?= $usine['id_usine'] == $ticket['id_usine'] ? 'selected' : '' ?>>
                         <?= htmlspecialchars($usine['nom_usine']) ?>
@@ -918,12 +933,13 @@ tbody tr:hover {
                     <?php endforeach; ?>
                   </select>
                 </div>
-                <div class="modal-footer">
-                  <button type="submit" class="btn btn-success" name="updateUsine">
-                    <i class="fas fa-save"></i> Mettre à jour
+
+                <div class="modal-footer bg-light">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Annuler
                   </button>
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <i class="fas fa-times"></i> Annuler
+                  <button type="submit" class="btn btn-success" name="updateUsine">
+                    <i class="fas fa-save me-1"></i> Enregistrer
                   </button>
                 </div>
               </form>
@@ -933,20 +949,25 @@ tbody tr:hover {
       </div>
 
       <!-- Modal pour modifier le chef de mission -->
-      <div class="modal fade" id="editModalChefEquipe<?= $ticket['id_ticket'] ?>">
-        <div class="modal-dialog">
+      <div class="modal fade" id="editModalChefEquipe<?= $ticket['id_ticket'] ?>" tabindex="-1" role="dialog" aria-labelledby="editModalChefEquipeLabel<?= $ticket['id_ticket'] ?>">
+        <div class="modal-dialog" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Modifier chargé de mission</h5>
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <div class="modal-header bg-info text-white">
+              <h5 class="modal-title" id="editModalChefEquipeLabel<?= $ticket['id_ticket'] ?>">
+                <i class="fas fa-user-tie me-2"></i>Modifier le chargé de mission
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body">
               <form action="traitement_tickets.php" method="post">
                 <input type="hidden" name="id_ticket" value="<?= $ticket['id_ticket'] ?>">
-                <div class="form-group">
-                  <label for="chef_equipe<?= $ticket['id_ticket'] ?>" class="font-weight-bold mb-2">Sélectionner le nouveau chargé de mission</label>
-                  <select name="chef_equipe" id="chef_equipe<?= $ticket['id_ticket'] ?>" class="form-control select2-chef-equipe" style="width: 100%;">
-                    <option value="">Sélectionner un chargé de mission</option>
+                
+                <div class="mb-3">
+                  <label for="chef_equipe<?= $ticket['id_ticket'] ?>" class="form-label fw-bold">
+                    <i class="fas fa-users me-2"></i>Sélectionner un chargé de mission
+                  </label>
+                  <select name="chef_equipe" id="chef_equipe<?= $ticket['id_ticket'] ?>" class="form-select" required>
+                    <option value="">-- Sélectionner un chargé de mission --</option>
                     <?php foreach ($agents as $agent) : ?>
                       <option value="<?= htmlspecialchars($agent['id_agent']) ?>" <?= $agent['id_agent'] == $ticket['id_agent'] ? 'selected' : '' ?>>
                         <?= htmlspecialchars($agent['nom_complet_agent']) ?>
@@ -954,12 +975,13 @@ tbody tr:hover {
                     <?php endforeach; ?>
                   </select>
                 </div>
-                <div class="modal-footer">
-                  <button type="submit" class="btn btn-success" name="updateChefEquipe">
-                    <i class="fas fa-save"></i> Mettre à jour
+
+                <div class="modal-footer bg-light">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Annuler
                   </button>
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <i class="fas fa-times"></i> Annuler
+                  <button type="submit" class="btn btn-success" name="updateChefEquipe">
+                    <i class="fas fa-save me-1"></i> Enregistrer
                   </button>
                 </div>
               </form>
@@ -969,33 +991,44 @@ tbody tr:hover {
       </div>
 
       <!-- Modal pour modifier le véhicule -->
-      <div class="modal fade" id="editModalVehicule<?= $ticket['id_ticket'] ?>">
-        <div class="modal-dialog">
+      <div class="modal fade" id="editModalVehicule<?= $ticket['id_ticket'] ?>" tabindex="-1" role="dialog" aria-labelledby="editModalVehiculeLabel<?= $ticket['id_ticket'] ?>">
+        <div class="modal-dialog" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Modifier le véhicule</h5>
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title" id="editModalVehiculeLabel<?= $ticket['id_ticket'] ?>">
+                <i class="fas fa-truck me-2"></i>Modifier le véhicule
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body">
-              <form action="traitement_tickets.php" method="post">
+              <form id="formVehicule<?= $ticket['id_ticket'] ?>" action="traitement_tickets.php" method="post">
                 <input type="hidden" name="id_ticket" value="<?= $ticket['id_ticket'] ?>">
-                <div class="form-group">
-                  <label for="vehicule<?= $ticket['id_ticket'] ?>" class="font-weight-bold mb-2">Sélectionner le nouveau véhicule</label>
-                  <select name="vehicule" id="vehicule<?= $ticket['id_ticket'] ?>" class="form-control select2-vehicule" style="width: 100%;">
-                    <option value="">Sélectionner un véhicule</option>
+                
+                <div class="mb-3">
+                  <label for="vehicule<?= $ticket['id_ticket'] ?>" class="form-label fw-bold">
+                    <i class="fas fa-car me-2"></i>Sélectionner un véhicule
+                  </label>
+                  <select name="vehicule" id="vehicule<?= $ticket['id_ticket'] ?>" class="form-select" required>
+                    <option value="">-- Sélectionner un véhicule --</option>
                     <?php foreach ($vehicules as $vehicule) : ?>
-                      <option value="<?= htmlspecialchars($vehicule['vehicules_id']) ?>" <?= $vehicule['vehicules_id'] == $ticket['vehicule_id'] ? 'selected' : '' ?>>
+                      <option value="<?= htmlspecialchars($vehicule['vehicules_id']) ?>" 
+                              data-type="<?= htmlspecialchars($vehicule['type_vehicule'] ?? '') ?>"
+                              <?= $vehicule['vehicules_id'] == $ticket['vehicule_id'] ? 'selected' : '' ?>>
                         <?= htmlspecialchars($vehicule['matricule_vehicule']) ?>
+                        <?php if (!empty($vehicule['type_vehicule'])): ?>
+                          (<?= htmlspecialchars($vehicule['type_vehicule']) ?>)
+                        <?php endif; ?>
                       </option>
                     <?php endforeach; ?>
                   </select>
                 </div>
-                <div class="modal-footer">
-                  <button type="submit" class="btn btn-success" name="updateVehicule">
-                    <i class="fas fa-save"></i> Mettre à jour
+
+                <div class="modal-footer bg-light">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Annuler
                   </button>
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <i class="fas fa-times"></i> Annuler
+                  <button type="submit" class="btn btn-success" name="updateVehicule">
+                    <i class="fas fa-save me-1"></i> Enregistrer
                   </button>
                 </div>
               </form>
@@ -1004,88 +1037,39 @@ tbody tr:hover {
         </div>
       </div>
 
-      <!-- Modal pour modifier le prix unitaire -->
-      <div class="modal fade" id="editModalPrixUnitaire<?= $ticket['id_ticket'] ?>">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Modifier le prix unitaire</h5>
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-              <form action="traitement_tickets.php" method="post">
-                <input type="hidden" name="id_ticket" value="<?= $ticket['id_ticket'] ?>">
-                <input type="hidden" name="action" value="update_prix_unitaire">
-                <div class="form-group">
-                  <label for="prix_unitaire<?= $ticket['id_ticket'] ?>">Prix unitaire</label>
-                  <div class="input-group">
-                    <input type="number" 
-                           class="form-control" 
-                           id="prix_unitaire<?= $ticket['id_ticket'] ?>" 
-                           value="<?= $ticket['prix_unitaire'] ?>" 
-                           name="prix_unitaire"
-                           min="1"
-                           step="1"
-                           required
-                           data-poids="<?= $ticket['poids'] ?>"
-                           data-montant-deja-paye="<?= $ticket['montant_payer'] ?>"
-                           oninput="updateTotal(this, <?= $ticket['poids'] ?>)">
-                    <div class="input-group-append">
-                      <span class="input-group-text">FCFA</span>
-                    </div>
-                  </div>
-                  <small class="form-text text-muted" id="total<?= $ticket['id_ticket'] ?>">
-                    Le montant à payer sera automatiquement recalculé (Prix unitaire × <?= $ticket['poids'] ?> kg = <?= number_format($ticket['prix_unitaire'] * $ticket['poids'], 0, ',', ' ') ?> FCFA)
-                  </small>
-                  <?php if ($ticket['montant_payer'] > 0): ?>
-                    <small class="form-text text-warning">
-                      <i class="fas fa-exclamation-triangle"></i>
-                      Attention : Ce ticket a déjà reçu <?= number_format($ticket['montant_payer'], 0, ',', ' ') ?> FCFA de paiement
-                    </small>
-                  <?php endif; ?>
-                </div>
-                <div class="modal-footer">
-                  <button type="submit" class="btn btn-success">
-                    <i class="fas fa-save"></i> Mettre à jour
-                  </button>
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <i class="fas fa-times"></i> Annuler
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- Modal pour modifier la date de création -->
-      <div class="modal fade" id="editModalDateCreation<?= $ticket['id_ticket'] ?>">
-        <div class="modal-dialog">
+      <div class="modal fade" id="editModalDateCreation<?= $ticket['id_ticket'] ?>" tabindex="-1" role="dialog" aria-labelledby="editModalDateCreationLabel<?= $ticket['id_ticket'] ?>">
+        <div class="modal-dialog" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Modifier la date de création</h5>
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <div class="modal-header bg-secondary text-white">
+              <h5 class="modal-title" id="editModalDateCreationLabel<?= $ticket['id_ticket'] ?>">
+                <i class="fas fa-calendar-alt me-2"></i>Modifier la date de création
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body">
               <form action="update_date_creation.php?id=<?= $ticket['id_ticket'] ?>" method="post">
                 <input type="hidden" name="id_ticket" value="<?= $ticket['id_ticket'] ?>">
-                <div class="form-group">
-                  <label for="date_creation_<?= $ticket['id_ticket'] ?>">Date de création</label>
-                  <div class="input-group">
-                    <input type="date" 
-                           class="form-control" 
-                           id="date_creation_<?= $ticket['id_ticket'] ?>"
-                           value="<?= date('Y-m-d', strtotime($ticket['created_at'])) ?>" 
-                           name="date_creation" 
-                           required>
-                  </div>
+                
+                <div class="mb-3">
+                  <label for="date_creation_<?= $ticket['id_ticket'] ?>" class="form-label fw-bold">
+                    <i class="fas fa-clock me-2"></i>Date de création
+                  </label>
+                  <input type="date" 
+                         class="form-control" 
+                         id="date_creation_<?= $ticket['id_ticket'] ?>"
+                         value="<?= date('Y-m-d', strtotime($ticket['created_at'])) ?>" 
+                         name="date_creation" 
+                         required>
                 </div>
-                <div class="modal-footer">
-                  <button type="submit" class="btn btn-success">
-                    <i class="fas fa-save"></i> Mettre à jour
+
+                <div class="modal-footer bg-light">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Annuler
                   </button>
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <i class="fas fa-times"></i> Annuler
+                  <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save me-1"></i> Enregistrer
                   </button>
                 </div>
               </form>
@@ -1445,82 +1429,115 @@ $('.alert').each(function() {
 });
 </script>
 
-<script>
-function updateTotal(input, poids) {
-    const prix = parseFloat(input.value) || 0;
-    const total = prix * poids;
-    const montantDejaPaye = parseFloat(input.dataset.montantDejaPaye) || 0;
-    const ticketId = input.id.replace('prix_unitaire', '');
-    const submitBtn = input.closest('form').querySelector('button[type="submit"]');
-    
-    document.getElementById('total' + ticketId).innerHTML = 
-        `Le montant à payer sera automatiquement recalculé (Prix unitaire × ${poids} kg = ${total.toLocaleString('fr-FR')} FCFA)`;
-    
-    // Vérifier si le nouveau montant est valide
-    if (total < montantDejaPaye) {
-        input.setCustomValidity(`Le nouveau montant (${total.toLocaleString('fr-FR')} FCFA) ne peut pas être inférieur au montant déjà payé (${montantDejaPaye.toLocaleString('fr-FR')} FCFA)`);
-        submitBtn.disabled = true;
-    } else {
-        input.setCustomValidity('');
-        submitBtn.disabled = false;
-    }
-}
-
-// Initialiser le calcul au chargement de la page
-document.addEventListener('DOMContentLoaded', function() {
-    const inputs = document.querySelectorAll('input[id^="prix_unitaire"]');
-    inputs.forEach(input => {
-        const poids = parseFloat(input.dataset.poids);
-        if (poids) updateTotal(input, poids);
-    });
-});
-</script>
 
 <!-- Select2 and Advanced Interactions -->
 <script>
 $(document).ready(function() {
-    // Initialize Select2 with modern styling
+    // Initialize Select2 with modern styling and proper modal handling
     function initSelect2() {
-        $('.select2-usine').select2({
+        // Initialize for all modals
+        $('.modal').each(function() {
+            var $modal = $(this);
+            
+            // Initialize usines select2 for this modal
+            $('.select2-usine', $modal).select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Sélectionner une usine',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $modal
+            });
+
+            // Initialize agents/chef-equipe select2 for this modal
+            $('.select2-chef-equipe', $modal).select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Sélectionner un chargé de mission',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $modal
+            });
+
+            // Initialize vehicle select2 for this modal
+            $('.select2-vehicule', $modal).select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Sélectionner un véhicule',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $modal
+            });
+        });
+
+        // Initialize for main form (not in modals)
+        $('.select2-usine:not(.modal .select2-usine)').select2({
             theme: 'bootstrap-5',
             placeholder: 'Sélectionner une usine',
             allowClear: true,
-            width: '100%',
-            language: {
-                noResults: () => "Aucune usine trouvée",
-                searching: () => "Recherche..."
-            }
+            width: '100%'
         });
 
-        $('.select2-agent').select2({
+        $('.select2-agent:not(.modal .select2-agent)').select2({
             theme: 'bootstrap-5',
             placeholder: 'Sélectionner un chargé de mission',
             allowClear: true,
-            width: '100%',
-            language: {
-                noResults: () => "Aucun chargé de mission trouvé",
-                searching: () => "Recherche..."
-            }
+            width: '100%'
         });
 
-        $('.select2-vehicule').select2({
+        $('.select2-vehicule:not(.modal .select2-vehicule)').select2({
             theme: 'bootstrap-5',
             placeholder: 'Sélectionner un véhicule',
             allowClear: true,
-            width: '100%',
-            language: {
-                noResults: () => "Aucun véhicule trouvé",
-                searching: () => "Recherche..."
-            }
+            width: '100%'
         });
     }
     
     // Initialize on page load
-    initSelect2();
-    
-    // Reinitialize when modals are shown
-    $('.modal').on('shown.bs.modal', function() {
+    $(document).ready(function() {
         initSelect2();
+        
+        // Reinitialize when modals are shown
+        $('.modal').on('shown.bs.modal', function() {
+            var $modal = $(this);
+            
+            // Destroy existing select2 instances in this modal (with error handling)
+            try {
+                $('.select2-usine', $modal).select2('destroy');
+            } catch(e) { console.log('Error destroying usine select2:', e); }
+            
+            try {
+                $('.select2-chef-equipe', $modal).select2('destroy');
+            } catch(e) { console.log('Error destroying chef-equipe select2:', e); }
+            
+            try {
+                $('.select2-vehicule', $modal).select2('destroy');
+            } catch(e) { console.log('Error destroying vehicule select2:', e); }
+            
+            // Reinitialize all select2 for this modal
+            $('.select2-usine', $modal).select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Sélectionner une usine',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $modal
+            });
+
+            $('.select2-chef-equipe', $modal).select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Sélectionner un chargé de mission',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $modal
+            });
+
+            $('.select2-vehicule', $modal).select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Sélectionner un véhicule',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $modal
+            });
+        });
+        
+        // Les formulaires de véhicules se soumettent normalement (pas d'AJAX)
     });
     
     // Reset forms when modals are hidden

@@ -232,10 +232,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             error_log("SQL Query: " . $sql . " [vehicule_id: " . $nouveau_vehicule . ", ticket_id: " . $id_ticket . "]");
             
             $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':vehicule_id', $nouveau_vehicule, PDO::PARAM_INT);
-            $stmt->bindParam(':id_ticket', $id_ticket, PDO::PARAM_INT);
-
-            $result = $stmt->execute();
+            $result = $stmt->execute([$nouveau_vehicule, $id_ticket]);
             error_log("Résultat de l'exécution: " . ($result ? "true" : "false"));
             
             if ($result) {
@@ -432,37 +429,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // Mise à jour du véhicule
-    if (isset($_POST['updateVehicule']) && isset($_POST['id_ticket']) && isset($_POST['vehicule'])) {
-        $id_ticket = $_POST['id_ticket'];
-        $nouveau_vehicule = $_POST['vehicule'];
-
-        try {
-            $sql = "UPDATE tickets SET vehicules_id = :vehicule WHERE id_ticket = :id_ticket";
-            error_log("SQL Query: " . $sql);
-            
-            $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':vehicule', $nouveau_vehicule, PDO::PARAM_INT);
-            $stmt->bindParam(':id_ticket', $id_ticket, PDO::PARAM_INT);
-
-            $result = $stmt->execute();
-            error_log("Résultat de l'exécution: " . ($result ? "true" : "false"));
-            
-            if ($result) {
-                $_SESSION['success'] = "Véhicule mis à jour avec succès.";
-                error_log("Succès de la mise à jour");
-            } else {
-                $_SESSION['error'] = "Erreur lors de la mise à jour du véhicule.";
-                error_log("Erreur lors de la mise à jour - errorInfo: " . print_r($stmt->errorInfo(), true));
-            }
-        } catch (PDOException $e) {
-            $_SESSION['error'] = "Erreur lors de la mise à jour du véhicule : " . $e->getMessage();
-            error_log("Exception PDO: " . $e->getMessage());
-        }
-
-        header('Location: tickets_modifications.php');
-        exit();
-    }
 
     // Traitement des requêtes AJAX
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action'])) {
