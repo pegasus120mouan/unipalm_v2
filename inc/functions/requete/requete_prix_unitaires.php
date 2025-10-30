@@ -1,25 +1,104 @@
 <?php
 require_once dirname(__FILE__) . '/../../functions/connexion.php';
 
+// Fonction pour vérifier s'il y a un chevauchement de période pour une usine
+function checkPeriodOverlap($conn, $id_usine, $date_debut, $date_fin = null, $exclude_id = null) {
+    try {
+        // Si date_fin est null, on considère que la période est ouverte (jusqu'à aujourd'hui ou indéfiniment)
+        $sql = "SELECT id, prix, date_debut, date_fin, 
+                       CASE 
+                           WHEN date_fin IS NULL THEN 'Période ouverte'
+                           ELSE CONCAT(DATE_FORMAT(date_debut, '%d/%m/%Y'), ' - ', DATE_FORMAT(date_fin, '%d/%m/%Y'))
+                       END as periode_str
+                FROM prix_unitaires 
+                WHERE id_usine = :id_usine";
+        
+        // Ajouter la condition d'exclusion si on modifie un enregistrement existant
+        if ($exclude_id) {
+            $sql .= " AND id != :exclude_id";
+        }
+        
+        // Logique de chevauchement de périodes SIMPLIFIÉE et CORRIGÉE
+        $sql .= " AND (
+                    -- Cas simple: Deux périodes se chevauchent si :
+                    -- Le début de l'une est <= à la fin de l'autre ET
+                    -- Le début de l'autre est <= à la fin de l'une
+                    (
+                        date_debut <= COALESCE(:date_fin, '9999-12-31') 
+                        AND 
+                        :date_debut <= COALESCE(date_fin, '9999-12-31')
+                    )
+                )";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':id_usine', $id_usine, PDO::PARAM_INT);
+        $stmt->bindParam(':date_debut', $date_debut);
+        $stmt->bindParam(':date_fin', $date_fin);
+        
+        if ($exclude_id) {
+            $stmt->bindParam(':exclude_id', $exclude_id, PDO::PARAM_INT);
+        }
+        
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+    } catch (PDOException $e) {
+        error_log("Erreur lors de la vérification du chevauchement: " . $e->getMessage());
+        return false;
+    }
+}
+
 // Fonction pour créer un nouveau prix unitaire
 function createPrixUnitaire($conn, $id_usine, $prix, $date_debut, $date_fin = null) {
     try {
+        // Vérifier s'il y a un chevauchement de période
+        $overlaps = checkPeriodOverlap($conn, $id_usine, $date_debut, $date_fin);
+        
+        if ($overlaps && count($overlaps) > 0) {
+            // Retourner les informations sur le conflit
+            return [
+                'success' => false,
+                'error' => 'period_overlap',
+                'message' => 'Un prix unitaire existe déjà pour cette usine dans la période spécifiée.',
+                'conflicting_periods' => $overlaps
+            ];
+        }
+        
         $sql = "INSERT INTO prix_unitaires (id_usine, prix, date_debut, date_fin) VALUES (:id_usine, :prix, :date_debut, :date_fin)";
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':id_usine', $id_usine, PDO::PARAM_INT);
         $stmt->bindParam(':prix', $prix);
         $stmt->bindParam(':date_debut', $date_debut);
         $stmt->bindParam(':date_fin', $date_fin);
-        return $stmt->execute();
+        
+        if ($stmt->execute()) {
+            return ['success' => true, 'message' => 'Prix unitaire créé avec succès.'];
+        } else {
+            return ['success' => false, 'error' => 'database_error', 'message' => 'Erreur lors de la création du prix unitaire.'];
+        }
+        
     } catch (PDOException $e) {
         error_log("Erreur lors de la création du prix unitaire: " . $e->getMessage());
-        return false;
+        return ['success' => false, 'error' => 'database_error', 'message' => 'Erreur de base de données: ' . $e->getMessage()];
     }
 }
 
 // Fonction pour mettre à jour un prix unitaire
 function updatePrixUnitaire($conn, $id, $id_usine, $prix, $date_debut, $date_fin = null) {
     try {
+        // Vérifier s'il y a un chevauchement de période (en excluant l'enregistrement actuel)
+        $overlaps = checkPeriodOverlap($conn, $id_usine, $date_debut, $date_fin, $id);
+        
+        if ($overlaps && count($overlaps) > 0) {
+            // Retourner les informations sur le conflit
+            return [
+                'success' => false,
+                'error' => 'period_overlap',
+                'message' => 'Un prix unitaire existe déjà pour cette usine dans la période spécifiée.',
+                'conflicting_periods' => $overlaps
+            ];
+        }
+        
         $sql = "UPDATE prix_unitaires SET id_usine = :id_usine, prix = :prix, date_debut = :date_debut, date_fin = :date_fin WHERE id = :id";
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -27,10 +106,16 @@ function updatePrixUnitaire($conn, $id, $id_usine, $prix, $date_debut, $date_fin
         $stmt->bindParam(':prix', $prix);
         $stmt->bindParam(':date_debut', $date_debut);
         $stmt->bindParam(':date_fin', $date_fin);
-        return $stmt->execute();
+        
+        if ($stmt->execute()) {
+            return ['success' => true, 'message' => 'Prix unitaire mis à jour avec succès.'];
+        } else {
+            return ['success' => false, 'error' => 'database_error', 'message' => 'Erreur lors de la mise à jour du prix unitaire.'];
+        }
+        
     } catch (PDOException $e) {
         error_log("Erreur lors de la mise à jour du prix unitaire: " . $e->getMessage());
-        return false;
+        return ['success' => false, 'error' => 'database_error', 'message' => 'Erreur de base de données: ' . $e->getMessage()];
     }
 }
 

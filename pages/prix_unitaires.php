@@ -194,10 +194,152 @@ label {
       width: 100%;
       margin-bottom: 20px;
     }
+    
+    /* Styles pour les messages d'erreur et de succès */
+    .alert {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+    }
+    
+    .alert-danger {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        color: white;
+        border-left: 5px solid #dc3545;
+    }
+    
+    .alert-success {
+        background: linear-gradient(135deg, #51cf66, #40c057);
+        color: white;
+        border-left: 5px solid #28a745;
+    }
+    
+    .alert-heading {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .error-message {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        white-space: pre-line;
+    }
+    
+    .alert .fas {
+        opacity: 0.9;
+    }
+    
+    .btn-close {
+        filter: brightness(0) invert(1);
+        opacity: 0.8;
+    }
+    
+    .btn-close:hover {
+        opacity: 1;
+    }
+    
+    /* Animation d'apparition */
+    .alert.show {
+        animation: slideInDown 0.5s ease-out;
+    }
+    
+    @keyframes slideInDown {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    /* Styles pour le modal de prix unitaire */
+    #add-ticket .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    #conflit-alert, #success-alert {
+        border-radius: 8px;
+        animation: slideInDown 0.3s ease-out;
+    }
+    
+    #conflit-alert {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        color: white;
+        border: none;
+    }
+    
+    #success-alert {
+        background: linear-gradient(135deg, #51cf66, #40c057);
+        color: white;
+        border: none;
+    }
+    
+    #verification-loader {
+        padding: 1rem;
+        background: rgba(0, 123, 255, 0.1);
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+    
+    #submit-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    #conflit-list ul {
+        padding-left: 1.2rem;
+    }
+    
+    #conflit-list li {
+        margin-bottom: 0.3rem;
+    }
     </style>
 
 
 <div class="row">
+
+    <!-- Messages d'erreur et de succès -->
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="col-12 mb-3">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="d-flex align-items-start">
+                    <i class="fas fa-exclamation-triangle fa-2x me-3 text-danger"></i>
+                    <div class="flex-grow-1">
+                        <h5 class="alert-heading mb-2">
+                            <i class="fas fa-times-circle me-2"></i>Erreur de validation
+                        </h5>
+                        <div class="error-message">
+                            <?= nl2br(htmlspecialchars($_SESSION['error'])) ?>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="col-12 mb-3">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle fa-2x me-3 text-success"></i>
+                    <div class="flex-grow-1">
+                        <h5 class="alert-heading mb-1">
+                            <i class="fas fa-thumbs-up me-2"></i>Opération réussie
+                        </h5>
+                        <div><?= htmlspecialchars($_SESSION['success']) ?></div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
 
     <div class="block-container">
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-ticket">
@@ -207,6 +349,7 @@ label {
     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#print-bordereau">
       <i class="fa fa-print"></i> Imprimer la liste des prix unitaires
     </button>
+    
 </div>
 
 <!-- Barre de recherche et filtres -->
@@ -504,11 +647,30 @@ label {
           </button>
         </div>
         <div class="modal-body">
-          <form class="forms-sample" method="post" action="traitement_prix_unitaires.php">
+          <!-- Zone d'alerte pour les conflits -->
+          <div id="conflit-alert" class="alert alert-danger" style="display: none;">
+            <div class="d-flex align-items-start">
+              <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+              <div>
+                <h6 id="conflit-title" class="alert-heading mb-2"></h6>
+                <div id="conflit-details"></div>
+                <div id="conflit-list" class="mt-2"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Zone de succès -->
+          <div id="success-alert" class="alert alert-success" style="display: none;">
+            <i class="fas fa-check-circle me-2"></i>
+            <span id="success-message"></span>
+          </div>
+          
+          <form id="prix-unitaire-form" class="forms-sample" method="post" action="traitement_prix_unitaires.php">
             <div class="card-body">
               <div class="form-group">
                   <label>Sélection Usine</label>
-                  <select id="select" name="id_usine" class="form-control" required>
+                  <select id="usine-select" name="id_usine" class="form-control" required>
+                      <option value="">-- Sélectionner une usine --</option>
                       <?php
                       if (!empty($usines)) {
                           foreach ($usines as $usine) {
@@ -523,21 +685,31 @@ label {
 
               <div class="form-group">
                 <label>Prix Unitaire</label>
-                <input type="number" step="0.01" class="form-control" placeholder="Prix unitaire" name="prix" required>
+                <input type="number" step="0.01" id="prix-input" class="form-control" placeholder="Prix unitaire" name="prix" required>
               </div>
 
               <div class="form-group">
                 <label>Date de début</label>
-                <input type="date" class="form-control" name="date_debut" required>
+                <input type="date" id="date-debut" class="form-control" name="date_debut" required>
               </div>
 
               <div class="form-group">
                 <label>Date de fin</label>
-                <input type="date" class="form-control" name="date_fin">
+                <input type="date" id="date-fin" class="form-control" name="date_fin">
                 <small class="form-text text-muted">Laissez vide si le prix unitaire est toujours en cours</small>
               </div>
 
-              <button type="submit" class="btn btn-primary mr-2" name="savePrixUnitaire">Enregistrer</button>
+              <!-- Loader de vérification -->
+              <div id="verification-loader" class="text-center" style="display: none;">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                  <span class="sr-only">Vérification...</span>
+                </div>
+                <span class="ml-2">Vérification des conflits...</span>
+              </div>
+
+              <button type="submit" id="submit-btn" class="btn btn-primary mr-2" name="savePrixUnitaire" disabled>
+                <i class="fas fa-save me-2"></i>Enregistrer
+              </button>
               <button type="button" class="btn btn-light" data-dismiss="modal">Annuler</button>
             </div>
           </form>
@@ -1045,4 +1217,157 @@ function showSearchModal(modalId) {
   // Show the selected modal
   $('#' + modalId).modal('show');
 }
+
+// Validation en temps réel pour les prix unitaires
+$(document).ready(function() {
+    let validationTimeout;
+    let isValidating = false;
+    
+    // Fonction pour vérifier les conflits
+    function checkConflits() {
+        const usineId = $('#usine-select').val();
+        const dateDebut = $('#date-debut').val();
+        const dateFin = $('#date-fin').val();
+        
+        // Debug: Afficher les valeurs des champs
+        console.log('Vérification conflits - Usine:', usineId, 'Date début:', dateDebut, 'Date fin:', dateFin);
+        
+        // Vérifier que les champs obligatoires sont remplis
+        if (!usineId || !dateDebut) {
+            resetValidation();
+            return;
+        }
+        
+        // Afficher le loader
+        showLoader();
+        isValidating = true;
+        
+        $.ajax({
+            url: 'check_conflit_ajax.php',
+            method: 'POST',
+            data: {
+                id_usine: usineId,
+                date_debut: dateDebut,
+                date_fin: dateFin
+            },
+            success: function(response) {
+                hideLoader();
+                isValidating = false;
+                
+                // Debug: Afficher les informations dans la console
+                console.log('Réponse de validation:', response);
+                if (response.debug) {
+                    console.log('Debug - Dates reçues:', response.debug.date_debut_recu, 'à', response.debug.date_fin_recu);
+                    console.log('Debug - Prix existants pour', response.debug.usine + ':', response.debug.prix_existants);
+                }
+                
+                if (response.conflit) {
+                    showConflitAlert(response);
+                    $('#submit-btn').prop('disabled', true);
+                } else {
+                    showSuccessAlert(response.message);
+                    $('#submit-btn').prop('disabled', false);
+                }
+            },
+            error: function(xhr, status, error) {
+                hideLoader();
+                isValidating = false;
+                console.error('Erreur AJAX:', error);
+                showErrorAlert('Erreur lors de la vérification des conflits');
+                $('#submit-btn').prop('disabled', true);
+            }
+        });
+    }
+    
+    // Fonction pour afficher l'alerte de conflit
+    function showConflitAlert(response) {
+        $('#conflit-title').text(response.message);
+        $('#conflit-details').text(response.details);
+        
+        let conflitsList = '<ul class="mb-0">';
+        response.conflits.forEach(function(conflit) {
+            conflitsList += '<li><strong>Prix: ' + parseFloat(conflit.prix).toLocaleString('fr-FR') + ' FCFA</strong> - ' + conflit.periode_str + '</li>';
+        });
+        conflitsList += '</ul>';
+        
+        $('#conflit-list').html(conflitsList);
+        $('#conflit-alert').show();
+        $('#success-alert').hide();
+    }
+    
+    // Fonction pour afficher l'alerte de succès
+    function showSuccessAlert(message) {
+        $('#success-message').text(message);
+        $('#success-alert').show();
+        $('#conflit-alert').hide();
+    }
+    
+    // Fonction pour afficher une erreur
+    function showErrorAlert(message) {
+        $('#conflit-title').text('❌ Erreur de validation');
+        $('#conflit-details').text(message);
+        $('#conflit-list').html('');
+        $('#conflit-alert').show();
+        $('#success-alert').hide();
+    }
+    
+    // Fonction pour réinitialiser la validation
+    function resetValidation() {
+        $('#conflit-alert').hide();
+        $('#success-alert').hide();
+        $('#submit-btn').prop('disabled', true);
+    }
+    
+    // Fonction pour afficher le loader
+    function showLoader() {
+        $('#verification-loader').show();
+        resetValidation();
+    }
+    
+    // Fonction pour masquer le loader
+    function hideLoader() {
+        $('#verification-loader').hide();
+    }
+    
+    // Événements de validation en temps réel
+    $('#usine-select, #date-debut, #date-fin').on('change', function() {
+        clearTimeout(validationTimeout);
+        validationTimeout = setTimeout(checkConflits, 500); // Délai de 500ms
+    });
+    
+    // Validation avant soumission
+    $('#prix-unitaire-form').on('submit', function(e) {
+        if (isValidating) {
+            e.preventDefault();
+            alert('Veuillez attendre la fin de la vérification des conflits.');
+            return false;
+        }
+        
+        if ($('#submit-btn').prop('disabled')) {
+            e.preventDefault();
+            alert('Impossible d\'enregistrer : des conflits ont été détectés ou la validation n\'est pas terminée.');
+            return false;
+        }
+        
+        // Confirmation finale
+        const usine = $('#usine-select option:selected').text();
+        const prix = $('#prix-input').val();
+        const dateDebut = $('#date-debut').val();
+        const dateFin = $('#date-fin').val() || 'Période ouverte';
+        
+        const confirmMessage = `Confirmer l'enregistrement :\n\nUsine: ${usine}\nPrix: ${prix} FCFA\nPériode: ${dateDebut} - ${dateFin}`;
+        
+        if (!confirm(confirmMessage)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    // Réinitialiser le formulaire à l'ouverture du modal
+    $('#add-ticket').on('show.bs.modal', function() {
+        resetValidation();
+        $('#prix-unitaire-form')[0].reset();
+        $('#submit-btn').prop('disabled', true);
+    });
+});
 </script>

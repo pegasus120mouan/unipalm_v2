@@ -10,8 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $is_mass_validation = isset($_POST['is_mass_validation']) ? $_POST['is_mass_validation'] : false;
+$update_all_usine = isset($_POST['update_all_usine']) ? $_POST['update_all_usine'] : false;
 $ticket_ids = [];
-$prix_unitaire = 1000; // Valeur par défaut pour la validation en masse
+$prix_unitaire = isset($_POST['prix_unitaire']) ? $_POST['prix_unitaire'] : 1000; // Valeur par défaut pour la validation en masse
 
 if ($is_mass_validation) {
     // Validation en masse
@@ -42,8 +43,21 @@ try {
 
     $stmt = $conn->prepare($sql);
     $validated = 0;
+    $usines_affected = [];
 
     foreach ($ticket_ids as $ticket_id) {
+        // Récupérer l'ID de l'usine avant la mise à jour
+        if ($update_all_usine) {
+            $sql_get_usine = "SELECT usine_id FROM tickets WHERE id_ticket = :ticket_id";
+            $stmt_get_usine = $conn->prepare($sql_get_usine);
+            $stmt_get_usine->execute([':ticket_id' => $ticket_id]);
+            $ticket_info = $stmt_get_usine->fetch(PDO::FETCH_ASSOC);
+            
+            if ($ticket_info) {
+                $usines_affected[] = $ticket_info['usine_id'];
+            }
+        }
+
         $result = $stmt->execute([
             ':prix_unitaire' => $prix_unitaire,
             ':ticket_id' => $ticket_id
@@ -54,11 +68,39 @@ try {
         }
     }
 
+    // Si l'option de mise à jour de tous les tickets de l'usine est activée
+    if ($update_all_usine && !empty($usines_affected)) {
+        $usines_affected = array_unique($usines_affected);
+        
+        foreach ($usines_affected as $usine_id) {
+            // Mettre à jour tous les autres tickets de la même usine qui sont en attente
+            $sql_update_usine = "UPDATE tickets 
+                               SET prix_unitaire = :prix_unitaire,
+                                   updated_at = NOW()
+                               WHERE usine_id = :usine_id 
+                               AND date_validation_boss IS NULL
+                               AND prix_unitaire IS NULL";
+            
+            $stmt_update_usine = $conn->prepare($sql_update_usine);
+            $stmt_update_usine->execute([
+                ':prix_unitaire' => $prix_unitaire,
+                ':usine_id' => $usine_id
+            ]);
+        }
+    }
+
     if ($validated > 0) {
         $conn->commit();
+        
+        $message = $validated . ' ticket(s) validé(s) avec succès';
+        if ($update_all_usine && !empty($usines_affected)) {
+            $message .= '. Prix unitaire appliqué à tous les tickets en attente des usines concernées.';
+        }
+        
         echo json_encode([
             'success' => true,
-            'message' => $validated . ' ticket(s) validé(s) avec succès'
+            'message' => $message,
+            'usines_updated' => $update_all_usine ? $usines_affected : []
         ]);
     } else {
         $conn->rollBack();

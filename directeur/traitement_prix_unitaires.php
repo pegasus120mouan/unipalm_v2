@@ -14,19 +14,36 @@ if (isset($_POST['savePrixUnitaire'])) {
         // Démarrer une transaction
         $conn->beginTransaction();
 
-        // 1. Créer le prix unitaire
-        if (!createPrixUnitaire($conn, $id_usine, $prix, $date_debut, $date_fin)) {
-            throw new PDOException("Erreur lors de la création du prix unitaire");
+        // 1. Créer le prix unitaire avec validation des chevauchements
+        $result = createPrixUnitaire($conn, $id_usine, $prix, $date_debut, $date_fin);
+        
+        if (!$result['success']) {
+            if ($result['error'] === 'period_overlap') {
+                // Construire un message détaillé avec les périodes en conflit
+                $conflictMessage = "Enregistrement impossible : Un prix unitaire existe déjà pour cette usine dans la période spécifiée.\n\n";
+                $conflictMessage .= "Périodes en conflit :\n";
+                
+                foreach ($result['conflicting_periods'] as $conflict) {
+                    $conflictMessage .= "• Prix: " . number_format($conflict['prix'], 0, ',', ' ') . " FCFA";
+                    $conflictMessage .= " - Période: " . $conflict['periode_str'] . "\n";
+                }
+                
+                $_SESSION['error'] = $conflictMessage;
+            } else {
+                $_SESSION['error'] = $result['message'];
+            }
+            $conn->rollBack();
+        } else {
+            // Valider la transaction
+            $conn->commit();
+            $_SESSION['success'] = $result['message'];
         }
-
-        // Valider la transaction
-        $conn->commit();
-        $_SESSION['success'] = "Prix unitaire ajouté avec succès";
+        
     } catch (PDOException $e) {
         // En cas d'erreur, annuler la transaction
         $conn->rollBack();
         error_log("Erreur lors de la création: " . $e->getMessage());
-        $_SESSION['error'] = "Erreur lors de l'ajout du prix unitaire";
+        $_SESSION['error'] = "Erreur lors de l'ajout du prix unitaire: " . $e->getMessage();
     }
     header('Location: prix_unitaires.php');
     exit();
@@ -44,40 +61,50 @@ if (isset($_POST['updatePrixUnitaire'])) {
         // Démarrer une transaction
         $conn->beginTransaction();
 
-        // 1. Mettre à jour le prix unitaire
-        $sql = "UPDATE prix_unitaires 
-                SET id_usine = :id_usine, prix = :prix, date_debut = :date_debut, date_fin = :date_fin 
-                WHERE id = :id";
-        $stmt = $conn->prepare($sql);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmt->bindParam(':id_usine', $id_usine, PDO::PARAM_INT);
-        $stmt->bindParam(':prix', $prix);
-        $stmt->bindParam(':date_debut', $date_debut);
-        $stmt->bindParam(':date_fin', $date_fin);
-        $stmt->execute();
-
-        // 2. Mettre à jour les tickets associés
-        $sql_tickets = "UPDATE tickets 
-                       SET prix_unitaire = :prix 
-                       WHERE id_usine = :id_usine 
-                       AND DATE(date_ticket) BETWEEN :date_debut 
-                       AND COALESCE(:date_fin, CURRENT_DATE)";
+        // 1. Mettre à jour le prix unitaire avec validation des chevauchements
+        $result = updatePrixUnitaire($conn, $id, $id_usine, $prix, $date_debut, $date_fin);
         
-        $stmt_tickets = $conn->prepare($sql_tickets);
-        $stmt_tickets->bindParam(':prix', $prix);
-        $stmt_tickets->bindParam(':id_usine', $id_usine, PDO::PARAM_INT);
-        $stmt_tickets->bindParam(':date_debut', $date_debut);
-        $stmt_tickets->bindParam(':date_fin', $date_fin);
-        $stmt_tickets->execute();
+        if (!$result['success']) {
+            if ($result['error'] === 'period_overlap') {
+                // Construire un message détaillé avec les périodes en conflit
+                $conflictMessage = "Modification impossible : Un prix unitaire existe déjà pour cette usine dans la période spécifiée.\n\n";
+                $conflictMessage .= "Périodes en conflit :\n";
+                
+                foreach ($result['conflicting_periods'] as $conflict) {
+                    $conflictMessage .= "• Prix: " . number_format($conflict['prix'], 0, ',', ' ') . " FCFA";
+                    $conflictMessage .= " - Période: " . $conflict['periode_str'] . "\n";
+                }
+                
+                $_SESSION['error'] = $conflictMessage;
+            } else {
+                $_SESSION['error'] = $result['message'];
+            }
+            $conn->rollBack();
+        } else {
+            // 2. Mettre à jour les tickets associés
+            $sql_tickets = "UPDATE tickets 
+                           SET prix_unitaire = :prix 
+                           WHERE id_usine = :id_usine 
+                           AND DATE(date_ticket) BETWEEN :date_debut 
+                           AND COALESCE(:date_fin, CURRENT_DATE)";
+            
+            $stmt_tickets = $conn->prepare($sql_tickets);
+            $stmt_tickets->bindParam(':prix', $prix);
+            $stmt_tickets->bindParam(':id_usine', $id_usine, PDO::PARAM_INT);
+            $stmt_tickets->bindParam(':date_debut', $date_debut);
+            $stmt_tickets->bindParam(':date_fin', $date_fin);
+            $stmt_tickets->execute();
 
-        // Valider la transaction
-        $conn->commit();
-        $_SESSION['success'] = "Prix unitaire et tickets associés mis à jour avec succès";
+            // Valider la transaction
+            $conn->commit();
+            $_SESSION['success'] = "Prix unitaire et tickets associés mis à jour avec succès";
+        }
+        
     } catch (PDOException $e) {
         // En cas d'erreur, annuler la transaction
         $conn->rollBack();
         error_log("Erreur lors de la mise à jour: " . $e->getMessage());
-        $_SESSION['error'] = "Erreur lors de la mise à jour du prix unitaire";
+        $_SESSION['error'] = "Erreur lors de la mise à jour du prix unitaire: " . $e->getMessage();
     }
     header('Location: prix_unitaires.php');
     exit();

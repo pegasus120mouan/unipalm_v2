@@ -506,6 +506,7 @@ function validerTousLesTickets() {
 // Fonction pour confirmer la validation avec le prix unitaire saisi
 function confirmerValidationAvecPrix() {
     const prixUnitaire = $('#prixUnitaire').val();
+    const updateAllUsine = $('#updateAllUsine').is(':checked');
     
     if (!prixUnitaire || prixUnitaire <= 0) {
         alert('Veuillez saisir un prix unitaire valide');
@@ -525,6 +526,9 @@ function confirmerValidationAvecPrix() {
     // Fermer le modal
     $('#prixUnitaireModal').modal('hide');
     
+    // Afficher le loader de traitement
+    showProcessingLoader(updateAllUsine);
+    
     // Envoyer la requête AJAX pour valider les tickets avec le prix unitaire
     $.ajax({
         url: 'valider_tickets.php',
@@ -532,25 +536,42 @@ function confirmerValidationAvecPrix() {
         data: {
             ticket_ids: selectedTickets,
             prix_unitaire: prixUnitaire,
-            is_mass_validation: true
+            is_mass_validation: true,
+            update_all_usine: updateAllUsine ? 1 : 0
         },
         success: function(response) {
             try {
                 const data = typeof response === 'string' ? JSON.parse(response) : response;
+                
                 if (data.success) {
-                    alert('Tickets validés avec succès !');
-                    window.location.reload();
+                    // Simuler un temps de traitement pour montrer l'animation
+                    setTimeout(() => {
+                        hideProcessingLoader();
+                        
+                        // Afficher un message de succès personnalisé
+                        let message = data.message;
+                        if (updateAllUsine && data.usines_updated && data.usines_updated.length > 0) {
+                            message += '\n\n✅ Mise à jour automatique appliquée aux autres tickets des mêmes usines.';
+                        }
+                        
+                        showSuccessMessage(message, () => {
+                            window.location.reload();
+                        });
+                    }, updateAllUsine ? 3000 : 1500); // Plus de temps si mise à jour par usine
                 } else {
+                    hideProcessingLoader();
                     alert(data.message || 'Erreur lors de la validation des tickets');
                 }
             } catch (e) {
                 console.error('Erreur de parsing:', e);
+                hideProcessingLoader();
                 alert('Erreur lors du traitement de la réponse');
             }
         },
         error: function(xhr, status, error) {
             console.error('Erreur:', error);
             console.error('Response:', xhr.responseText);
+            hideProcessingLoader();
             alert('Erreur lors de la validation des tickets: ' + error);
         }
     });
@@ -691,6 +712,130 @@ function initializeSorting() {
 
 // Initialiser le tri au chargement
 document.addEventListener('DOMContentLoaded', initializeSorting);
+
+// Fonction pour afficher le loader de traitement avec animation
+function showProcessingLoader(isUsineUpdate = false) {
+    const loaderHtml = `
+        <div id="processingLoader" class="processing-loader-overlay">
+            <div class="processing-loader-content">
+                <div class="processing-animation">
+                    <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                </div>
+                <div class="processing-text">
+                    <h4 class="text-primary mb-2">
+                        <i class="fas fa-cog fa-spin me-2"></i>
+                        Traitement en cours...
+                    </h4>
+                    <p class="text-muted mb-0" id="processingMessage">
+                        ${isUsineUpdate ? 
+                            'Validation des tickets et mise à jour automatique par usine...' : 
+                            'Validation des tickets sélectionnés...'}
+                    </p>
+                    <div class="progress mt-3" style="height: 6px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+                             role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('body').append(loaderHtml);
+    
+    // Animation de la barre de progression
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        
+        $('#processingLoader .progress-bar').css('width', progress + '%');
+        
+        if (progress > 50 && isUsineUpdate) {
+            $('#processingMessage').text('Mise à jour des tickets de la même usine...');
+        }
+    }, 200);
+    
+    // Stocker l'interval pour pouvoir l'arrêter
+    $('#processingLoader').data('progressInterval', progressInterval);
+}
+
+// Fonction pour masquer le loader de traitement
+function hideProcessingLoader() {
+    const loader = $('#processingLoader');
+    if (loader.length) {
+        // Arrêter l'animation de progression
+        const progressInterval = loader.data('progressInterval');
+        if (progressInterval) {
+            clearInterval(progressInterval);
+        }
+        
+        // Compléter la barre de progression
+        loader.find('.progress-bar').css('width', '100%');
+        
+        // Masquer avec animation
+        setTimeout(() => {
+            loader.fadeOut(300, function() {
+                $(this).remove();
+            });
+        }, 500);
+    }
+}
+
+// Fonction pour afficher un message de succès personnalisé
+function showSuccessMessage(message, callback) {
+    const successHtml = `
+        <div id="successMessage" class="success-message-overlay">
+            <div class="success-message-content">
+                <div class="success-animation">
+                    <div class="success-checkmark">
+                        <div class="check-icon">
+                            <span class="icon-line line-tip"></span>
+                            <span class="icon-line line-long"></span>
+                            <div class="icon-circle"></div>
+                            <div class="icon-fix"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="success-text">
+                    <h4 class="text-success mb-3">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Opération réussie !
+                    </h4>
+                    <p class="text-muted mb-4">${message.replace(/\n/g, '<br>')}</p>
+                    <button type="button" class="btn btn-success" onclick="closeSuccessMessage()">
+                        <i class="fas fa-arrow-right me-2"></i>Continuer
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('body').append(successHtml);
+    
+    // Stocker le callback
+    window.successCallback = callback;
+    
+    // Auto-fermeture après 5 secondes
+    setTimeout(() => {
+        closeSuccessMessage();
+    }, 5000);
+}
+
+// Fonction pour fermer le message de succès
+function closeSuccessMessage() {
+    const successMessage = $('#successMessage');
+    if (successMessage.length) {
+        successMessage.fadeOut(300, function() {
+            $(this).remove();
+            if (window.successCallback) {
+                window.successCallback();
+                window.successCallback = null;
+            }
+        });
+    }
+}
 </script>
 
 <!-- Ajout du style pour l'autocomplétion -->
@@ -3226,6 +3371,20 @@ function validerEnMasse() {
                                required>
                         <div class="form-text">Le prix sera appliqué à tous les tickets sélectionnés</div>
                     </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="updateAllUsine" name="update_all_usine" value="1">
+                            <label class="form-check-label" for="updateAllUsine">
+                                <i class="fas fa-industry me-2 text-primary"></i>
+                                <strong>Appliquer automatiquement ce prix à tous les tickets en attente de la même usine</strong>
+                            </label>
+                        </div>
+                        <div class="form-text text-warning">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            Si cette option est cochée, tous les tickets non validés de la même usine recevront automatiquement ce prix unitaire après validation.
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -3746,3 +3905,267 @@ $(document).ready(function() {
     });
 });
 </script>
+
+<!-- Styles CSS pour les nouveaux éléments -->
+<style>
+/* Styles pour le loader de traitement */
+.processing-loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+}
+
+.processing-loader-content {
+    background: white;
+    padding: 3rem;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    animation: slideInUp 0.5s ease-out;
+}
+
+.processing-animation {
+    margin-bottom: 2rem;
+}
+
+.processing-text h4 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.progress {
+    background-color: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+}
+
+/* Styles pour le message de succès */
+.success-message-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+}
+
+.success-message-content {
+    background: white;
+    padding: 3rem;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    max-width: 450px;
+    width: 90%;
+    animation: bounceIn 0.6s ease-out;
+}
+
+.success-animation {
+    margin-bottom: 2rem;
+}
+
+.success-checkmark {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 2;
+    stroke: #28a745;
+    stroke-miterlimit: 10;
+    margin: 0 auto 1rem;
+    box-shadow: inset 0px 0px 0px #28a745;
+    animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s both;
+    position: relative;
+}
+
+.success-checkmark .check-icon {
+    width: 56px;
+    height: 56px;
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    z-index: 1;
+    transform: scale(0);
+    animation: scale 0.3s ease-in-out 0.9s both;
+}
+
+.check-icon .icon-line {
+    height: 2px;
+    background: #28a745;
+    display: block;
+    border-radius: 2px;
+    position: absolute;
+    z-index: 10;
+}
+
+.check-icon .line-tip {
+    top: 19px;
+    left: 14px;
+    width: 25px;
+    transform: rotate(45deg);
+    animation: icon-line-tip 0.75s;
+}
+
+.check-icon .line-long {
+    top: 38px;
+    right: 8px;
+    width: 47px;
+    transform: rotate(-45deg);
+    animation: icon-line-long 0.75s;
+}
+
+.check-icon .icon-circle {
+    top: -2px;
+    left: -2px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    position: absolute;
+    border: 4px solid rgba(40, 167, 69, 0.2);
+    z-index: 10;
+}
+
+.check-icon .icon-fix {
+    top: 8px;
+    width: 5px;
+    left: 26px;
+    z-index: 1;
+    height: 85px;
+    position: absolute;
+    transform: rotate(-45deg);
+}
+
+/* Animations */
+@keyframes slideInUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fill {
+    100% {
+        box-shadow: inset 0px 0px 0px 30px #28a745;
+    }
+}
+
+@keyframes scale {
+    0%, 20% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes icon-line-tip {
+    0% {
+        width: 0;
+        left: 1px;
+        top: 19px;
+    }
+    54% {
+        width: 0;
+        left: 1px;
+        top: 19px;
+    }
+    70% {
+        width: 50px;
+        left: -8px;
+        top: 37px;
+    }
+    84% {
+        width: 17px;
+        left: 21px;
+        top: 48px;
+    }
+    100% {
+        width: 25px;
+        left: 14px;
+        top: 45px;
+    }
+}
+
+@keyframes icon-line-long {
+    0% {
+        width: 0;
+        right: 46px;
+        top: 54px;
+    }
+    65% {
+        width: 0;
+        right: 46px;
+        top: 54px;
+    }
+    84% {
+        width: 55px;
+        right: 0px;
+        top: 35px;
+    }
+    100% {
+        width: 47px;
+        right: 8px;
+        top: 38px;
+    }
+}
+
+/* Amélioration du style de la checkbox */
+.form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.form-check-label {
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.form-check-label strong {
+    color: #495057;
+}
+
+.form-text.text-warning {
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+</style>
