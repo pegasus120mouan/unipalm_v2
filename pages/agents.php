@@ -216,6 +216,20 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
             text-align: center;
         }
 
+        .agent-count {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            border-radius: 25px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.7em;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
         .page-subtitle {
             text-align: center;
             color: rgba(255, 255, 255, 0.8);
@@ -244,66 +258,6 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
 
         .breadcrumb-modern a:hover {
             color: white;
-        }
-
-        /* Stats cards */
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: var(--shadow-light);
-            transition: all 0.3s ease;
-            animation: slideInUp 0.6s ease-out;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-dark);
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            font-size: 1.5rem;
-            color: white;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: #2c3e50;
-            font-size: 0.9rem;
         }
 
         /* Action buttons */
@@ -385,21 +339,43 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-light);
-            animation: slideInRight 0.6s ease-out;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: slideInUp 0.6s ease-out;
+            max-height: 350px; /* Hauteur maximale du conteneur encore réduite */
+            overflow: hidden;
         }
 
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        .table-responsive {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-height: 250px; /* Hauteur maximale du tableau encore réduite */
+            overflow-y: auto; /* Scroll vertical */
+            scrollbar-width: thin; /* Pour Firefox */
+            scrollbar-color: var(--primary-color) rgba(255, 255, 255, 0.1); /* Pour Firefox */
+        }
+        
+        /* Styles pour WebKit (Chrome, Safari, Edge) */
+        .table-responsive::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
         }
 
         .table-modern {
@@ -409,23 +385,20 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
             box-shadow: none;
         }
 
-        .table-modern thead th {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border: none;
-            padding: 1rem;
-            font-weight: 600;
-            text-align: center;
-            position: relative;
-        }
+.table-responsive::-webkit-scrollbar-track {
+background: rgba(255, 255, 255, 0.1);
+border-radius: 4px;
+}
 
-        .table-modern tbody tr {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: none;
-            transition: all 0.3s ease;
-        }
+.table-responsive::-webkit-scrollbar-thumb {
+background: var(--primary-color);
+border-radius: 4px;
+transition: background 0.3s ease;
+}
 
+.table-responsive::-webkit-scrollbar-thumb:hover {
+background: var(--secondary-color);
+}
         .table-modern tbody tr:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: scale(1.01);
@@ -582,21 +555,21 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
-            padding: 2rem;
-            margin: 2rem 0;
+            padding: 1.5rem; /* Réduit de 2rem à 1.5rem */
+            margin: 1.5rem 0; /* Réduit de 2rem à 1.5rem */
             box-shadow: var(--shadow-light);
             animation: slideInUp 0.6s ease-out;
         }
 
         .search-form {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem; /* Réduit de 1.5rem à 1rem */
         }
 
         .search-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            gap: 1rem; /* Réduit de 1.5rem à 1rem */
+            margin-bottom: 1.5rem; /* Réduit de 2rem à 1.5rem */
         }
 
         .search-field {
@@ -730,9 +703,6 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
                 font-size: 2rem;
             }
             
-            .stats-container {
-                grid-template-columns: 1fr;
-            }
             
             .table-responsive {
                 border-radius: 15px;
@@ -829,43 +799,18 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
             </div>
             
             <h1 class="page-title">
-                <i class="fas fa-users"></i> Gestion des Agents
+                <i class="fas fa-users"></i> Gestion des Agents 
+                <span class="agent-count">(<?= $total_agents ?>)</span>
             </h1>
             <p class="page-subtitle">
                 Gérez efficacement vos agents et leurs informations
             </p>
         </div>
 
-        <!-- Statistics cards -->
-        <div class="stats-container">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-number"><?= $total_agents ?></div>
-                <div class="stat-label">Total Agents</div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, var(--success-color), #00d2ff);">
-                    <i class="fas fa-user-tie"></i>
-                </div>
-                <div class="stat-number"><?= $total_chefs ?></div>
-                <div class="stat-label">Chefs d'Équipe</div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, var(--warning-color), #ffa726);">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="stat-number"><?= count($agents_list) ?></div>
-                <div class="stat-label">Agents Affichés</div>
-            </div>
-        </div>
 
         <!-- Action buttons -->
         <div class="actions-container">
-            <button type="button" class="btn-modern ripple" onclick="window.open('add_agent_simple.php', '_blank', 'width=800,height=600')">
+            <button type="button" class="btn-modern ripple" data-bs-toggle="modal" data-bs-target="#add-agent">
                 <i class="fas fa-user-plus"></i>
                 Enregistrer un agent
             </button>
@@ -888,7 +833,7 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
 
         <!-- Filtres de recherche -->
         <div class="search-container">
-            <h3 style="color: #2c3e50; margin-bottom: 1.5rem; font-family: 'Poppins', sans-serif;">
+            <h3 style="color: #2c3e50; margin-bottom: 1rem; font-family: 'Poppins', sans-serif;">
                 <i class="fas fa-filter"></i> Filtres de Recherche
             </h3>
             
@@ -1219,52 +1164,49 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
         </div>
     <?php endforeach; ?>
     
-    <!-- Modal d'ajout d'agent - VERSION FONCTIONNELLE -->
+    <!-- Modale d'ajout d'agent - STYLE ORIGINAL UNIPALM -->
     <div class="modal fade" id="add-agent" tabindex="-1" aria-labelledby="addAgentModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content" style="background: white !important; color: black !important; border: none;">
-                <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; border: none;">
-                    <h5 class="modal-title" id="addAgentModalLabel" style="color: white;">
-                        <i class="fas fa-user-plus me-2"></i>Ajouter un Agent
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAgentModalLabel">
+                        <i class="fas fa-user-plus me-2"></i>Enregistrer un nouvel agent
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" style="background: white; color: black; padding: 2rem;">
-                    <form method="post" action="traitement_agents.php" style="all: initial; font-family: Inter, sans-serif;">
-                        <div style="margin-bottom: 1.5rem;">
-                            <label for="nom_agent" style="display: block; margin-bottom: 0.5rem; color: #2c3e50; font-weight: 600;">
-                                <i class="fas fa-user" style="margin-right: 8px; color: var(--primary-color);"></i>Nom *
+                <div class="modal-body">
+                    <form class="forms-sample" method="post" action="traitement_agents.php">
+                        <div class="mb-3">
+                            <label for="nom" class="form-label">
+                                <i class="fas fa-user me-2"></i>Nom
                             </label>
-                            <input type="text" id="nom_agent" name="nom" required 
-                                   style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; background: white; color: black;"
-                                   placeholder="Nom de l'agent">
+                            <input type="text" class="form-control" id="nom" name="nom" placeholder="Nom de l'agent" required 
+                                   style="background: rgba(255, 255, 255, 0.9) !important; color: #2c3e50 !important;">
                         </div>
 
-                        <div style="margin-bottom: 1.5rem;">
-                            <label for="prenom_agent" style="display: block; margin-bottom: 0.5rem; color: #2c3e50; font-weight: 600;">
-                                <i class="fas fa-user" style="margin-right: 8px; color: var(--primary-color);"></i>Prénom *
+                        <div class="mb-3">
+                            <label for="prenom" class="form-label">
+                                <i class="fas fa-user me-2"></i>Prénoms
                             </label>
-                            <input type="text" id="prenom_agent" name="prenom" required
-                                   style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; background: white; color: black;"
-                                   placeholder="Prénom de l'agent">
+                            <input type="text" class="form-control" id="prenom" name="prenom" placeholder="Prénoms de l'agent" required
+                                   style="background: rgba(255, 255, 255, 0.9) !important; color: #2c3e50 !important;">
                         </div>
 
-                        <div style="margin-bottom: 1.5rem;">
-                            <label for="contact_agent" style="display: block; margin-bottom: 0.5rem; color: #2c3e50; font-weight: 600;">
-                                <i class="fas fa-phone" style="margin-right: 8px; color: var(--primary-color);"></i>Contact *
+                        <div class="mb-3">
+                            <label for="contact" class="form-label">
+                                <i class="fas fa-phone me-2"></i>Contact
                             </label>
-                            <input type="text" id="contact_agent" name="contact" required
-                                   style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; background: white; color: black;"
-                                   placeholder="Numéro de téléphone">
+                            <input type="text" class="form-control" id="contact" name="contact" placeholder="Numéro de téléphone" required
+                                   style="background: rgba(255, 255, 255, 0.9) !important; color: #2c3e50 !important;">
                         </div>
 
-                        <div style="margin-bottom: 2rem;">
-                            <label for="chef_agent" style="display: block; margin-bottom: 0.5rem; color: #2c3e50; font-weight: 600;">
-                                <i class="fas fa-user-tie" style="margin-right: 8px; color: var(--primary-color);"></i>Chef d'Équipe *
+                        <div class="mb-3">
+                            <label for="id_chef" class="form-label">
+                                <i class="fas fa-user-tie me-2"></i>Chef d'Équipe
                             </label>
-                            <select id="chef_agent" name="id_chef" required
-                                    style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; background: white; color: black; appearance: auto;">
-                                <option value="">-- Sélectionner un chef d'équipe --</option>
+                            <select id="id_chef" name="id_chef" class="form-control" required 
+                                    style="background: rgba(255, 255, 255, 0.9) !important; color: #2c3e50 !important; appearance: auto !important; -webkit-appearance: menulist !important;">
+                                <option value="">Sélectionner un chef d'équipe</option>
                                 <?php if (!empty($chefs)): ?>
                                     <?php foreach ($chefs as $chef): ?>
                                         <option value="<?= htmlspecialchars($chef['id_chef']) ?>">
@@ -1275,19 +1217,17 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
                                     <option value="">Aucun chef d'équipe disponible</option>
                                 <?php endif; ?>
                             </select>
-                            <small style="color: #666; font-size: 14px; margin-top: 5px; display: block;">
-                                <?= count($chefs) ?> chef(s) d'équipe disponible(s)
-                            </small>
                         </div>
 
-                        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
-                            <button type="button" data-bs-dismiss="modal" 
-                                    style="padding: 12px 24px; border: 2px solid #6c757d; background: white; color: #6c757d; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                                <i class="fas fa-times" style="margin-right: 8px;"></i>Annuler
+                        <!-- Champ caché pour s'assurer que add_agent est envoyé -->
+                        <input type="hidden" name="add_agent" value="1">
+
+                        <div class="modal-footer border-0">
+                            <button type="submit" class="btn-modern ripple" name="add_agent" value="1">
+                                <i class="fas fa-save me-2"></i>Enregistrer
                             </button>
-                            <button type="submit" name="add_agent"
-                                    style="padding: 12px 24px; border: none; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                                <i class="fas fa-save" style="margin-right: 8px;"></i>Ajouter Agent
+                            <button type="button" class="btn-modern btn-danger-modern ripple" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-2"></i>Annuler
                             </button>
                         </div>
                     </form>
@@ -1325,7 +1265,7 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
             createParticles();
             
             // Add entrance animations with stagger
-            const elements = document.querySelectorAll('.stat-card, .actions-container, .table-container');
+            const elements = document.querySelectorAll('.actions-container, .table-container');
             elements.forEach((el, index) => {
                 el.style.animationDelay = (index * 0.1) + 's';
             });
@@ -1367,7 +1307,7 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
                 });
             }, observerOptions);
 
-            document.querySelectorAll('.stat-card, .table-container').forEach(el => {
+            document.querySelectorAll('.table-container').forEach(el => {
                 observer.observe(el);
             });
         });

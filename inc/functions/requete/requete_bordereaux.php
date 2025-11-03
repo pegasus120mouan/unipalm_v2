@@ -43,8 +43,10 @@ INNER JOIN agents a ON b.id_agent = a.id_agent";
         $where_conditions = [];
 
         if (!empty($filters['numero'])) {
-            $where_conditions[] = "b.numero_bordereau LIKE :numero";
-            $params[':numero'] = '%' . $filters['numero'] . '%';
+            // Nettoyer le numéro de bordereau en supprimant les espaces et tirets pour une recherche flexible
+            $numero_clean = preg_replace('/[\s\-]+/', '', trim($filters['numero']));
+            $where_conditions[] = "REPLACE(REPLACE(b.numero_bordereau, ' ', ''), '-', '') LIKE :numero";
+            $params[':numero'] = '%' . $numero_clean . '%';
         }
 
         if (!empty($filters['agent'])) {
@@ -65,6 +67,29 @@ INNER JOIN agents a ON b.id_agent = a.id_agent";
         if (!empty($filters['date'])) {
             $where_conditions[] = "DATE(b.created_at) = :date";
             $params[':date'] = $filters['date'];
+        }
+
+        if (!empty($filters['date_creation'])) {
+            $where_conditions[] = "DATE(b.created_at) = :date_creation";
+            $params[':date_creation'] = $filters['date_creation'];
+        }
+
+        if (!empty($filters['usine'])) {
+            $where_conditions[] = "EXISTS (
+                SELECT 1 FROM tickets t 
+                WHERE t.numero_bordereau = b.numero_bordereau 
+                AND t.id_usine = :usine_id
+            )";
+            $params[':usine_id'] = $filters['usine'];
+        }
+
+        if (!empty($filters['chauffeur'])) {
+            $where_conditions[] = "EXISTS (
+                SELECT 1 FROM tickets t 
+                WHERE t.numero_bordereau = b.numero_bordereau 
+                AND t.vehicule_id = :vehicule_id
+            )";
+            $params[':vehicule_id'] = $filters['chauffeur'];
         }
 
         if (!empty($where_conditions)) {

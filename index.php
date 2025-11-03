@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     header("location: ../operateurs/tickets.php");
                       break;
                   case 'directeur':
-                    header("location: ../directeur/tickets.php");
+                    header("location: ../directeur/bordereaux.php");
                       break;
                   default:
                       header('Location: ../caisse/approvisionnement.php');
