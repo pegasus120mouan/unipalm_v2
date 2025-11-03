@@ -5,13 +5,34 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Ajout d'un agent
     if (isset($_POST['add_agent'])) {
-        $nom = $_POST['nom'];
-        $prenom = $_POST['prenom'];
-        $contact = $_POST['contact'];
+        $nom = trim($_POST['nom']);
+        $prenom = trim($_POST['prenom']);
+        $contact = trim($_POST['contact']);
         $id_chef = $_POST['id_chef'];
         $cree_par = $_SESSION['user_id']; // ID de l'utilisateur connecté
 
+        // Validation des données
+        if (empty($nom) || empty($prenom) || empty($contact) || empty($id_chef)) {
+            $_SESSION['popup'] = true;
+            $_SESSION['message'] = "Tous les champs sont obligatoires !";
+            $_SESSION['status'] = "error";
+            header('Location: agents.php');
+            exit;
+        }
+
         try {
+            // Vérifier que le chef d'équipe existe
+            $stmt_check = $conn->prepare("SELECT id_chef FROM chef_equipe WHERE id_chef = ?");
+            $stmt_check->execute([$id_chef]);
+            if (!$stmt_check->fetch()) {
+                $_SESSION['popup'] = true;
+                $_SESSION['message'] = "Chef d'équipe invalide !";
+                $_SESSION['status'] = "error";
+                header('Location: agents.php');
+                exit;
+            }
+
+            // Insertion de l'agent
             $stmt = $conn->prepare("INSERT INTO agents (nom, prenom, contact, id_chef, cree_par, date_ajout) VALUES (?, ?, ?, ?, ?, NOW())");
             $result = $stmt->execute([$nom, $prenom, $contact, $id_chef, $cree_par]);
 
@@ -26,8 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } catch(PDOException $e) {
             $_SESSION['popup'] = true;
-            $_SESSION['message'] = "Erreur : " . $e->getMessage();
+            $_SESSION['message'] = "Erreur base de données : " . $e->getMessage();
             $_SESSION['status'] = "error";
+            
+            // Log l'erreur pour debug
+            error_log("Erreur ajout agent: " . $e->getMessage());
         }
         
         header('Location: agents.php');

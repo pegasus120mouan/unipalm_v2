@@ -20,9 +20,9 @@ $vehicules = getVehicules($conn);
 $agents = getAgents($conn);
 
 
-// Récupérer la liste des chefs d'équipe
+// Récupérer la liste des chefs d'équipe (pour compatibilité avec le modal)
 $stmt = $conn->prepare(
-    "SELECT id_chef, CONCAT(nom, ' ', prenoms) as nom_complet 
+    "SELECT id_chef, CONCAT(nom, ' ', prenoms) as chef_nom_complet 
      FROM chef_equipe 
      ORDER BY nom"
 );
@@ -68,7 +68,7 @@ $total_agents_filtered = count($agents_filtered);
 
 // Calculer les statistiques
 $total_agents = count($agents);
-$total_chefs = count($chefs_equipes);
+$total_chefs = count($chefs);
 
 // Fonction pour générer les paramètres URL avec filtres
 function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_contact, $search_chef) {
@@ -545,6 +545,13 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
             padding: 0.75rem;
         }
 
+        /* Assurer que les selects restent des selects */
+        select.form-control {
+            appearance: auto;
+            -webkit-appearance: menulist;
+            -moz-appearance: menulist;
+        }
+
         .form-control:focus {
             background: rgba(255, 255, 255, 0.95);
             border-color: var(--primary-color);
@@ -858,7 +865,7 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
 
         <!-- Action buttons -->
         <div class="actions-container">
-            <button type="button" class="btn-modern ripple" data-bs-toggle="modal" data-bs-target="#add-agent">
+            <button type="button" class="btn-modern ripple" onclick="window.open('add_agent_simple.php', '_blank', 'width=800,height=600')">
                 <i class="fas fa-user-plus"></i>
                 Enregistrer un agent
             </button>
@@ -1185,8 +1192,8 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
                                 </label>
                                 <select id="nouveau_chef<?= $agent['id_agent'] ?>" name="nouveau_chef" class="form-control" required>
                                     <option value="">Sélectionner un nouveau chef d'équipe</option>
-                                    <?php if (!empty($chefs_equipes)): ?>
-                                        <?php foreach ($chefs_equipes as $chef): ?>
+                                    <?php if (!empty($chefs)): ?>
+                                        <?php foreach ($chefs as $chef): ?>
                                             <option value="<?= htmlspecialchars($chef['id_chef']) ?>">
                                                 <?= htmlspecialchars($chef['chef_nom_complet']) ?>
                                             </option>
@@ -1212,63 +1219,75 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
         </div>
     <?php endforeach; ?>
     
-    <!-- Modale d'ajout d'agent -->
+    <!-- Modal d'ajout d'agent - VERSION FONCTIONNELLE -->
     <div class="modal fade" id="add-agent" tabindex="-1" aria-labelledby="addAgentModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addAgentModalLabel">
-                        <i class="fas fa-user-plus me-2"></i>Enregistrer un nouvel agent
+            <div class="modal-content" style="background: white !important; color: black !important; border: none;">
+                <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; border: none;">
+                    <h5 class="modal-title" id="addAgentModalLabel" style="color: white;">
+                        <i class="fas fa-user-plus me-2"></i>Ajouter un Agent
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form class="forms-sample" method="post" action="traitement_agents.php">
-                        <div class="mb-3">
-                            <label for="nom" class="form-label">
-                                <i class="fas fa-user me-2"></i>Nom
+                <div class="modal-body" style="background: white; color: black; padding: 2rem;">
+                    <form method="post" action="traitement_agents.php" style="all: initial; font-family: Inter, sans-serif;">
+                        <div style="margin-bottom: 1.5rem;">
+                            <label for="nom_agent" style="display: block; margin-bottom: 0.5rem; color: #2c3e50; font-weight: 600;">
+                                <i class="fas fa-user" style="margin-right: 8px; color: var(--primary-color);"></i>Nom *
                             </label>
-                            <input type="text" class="form-control" id="nom" name="nom" placeholder="Nom de l'agent" required>
+                            <input type="text" id="nom_agent" name="nom" required 
+                                   style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; background: white; color: black;"
+                                   placeholder="Nom de l'agent">
                         </div>
 
-                        <div class="mb-3">
-                            <label for="prenom" class="form-label">
-                                <i class="fas fa-user me-2"></i>Prénoms
+                        <div style="margin-bottom: 1.5rem;">
+                            <label for="prenom_agent" style="display: block; margin-bottom: 0.5rem; color: #2c3e50; font-weight: 600;">
+                                <i class="fas fa-user" style="margin-right: 8px; color: var(--primary-color);"></i>Prénom *
                             </label>
-                            <input type="text" class="form-control" id="prenom" name="prenom" placeholder="Prénoms de l'agent" required>
+                            <input type="text" id="prenom_agent" name="prenom" required
+                                   style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; background: white; color: black;"
+                                   placeholder="Prénom de l'agent">
                         </div>
 
-                        <div class="mb-3">
-                            <label for="contact" class="form-label">
-                                <i class="fas fa-phone me-2"></i>Contact
+                        <div style="margin-bottom: 1.5rem;">
+                            <label for="contact_agent" style="display: block; margin-bottom: 0.5rem; color: #2c3e50; font-weight: 600;">
+                                <i class="fas fa-phone" style="margin-right: 8px; color: var(--primary-color);"></i>Contact *
                             </label>
-                            <input type="text" class="form-control" id="contact" name="contact" placeholder="Numéro de téléphone" required>
+                            <input type="text" id="contact_agent" name="contact" required
+                                   style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; background: white; color: black;"
+                                   placeholder="Numéro de téléphone">
                         </div>
 
-                        <div class="mb-3">
-                            <label for="id_chef" class="form-label">
-                                <i class="fas fa-user-tie me-2"></i>Chef d'Équipe
+                        <div style="margin-bottom: 2rem;">
+                            <label for="chef_agent" style="display: block; margin-bottom: 0.5rem; color: #2c3e50; font-weight: 600;">
+                                <i class="fas fa-user-tie" style="margin-right: 8px; color: var(--primary-color);"></i>Chef d'Équipe *
                             </label>
-                            <select id="id_chef" name="id_chef" class="form-control" required>
-                                <option value="">Sélectionner un chef d'équipe</option>
-                                <?php if (!empty($chefs_equipes)): ?>
-                                    <?php foreach ($chefs_equipes as $chefs_equipe): ?>
-                                        <option value="<?= htmlspecialchars($chefs_equipe['id_chef']) ?>">
-                                            <?= htmlspecialchars($chefs_equipe['chef_nom_complet']) ?>
+                            <select id="chef_agent" name="id_chef" required
+                                    style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; background: white; color: black; appearance: auto;">
+                                <option value="">-- Sélectionner un chef d'équipe --</option>
+                                <?php if (!empty($chefs)): ?>
+                                    <?php foreach ($chefs as $chef): ?>
+                                        <option value="<?= htmlspecialchars($chef['id_chef']) ?>">
+                                            <?= htmlspecialchars($chef['chef_nom_complet']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <option value="">Aucun chef d'équipe disponible</option>
                                 <?php endif; ?>
                             </select>
+                            <small style="color: #666; font-size: 14px; margin-top: 5px; display: block;">
+                                <?= count($chefs) ?> chef(s) d'équipe disponible(s)
+                            </small>
                         </div>
 
-                        <div class="modal-footer border-0">
-                            <button type="submit" class="btn-modern ripple" name="add_agent">
-                                <i class="fas fa-save me-2"></i>Enregistrer
+                        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                            <button type="button" data-bs-dismiss="modal" 
+                                    style="padding: 12px 24px; border: 2px solid #6c757d; background: white; color: #6c757d; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-times" style="margin-right: 8px;"></i>Annuler
                             </button>
-                            <button type="button" class="btn-modern btn-danger-modern ripple" data-bs-dismiss="modal">
-                                <i class="fas fa-times me-2"></i>Annuler
+                            <button type="submit" name="add_agent"
+                                    style="padding: 12px 24px; border: none; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-save" style="margin-right: 8px;"></i>Ajouter Agent
                             </button>
                         </div>
                     </form>
@@ -1410,6 +1429,7 @@ function buildUrlParams($page, $limit, $search_nom, $search_prenom, $search_cont
                 }
             });
         });
+
 
         // Add CSS for ripple effect
         const style = document.createElement('style');
