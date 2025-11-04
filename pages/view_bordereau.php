@@ -89,14 +89,15 @@ if (isset($_GET['numero'])) {
         $pdf->Ln(10);
 
         // En-têtes du tableau des tickets
-        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->SetFont('Arial', 'B', 8);
         $pdf->SetFillColor(197, 217, 241); // Bleu clair comme dans l'image
-        $pdf->Cell(25, 7, 'Date', 1, 0, 'C', true);
-        $pdf->Cell(35, 7, iconv('UTF-8', 'windows-1252', 'N° Ticket'), 1, 0, 'C', true);
-        $pdf->Cell(35, 7, 'Usine', 1, 0, 'C', true);
-        $pdf->Cell(30, 7, iconv('UTF-8', 'windows-1252', 'Véhicule'), 1, 0, 'C', true);
-        $pdf->Cell(30, 7, 'Poids (Kg)', 1, 0, 'C', true);
-        $pdf->Cell(35, 7, 'Montant (FCFA)', 1, 1, 'C', true);
+        $pdf->Cell(25, 8, 'Date', 1, 0, 'C', true);
+        $pdf->Cell(30, 8, iconv('UTF-8', 'windows-1252', 'N° Ticket'), 1, 0, 'C', true);
+        $pdf->Cell(35, 8, 'Usine', 1, 0, 'C', true);
+        $pdf->Cell(25, 8, iconv('UTF-8', 'windows-1252', 'Véhicule'), 1, 0, 'C', true);
+        $pdf->Cell(25, 8, 'Poids (Kg)', 1, 0, 'C', true);
+        $pdf->Cell(25, 8, 'Prix Unit.', 1, 0, 'C', true);
+        $pdf->Cell(25, 8, 'Montant', 1, 1, 'C', true);
 
         // Récupérer les tickets associés au bordereau avec les prix unitaires
         $sql = "SELECT t.*, u.nom_usine, 
@@ -116,7 +117,7 @@ if (isset($_GET['numero'])) {
         $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Données du tableau
-        $pdf->SetFont('Arial', '', 10);
+        $pdf->SetFont('Arial', '', 8);
         $total_poids = 0;
         $total_montant = 0;
         $current_usine = '';
@@ -126,25 +127,29 @@ if (isset($_GET['numero'])) {
         foreach ($tickets as $ticket) {
             if ($current_usine != $ticket['nom_usine'] && $current_usine != '') {
                 // Sous-total
-                $pdf->SetFont('Arial', 'I', 10);
-                $pdf->Cell(125, 7, 'Sous-total ' . iconv('UTF-8', 'windows-1252', $current_usine), 1, 0, 'R');
-                $pdf->Cell(30, 7, number_format($sous_total_poids, 0, ',', ' '), 1, 0, 'R');
-                $pdf->Cell(35, 7, number_format($sous_total_montant, 0, ',', ' '), 1, 1, 'R');
+                $pdf->SetFont('Arial', 'I', 8);
+                $pdf->SetFillColor(240, 240, 240);
+                $pdf->Cell(115, 8, 'Sous-total ' . iconv('UTF-8', 'windows-1252', $current_usine), 1, 0, 'R', true);
+                $pdf->Cell(25, 8, number_format($sous_total_poids, 0, ',', ' '), 1, 0, 'R', true);
+                $pdf->Cell(25, 8, '', 1, 0, 'C', true); // Colonne prix unitaire vide pour sous-total
+                $pdf->Cell(25, 8, number_format($sous_total_montant, 0, ',', ' '), 1, 1, 'R', true);
                 $sous_total_poids = 0;
                 $sous_total_montant = 0;
-                $pdf->SetFont('Arial', '', 10);
+                $pdf->SetFont('Arial', '', 8);
             }
 
             $current_usine = $ticket['nom_usine'];
             $poids = $ticket['poids'];
+            $prix_unitaire = $ticket['prix_unitaire'];
             $montant = $ticket['montant_ticket'];
 
-            $pdf->Cell(25, 7, date('d/m/Y', strtotime($ticket['date_ticket'])), 1, 0, 'C');
-            $pdf->Cell(35, 7, $ticket['numero_ticket'], 1, 0, 'C');
-            $pdf->Cell(35, 7, iconv('UTF-8', 'windows-1252', $ticket['nom_usine']), 1, 0, 'L');
-            $pdf->Cell(30, 7, iconv('UTF-8', 'windows-1252', $ticket['matricule_vehicule']), 1, 0, 'C');
-            $pdf->Cell(30, 7, number_format($poids, 0, ',', ' '), 1, 0, 'R');
-            $pdf->Cell(35, 7, number_format($montant, 0, ',', ' '), 1, 1, 'R');
+            $pdf->Cell(25, 8, date('d/m/Y', strtotime($ticket['date_ticket'])), 1, 0, 'C');
+            $pdf->Cell(30, 8, $ticket['numero_ticket'], 1, 0, 'C');
+            $pdf->Cell(35, 8, iconv('UTF-8', 'windows-1252', $ticket['nom_usine']), 1, 0, 'L');
+            $pdf->Cell(25, 8, iconv('UTF-8', 'windows-1252', $ticket['matricule_vehicule']), 1, 0, 'C');
+            $pdf->Cell(25, 8, number_format($poids, 0, ',', ' '), 1, 0, 'R');
+            $pdf->Cell(25, 8, number_format($prix_unitaire, 0, ',', ' '), 1, 0, 'R');
+            $pdf->Cell(25, 8, number_format($montant, 0, ',', ' '), 1, 1, 'R');
 
             $total_poids += $poids;
             $total_montant += $montant;
@@ -154,19 +159,22 @@ if (isset($_GET['numero'])) {
 
         // Dernier sous-total
         if ($current_usine != '') {
-            $pdf->SetFont('Arial', 'I', 10);
-            $pdf->Cell(125, 7, 'Sous-total ' . iconv('UTF-8', 'windows-1252', $current_usine), 1, 0, 'R');
-            $pdf->Cell(30, 7, number_format($sous_total_poids, 0, ',', ' '), 1, 0, 'R');
-            $pdf->Cell(35, 7, number_format($sous_total_montant, 0, ',', ' '), 1, 1, 'R');
+            $pdf->SetFont('Arial', 'I', 8);
+            $pdf->SetFillColor(240, 240, 240);
+            $pdf->Cell(115, 8, 'Sous-total ' . iconv('UTF-8', 'windows-1252', $current_usine), 1, 0, 'R', true);
+            $pdf->Cell(25, 8, number_format($sous_total_poids, 0, ',', ' '), 1, 0, 'R', true);
+            $pdf->Cell(25, 8, '', 1, 0, 'C', true); // Colonne prix unitaire vide pour sous-total
+            $pdf->Cell(25, 8, number_format($sous_total_montant, 0, ',', ' '), 1, 1, 'R', true);
         }
 
         // Total général
-        $pdf->Ln(2);
-        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Ln(3);
+        $pdf->SetFont('Arial', 'B', 9);
         $pdf->SetFillColor(197, 217, 241);
-        $pdf->Cell(125, 7, 'TOTAL GENERAL', 1, 0, 'R', true);
-        $pdf->Cell(30, 7, number_format($total_poids, 0, ',', ' '), 1, 0, 'R', true);
-        $pdf->Cell(35, 7, number_format($total_montant, 0, ',', ' '), 1, 1, 'R', true);
+        $pdf->Cell(115, 10, 'TOTAL GENERAL', 1, 0, 'R', true);
+        $pdf->Cell(25, 10, number_format($total_poids, 0, ',', ' '), 1, 0, 'R', true);
+        $pdf->Cell(25, 10, '', 1, 0, 'C', true); // Colonne prix unitaire vide pour total
+        $pdf->Cell(25, 10, number_format($total_montant, 0, ',', ' '), 1, 1, 'R', true);
 
         // Zone de signatures
         $pdf->Ln(20);
