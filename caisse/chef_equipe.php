@@ -23,7 +23,20 @@ $usines = getUsines($conn);
 </style>
 
         <!-- Main row -->
+        <div class="row">
 
+            <div class="block-container">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-chef">
+              <i class="fa fa-edit" disabled></i>Enregistrer un chef d'equipe 
+            </button>
+
+            <button type="button" class="btn btn-danger" onclick="window.location.href='impression_chefs.php'">
+              <i class="fa fa-print" disabled></i> Imprimer la liste des chefs équipes
+             </button>
+             <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#print-tickets-modal">
+              <i class="fa fa-print" disabled></i> Imprimer tickets par Agent
+             </button>
+        </div>
 
         <!-- Modal pour impression tickets par agent -->
         <div class="modal fade" id="print-tickets-modal" tabindex="-1" role="dialog" aria-labelledby="printTicketsModalLabel" aria-hidden="true">

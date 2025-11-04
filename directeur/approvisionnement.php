@@ -479,13 +479,13 @@ body {
                                     </div>
                                 </td>
                                 <td>
-                                    <div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="<?= htmlspecialchars($transaction['motifs']) ?>">
+                                    <div style="max-width: 250px; word-wrap: break-word; white-space: normal; line-height: 1.4;">
                                         <?php if ($transaction['type_transaction'] == 'approvisionnement'): ?>
                                             <span style="color: #28a745; font-weight: 500;">
-                                                <i class="fas fa-plus-circle me-1"></i><?= $transaction['motifs'] ?>
+                                                <i class="fas fa-plus-circle me-1"></i><?= htmlspecialchars($transaction['motifs']) ?>
                                             </span>
                                         <?php else: ?>
-                                            <?= !empty($transaction['motifs']) ? $transaction['motifs'] : '<span style="color: #6c757d; font-style: italic;">Aucun</span>' ?>
+                                            <?= !empty($transaction['motifs']) ? htmlspecialchars($transaction['motifs']) : '<span style="color: #6c757d; font-style: italic;">Aucun</span>' ?>
                                         <?php endif; ?>
                                     </div>
                                 </td>

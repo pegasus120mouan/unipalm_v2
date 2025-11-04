@@ -651,15 +651,15 @@ if (!isset($_SESSION['user_id'])) {
           </a>
         </li>
         <li class="nav-item d-none d-lg-inline-block">
-          <a href="tickets.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'tickets.php' ? 'active' : '' ?>">
+          <a href="bordereaux.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'bordereaux.php' ? 'active' : '' ?>">
             <i class="fas fa-home mr-2"></i>
             Accueil
           </a>
         </li>
         <li class="nav-item d-none d-lg-inline-block">
-          <a href="tickets.php" class="nav-link <?= in_array(basename($_SERVER['PHP_SELF']), ['tickets.php', 'tickets_jour.php', 'tickets_attente.php']) ? 'active' : '' ?>">
+          <a href="prix_unitaires.php" class="nav-link <?= in_array(basename($_SERVER['PHP_SELF']), ['prix_unitaires.php']) ? 'active' : '' ?>">
             <i class="fas fa-ticket-alt mr-2"></i>
-            Tickets
+            Prix Unitaires
           </a>
         </li>
         <li class="nav-item d-none d-lg-inline-block">
@@ -669,9 +669,9 @@ if (!isset($_SESSION['user_id'])) {
           </a>
         </li>
         <li class="nav-item d-none d-xl-inline-block">
-          <a href="tickets_payes.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'tickets_payes.php' ? 'active' : '' ?>">
+          <a href="financements.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'financements.php' ? 'active' : '' ?>">
             <i class="fas fa-money-check-alt mr-2"></i>
-            Tickets Payés
+            Financements
           </a>
         </li>
       </ul>

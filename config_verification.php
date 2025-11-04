@@ -8,10 +8,10 @@
 if ($_SERVER['HTTP_HOST'] === 'unipalm.ci' || $_SERVER['HTTP_HOST'] === 'www.unipalm.ci') {
     // Paramètres pour le serveur de production
     $db_config = [
-        'host' => 'localhost', // ou l'IP du serveur MySQL
-        'dbname' => 'unipalm_prod', // nom de la base de données de production
+        'host' => '82.25.118.46', // ou l'IP du serveur MySQL
+        'dbname' => 'unipalm_gestion_new', // nom de la base de données de production
         'username' => 'unipalm_user', // utilisateur de la base de données
-        'password' => 'votre_mot_de_passe_securise', // mot de passe sécurisé
+        'password' => 'z1V07GpfhUqi7XeAlQ8', // mot de passe sécurisé
         'charset' => 'utf8mb4'
     ];
 }
