@@ -756,7 +756,7 @@ body::before {
     <div class="stats-grid">
         <div class="stat-card animate__animated animate__fadeInUp">
             <div class="stat-card-icon">
-                <i class="fas fa-euro-sign"></i>
+                <i class="fas fa-coins"></i>
             </div>
             <div class="stat-card-number"><?= $total_items ?></div>
             <div class="stat-card-label">Prix Configurés</div>
@@ -856,7 +856,7 @@ body::before {
                             <!-- Prix minimum -->
                             <div class="col-lg-3 col-md-6 mb-3">
                                 <label for="prix_min" class="form-label">
-                                    <i class="fas fa-euro-sign me-2"></i>Prix minimum
+                                    <i class="fas fa-coins me-2"></i>Prix minimum
                                 </label>
                                 <input type="number" 
                                        class="form-control" 
@@ -870,7 +870,7 @@ body::before {
                             <!-- Prix maximum -->
                             <div class="col-lg-3 col-md-6 mb-3">
                                 <label for="prix_max" class="form-label">
-                                    <i class="fas fa-euro-sign me-2"></i>Prix maximum
+                                    <i class="fas fa-coins me-2"></i>Prix maximum
                                 </label>
                                 <input type="number" 
                                        class="form-control" 
@@ -942,8 +942,8 @@ body::before {
                             <?php endif; ?>
                             <?php if($prix_min): ?>
                                 <span class="filter-badge">
-                                    <i class="fas fa-euro-sign me-2"></i>
-                                    Prix min: <?= htmlspecialchars($prix_min) ?>€
+                                    <i class="fas fa-coins me-2"></i>
+                                    Prix min: <?= htmlspecialchars($prix_min) ?> FCFA
                                     <a href="?<?= http_build_query(array_merge($_GET, ['prix_min' => null])) ?>" class="remove-filter">
                                         <i class="fas fa-times"></i>
                                     </a>
@@ -951,8 +951,8 @@ body::before {
                             <?php endif; ?>
                             <?php if($prix_max): ?>
                                 <span class="filter-badge">
-                                    <i class="fas fa-euro-sign me-2"></i>
-                                    Prix max: <?= htmlspecialchars($prix_max) ?>€
+                                    <i class="fas fa-coins me-2"></i>
+                                    Prix max: <?= htmlspecialchars($prix_max) ?> FCFA
                                     <a href="?<?= http_build_query(array_merge($_GET, ['prix_max' => null])) ?>" class="remove-filter">
                                         <i class="fas fa-times"></i>
                                     </a>
@@ -1013,7 +1013,7 @@ body::before {
                                 <td>
                                     <div class="prix-display">
                                         <span class="prix-value"><?= number_format($prix['prix'], 2, ',', ' ') ?></span>
-                                        <span class="prix-currency">€</span>
+                                        <span class="prix-currency">FCFA</span>
                                     </div>
                                 </td>
                                 <td>
@@ -1117,80 +1117,112 @@ body::before {
     </div>
 </div>
 
+
+<!-- Modals de modification pour chaque prix unitaire -->
+<?php if (!empty($prix_unitaires_list)) : ?>
+    <?php foreach ($prix_unitaires_list as $prix) : ?>
         <!-- Modal Modification -->
-        <div class="modal fade" id="editModal<?= $prix['id'] ?>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel<?= $prix['id'] ?>" aria-hidden="true">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel<?= $prix['id'] ?>">Modifier le Prix Unitaire</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <form action="traitement_prix_unitaires.php" method="post">
-                  <input type="hidden" name="id" value="<?= $prix['id'] ?>">
-                  
-                  <div class="form-group">
-                    <label>Sélection Usine</label>
-                    <select name="id_usine" class="form-control" required>
-                      <?php foreach ($usines as $usine) : ?>
-                        <option value="<?= $usine['id_usine'] ?>" <?= $usine['id_usine'] == $prix['id_usine'] ? 'selected' : '' ?>>
-                          <?= htmlspecialchars($usine['nom_usine']) ?>
-                        </option>
-                      <?php endforeach; ?>
-                    </select>
-                  </div>
+        <div class="modal fade" id="editModal<?= $prix['id'] ?>" tabindex="-1" aria-labelledby="editModalLabel<?= $prix['id'] ?>" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel<?= $prix['id'] ?>">
+                            <i class="fas fa-edit me-2"></i>Modifier le Prix Unitaire
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="traitement_prix_unitaires.php" method="post">
+                            <input type="hidden" name="id" value="<?= $prix['id'] ?>">
+                            
+                            <div class="mb-3">
+                                <label for="id_usine_<?= $prix['id'] ?>" class="form-label">
+                                    <i class="fas fa-industry me-2"></i>Sélection Usine
+                                </label>
+                                <select name="id_usine" id="id_usine_<?= $prix['id'] ?>" class="form-select" required>
+                                    <?php foreach ($usines as $usine) : ?>
+                                        <option value="<?= $usine['id_usine'] ?>" <?= $usine['id_usine'] == $prix['id_usine'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($usine['nom_usine']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
 
-                  <div class="form-group">
-                    <label>Prix Unitaire</label>
-                    <input type="number" step="0.01" class="form-control" name="prix" value="<?= $prix['prix'] ?>" required>
-                  </div>
+                            <div class="mb-3">
+                                <label for="prix_<?= $prix['id'] ?>" class="form-label">
+                                    <i class="fas fa-coins me-2"></i>Prix Unitaire (FCFA)
+                                </label>
+                                <input type="number" step="0.01" id="prix_<?= $prix['id'] ?>" class="form-control" name="prix" value="<?= $prix['prix'] ?>" required>
+                            </div>
 
-                  <div class="form-group">
-                    <label>Date de début</label>
-                    <input type="date" class="form-control" name="date_debut" value="<?= $prix['date_debut'] ?>" required>
-                  </div>
+                            <div class="mb-3">
+                                <label for="date_debut_<?= $prix['id'] ?>" class="form-label">
+                                    <i class="fas fa-calendar-alt me-2"></i>Date de début
+                                </label>
+                                <input type="date" id="date_debut_<?= $prix['id'] ?>" class="form-control" name="date_debut" value="<?= $prix['date_debut'] ?>" required>
+                            </div>
 
-                  <div class="form-group">
-                    <label>Date de fin</label>
-                    <input type="date" class="form-control" name="date_fin" value="<?= $prix['date_fin'] ?>">
-                    <small class="form-text text-muted">Laissez vide si le prix unitaire est toujours en cours</small>
-                  </div>
+                            <div class="mb-3">
+                                <label for="date_fin_<?= $prix['id'] ?>" class="form-label">
+                                    <i class="fas fa-calendar-check me-2"></i>Date de fin (optionnel)
+                                </label>
+                                <input type="date" id="date_fin_<?= $prix['id'] ?>" class="form-control" name="date_fin" value="<?= $prix['date_fin'] ?>">
+                                <div class="form-text">Laissez vide si le prix unitaire est toujours en cours</div>
+                            </div>
 
-                  <button type="submit" class="btn btn-primary" name="updatePrixUnitaire">Enregistrer les modifications</button>
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                </form>
-              </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-modern btn-modern-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </button>
+                                <button type="submit" class="btn btn-modern btn-modern-success" name="updatePrixUnitaire">
+                                    <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
 
         <!-- Modal Suppression -->
-        <div class="modal fade" id="deleteModal<?= $prix['id'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel<?= $prix['id'] ?>" aria-hidden="true">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel<?= $prix['id'] ?>">Confirmer la suppression</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir supprimer ce prix unitaire ?</p>
-                <p>Usine: <?= htmlspecialchars($prix['nom_usine']) ?></p>
-                <p>Prix: <?= htmlspecialchars($prix['prix']) ?></p>
-              </div>
-              <div class="modal-footer">
-                <form action="traitement_prix_unitaires.php" method="post">
-                  <input type="hidden" name="id" value="<?= $prix['id'] ?>">
-                  <button type="submit" class="btn btn-danger" name="deletePrixUnitaire">Supprimer</button>
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                </form>
-              </div>
+        <div class="modal fade" id="deleteModal<?= $prix['id'] ?>" tabindex="-1" aria-labelledby="deleteModalLabel<?= $prix['id'] ?>" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="deleteModalLabel<?= $prix['id'] ?>">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Confirmer la suppression
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
+                            <h6>Êtes-vous sûr de vouloir supprimer ce prix unitaire ?</h6>
+                        </div>
+                        <div class="alert alert-warning">
+                            <strong>Usine :</strong> <?= htmlspecialchars($prix['nom_usine']) ?><br>
+                            <strong>Prix :</strong> <?= number_format($prix['prix'], 2, ',', ' ') ?> FCFA<br>
+                            <strong>Période :</strong> <?= date('d/m/Y', strtotime($prix['date_debut'])) ?> - 
+                            <?= $prix['date_fin'] ? date('d/m/Y', strtotime($prix['date_fin'])) : 'En cours' ?>
+                        </div>
+                        <p class="text-muted"><strong>Attention :</strong> Cette action est irréversible.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-modern btn-modern-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Annuler
+                        </button>
+                        <form action="traitement_prix_unitaires.php" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="<?= $prix['id'] ?>">
+                            <button type="submit" class="btn btn-modern btn-modern-danger" name="deletePrixUnitaire">
+                                <i class="fas fa-trash me-2"></i>Supprimer définitivement
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
+    <?php endforeach; ?>
+<?php endif; ?>
 
 <!-- Modal Ajout Prix Unitaire -->
 <div class="modal fade" id="add-ticket" tabindex="-1" aria-labelledby="addTicketModalLabel" aria-hidden="true">
@@ -1238,7 +1270,7 @@ body::before {
 
                     <div class="mb-3">
                         <label for="prix" class="form-label">
-                            <i class="fas fa-euro-sign me-2"></i>Prix Unitaire (€)
+                            <i class="fas fa-coins me-2"></i>Prix Unitaire (FCFA)
                         </label>
                         <input type="number" step="0.01" id="prix-input" class="form-control" name="prix" placeholder="0.00" required>
                     </div>
@@ -1476,7 +1508,7 @@ $(document).ready(function() {
         const dateDebut = $('#date-debut').val();
         const dateFin = $('#date-fin').val() || 'Période ouverte';
         
-        const confirmMessage = `Confirmer l'enregistrement :\n\nUsine: ${usine}\nPrix: ${prix} €\nPériode: ${dateDebut} - ${dateFin}`;
+        const confirmMessage = `Confirmer l'enregistrement :\n\nUsine: ${usine}\nPrix: ${prix} FCFA\nPériode: ${dateDebut} - ${dateFin}`;
         
         if (!confirm(confirmMessage)) {
             e.preventDefault();

@@ -8,7 +8,7 @@ require_once '../inc/functions/requete/requete_agents.php';
 
 include('header.php');
 
-$limit = $_GET['limit'] ?? 15;
+$limit = $_GET['limit'] ?? 50;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 
 // Récupérer les paramètres de filtrage
@@ -20,31 +20,18 @@ $search_agent = $_GET['search_agent'] ?? '';
 $search_usine = $_GET['search_usine'] ?? '';
 $numero_ticket = $_GET['numero_ticket'] ?? '';
 
-// Récupérer les tickets en attente avec les filtres
-$tickets = getTicketsAttente($conn, $agent_id, $usine_id, $date_debut, $date_fin, $numero_ticket);
-
-// Filtrer les tickets si un terme de recherche est présent
-if (!empty($search_agent) || !empty($search_usine)) {
-    $tickets = array_filter($tickets, function($ticket) use ($search_agent, $search_usine) {
-        $match = true;
-        if (!empty($search_agent)) {
-            $match = $match && stripos($ticket['agent_nom_complet'], $search_agent) !== false;
-        }
-        if (!empty($search_usine)) {
-            $match = $match && stripos($ticket['nom_usine'], $search_usine) !== false;
-        }
-        return $match;
-    });
-}
-
 // Calculer la pagination
-$total_tickets = count($tickets);
-$total_pages = ceil($total_tickets / $limit);
-$page = max(1, min($page, $total_pages));
 $offset = ($page - 1) * $limit;
 
-// Extraire les tickets pour la page courante
-$tickets_list = array_slice($tickets, $offset, $limit);
+// Compter le total des tickets avec les filtres
+$total_tickets = countTicketsAttente($conn, $agent_id, $usine_id, $date_debut, $date_fin, $numero_ticket);
+$total_pages = ceil($total_tickets / $limit);
+$page = max(1, min($page, $total_pages));
+
+// Récupérer les tickets en attente avec pagination directe en base
+$start_time = microtime(true);
+$tickets_list = getTicketsAttente($conn, $agent_id, $usine_id, $date_debut, $date_fin, $numero_ticket, null, $limit, $offset);
+$load_time = round((microtime(true) - $start_time) * 1000, 2); // en millisecondes
 
 // Récupérer les listes pour l'autocomplétion
 $agents = getAgents($conn);
@@ -98,19 +85,20 @@ $usines = getUsines($conn);
                         <!-- Recherche par agent -->
                         <div class="col-lg-3 col-md-6">
                             <div class="filter-group">
-                                <label for="agent_search_filter" class="filter-label">
+                                <label for="agent_id" class="filter-label">
                                     <i class="fas fa-user-tie me-2"></i>Agent
                                 </label>
-                                <div class="autocomplete-container">
-                                    <input type="text" 
-                                           class="filter-input" 
-                                           id="agent_search_filter" 
-                                           placeholder="Tapez le nom de l'agent..."
-                                           autocomplete="off">
-                                    <input type="hidden" name="agent_id" id="agent_id_filter" value="<?= htmlspecialchars($agent_id ?? '') ?>">
-                                    <div id="agent_suggestions_filter" class="autocomplete-suggestions"></div>
+                                <div class="filter-input-container">
+                                    <select name="agent_id" id="agent_id" class="filter-input">
+                                        <option value="">Sélectionner un agent...</option>
+                                        <?php foreach ($agents as $agent): ?>
+                                            <option value="<?= $agent['id_agent'] ?>" <?= $agent_id == $agent['id_agent'] ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($agent['nom_complet_agent']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                     <div class="input-icon">
-                                        <i class="fas fa-search"></i>
+                                        <i class="fas fa-user"></i>
                                     </div>
                                 </div>
                             </div>
@@ -119,19 +107,20 @@ $usines = getUsines($conn);
                         <!-- Recherche par usine -->
                         <div class="col-lg-3 col-md-6">
                             <div class="filter-group">
-                                <label for="usine_search_filter" class="filter-label">
+                                <label for="usine_id" class="filter-label">
                                     <i class="fas fa-industry me-2"></i>Usine
                                 </label>
-                                <div class="autocomplete-container">
-                                    <input type="text" 
-                                           class="filter-input" 
-                                           id="usine_search_filter" 
-                                           placeholder="Tapez le nom de l'usine..."
-                                           autocomplete="off">
-                                    <input type="hidden" name="usine_id" id="usine_id_filter" value="<?= htmlspecialchars($usine_id ?? '') ?>">
-                                    <div id="usine_suggestions_filter" class="autocomplete-suggestions"></div>
+                                <div class="filter-input-container">
+                                    <select name="usine_id" id="usine_id" class="filter-input">
+                                        <option value="">Sélectionner une usine...</option>
+                                        <?php foreach ($usines as $usine): ?>
+                                            <option value="<?= $usine['id_usine'] ?>" <?= $usine_id == $usine['id_usine'] ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($usine['nom_usine']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                     <div class="input-icon">
-                                        <i class="fas fa-search"></i>
+                                        <i class="fas fa-industry"></i>
                                     </div>
                                 </div>
                             </div>
@@ -336,8 +325,8 @@ function appliquerFiltres() {
     // Afficher le loader moderne
     showModernLoader();
     
-    const agent_id = document.getElementById('agent_select').value;
-    const usine_id = document.getElementById('usine_select').value;
+    const agent_id = document.getElementById('agent_id').value;
+    const usine_id = document.getElementById('usine_id').value;
     const date_debut = document.getElementById('date_debut').value;
     const date_fin = document.getElementById('date_fin').value;
     const numero_ticket = document.getElementById('numero_ticket').value;
@@ -368,8 +357,8 @@ function appliquerFiltres() {
 // Fonction pour sauvegarder les filtres
 function saveFilters() {
     const filters = {
-        agent_id: document.getElementById('agent_select').value,
-        usine_id: document.getElementById('usine_select').value,
+        agent_id: document.getElementById('agent_id').value,
+        usine_id: document.getElementById('usine_id').value,
         date_debut: document.getElementById('date_debut').value,
         date_fin: document.getElementById('date_fin').value,
         numero_ticket: document.getElementById('numero_ticket').value
@@ -387,8 +376,8 @@ function loadSavedFilters() {
     if (savedFilters) {
         const filters = JSON.parse(savedFilters);
         
-        if (filters.agent_id) document.getElementById('agent_select').value = filters.agent_id;
-        if (filters.usine_id) document.getElementById('usine_select').value = filters.usine_id;
+        if (filters.agent_id) document.getElementById('agent_id').value = filters.agent_id;
+        if (filters.usine_id) document.getElementById('usine_id').value = filters.usine_id;
         if (filters.date_debut) document.getElementById('date_debut').value = filters.date_debut;
         if (filters.date_fin) document.getElementById('date_fin').value = filters.date_fin;
         if (filters.numero_ticket) document.getElementById('numero_ticket').value = filters.numero_ticket;
@@ -600,6 +589,14 @@ function showNotification(message, type = 'info') {
     }
 }
 
+// Fonction pour initialiser l'autocomplétion
+function initializeAutocomplete() {
+    // Cette fonction sera appelée après le chargement de jQuery UI
+    if (typeof $ !== 'undefined' && $.fn.autocomplete) {
+        console.log('Initialisation de l\'autocomplétion...');
+    }
+}
+
 // Initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
     // Initialiser les filtres
@@ -622,14 +619,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Initialiser Select2 si disponible
-    if (typeof $ !== 'undefined' && $.fn.select2) {
-        $('#agent_select, #usine_select').select2({
-            theme: 'bootstrap4',
-            placeholder: 'Sélectionner...',
-            allowClear: true
+    // Gestion de la soumission du formulaire de filtres
+    const filterForm = document.getElementById('filterForm');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            appliquerFiltres();
         });
     }
+    
+    // Initialiser l'autocomplétion pour les agents et usines
+    initializeAutocomplete();
     
     // Masquer le loader au chargement
     hideModernLoader();
@@ -779,78 +779,36 @@ document.addEventListener('DOMContentLoaded', initializeSorting);
 }
 </style>
 
-<!-- Ajout de jQuery UI pour l'autocomplétion -->
-<link rel="stylesheet" href="../../plugins/jquery-ui/jquery-ui.min.css">
-<script src="../../plugins/jquery-ui/jquery-ui.min.js"></script>
+<!-- Styles pour les selects améliorés -->
+<style>
+.filter-input select {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    width: 100%;
+}
 
-<script>
-$(document).ready(function() {
-    // Préparer les données des agents pour l'autocomplétion
-    var agents = <?= json_encode(array_map(function($agent) {
-        return [
-            'value' => $agent['id_agent'],
-            'label' => $agent['nom_complet_agent']
-        ];
-    }, $agents)) ?>;
+.filter-input select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    background-color: rgba(255, 255, 255, 0.15);
+}
 
-    // Préparer les données des usines pour l'autocomplétion
-    var usines = <?= json_encode(array_map(function($usine) {
-        return [
-            'value' => $usine['id_usine'],
-            'label' => $usine['nom_usine']
-        ];
-    }, $usines)) ?>;
+.filter-input select option {
+    background-color: #1a1a1a;
+    color: white;
+    padding: 10px;
+}
 
-    // Autocomplétion pour les agents
-    $("#agent_search").autocomplete({
-        source: function(request, response) {
-            var term = request.term.toLowerCase();
-            var matches = agents.filter(function(agent) {
-                return agent.label.toLowerCase().indexOf(term) !== -1;
-            });
-            response(matches);
-        },
-        select: function(event, ui) {
-            window.location.href = 'tickets_attente.php?' + $.param({
-                ...getUrlParams(),
-                'agent_id': ui.item.value,
-                'search_agent': ui.item.label
-            });
-            return false;
-        },
-        minLength: 1
-    });
-
-    // Autocomplétion pour les usines
-    $("#usine_search").autocomplete({
-        source: function(request, response) {
-            var term = request.term.toLowerCase();
-            var matches = usines.filter(function(usine) {
-                return usine.label.toLowerCase().indexOf(term) !== -1;
-            });
-            response(matches);
-        },
-        select: function(event, ui) {
-            window.location.href = 'tickets_attente.php?' + $.param({
-                ...getUrlParams(),
-                'usine_id': ui.item.value,
-                'search_usine': ui.item.label
-            });
-            return false;
-        },
-        minLength: 1
-    });
-
-    // Fonction utilitaire pour obtenir les paramètres d'URL actuels
-    function getUrlParams() {
-        var params = {};
-        window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(str, key, value) {
-            params[key] = value;
-        });
-        return params;
-    }
-});
-</script>
+.filter-input select option:hover {
+    background-color: #4CAF50;
+}
+</style>
 
 <!-- CSS Ultra-Professionnel pour Tickets Attente -->
 <style>
@@ -1252,6 +1210,7 @@ $(document).ready(function() {
 .stat-card-warning::before { background: var(--warning-gradient); }
 .stat-card-success::before { background: var(--success-gradient); }
 .stat-card-danger::before { background: var(--danger-gradient); }
+.stat-card-info::before { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 
 .stat-card:hover {
     transform: translateY(-5px);
@@ -1273,6 +1232,7 @@ $(document).ready(function() {
 .stat-card-warning .stat-card-icon { background: var(--warning-gradient); }
 .stat-card-success .stat-card-icon { background: var(--success-gradient); }
 .stat-card-danger .stat-card-icon { background: var(--danger-gradient); }
+.stat-card-info .stat-card-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 
 .stat-card-content {
     flex: 1;
@@ -1798,7 +1758,7 @@ $(document).ready(function() {
                     <i class="fas fa-clock"></i>
                 </div>
                 <div class="stat-card-content">
-                    <div class="stat-card-number"><?= count($tickets) ?></div>
+                    <div class="stat-card-number"><?= count($tickets_list) ?></div>
                     <div class="stat-card-label">En Attente</div>
                 </div>
                 <div class="stat-card-trend">
@@ -1821,17 +1781,17 @@ $(document).ready(function() {
                 </div>
             </div>
             
-            <div class="stat-card stat-card-danger">
+            <div class="stat-card stat-card-info">
                 <div class="stat-card-icon">
-                    <i class="fas fa-times-circle"></i>
+                    <i class="fas fa-tachometer-alt"></i>
                 </div>
                 <div class="stat-card-content">
-                    <div class="stat-card-number">0</div>
-                    <div class="stat-card-label">Rejetés</div>
+                    <div class="stat-card-number"><?= $load_time ?>ms</div>
+                    <div class="stat-card-label">Temps de chargement</div>
                 </div>
                 <div class="stat-card-trend">
-                    <i class="fas fa-minus"></i>
-                    <span>0%</span>
+                    <i class="fas fa-bolt"></i>
+                    <span>Page <?= $page ?>/<?= $total_pages ?></span>
                 </div>
             </div>
         </div>
@@ -1874,7 +1834,7 @@ $(document).ready(function() {
                         Liste des Tickets en Attente
                     </h3>
                     <div class="table-subtitle">
-                        <span class="results-count"><?= count($tickets_list) ?></span> sur <span class="total-count"><?= count($tickets) ?></span> tickets
+                        <span class="results-count"><?= count($tickets_list) ?></span> sur <span class="total-count"><?= $total_tickets ?></span> tickets
                     </div>
                 </div>
                 
@@ -2273,10 +2233,10 @@ function validerTicketsSelectionnes() {
         ?>
         <label for="limit">Afficher :</label>
         <select name="limit" id="limit" class="items-per-page-select" onchange="this.form.submit()">
-            <option value="15" <?= $limit == 15 ? 'selected' : '' ?>>15</option>
             <option value="25" <?= $limit == 25 ? 'selected' : '' ?>>25</option>
-            <option value="50" <?= $limit == 50 ? 'selected' : '' ?>>50</option>
+            <option value="50" <?= $limit == 50 ? 'selected' : '' ?>>50 (Recommandé)</option>
             <option value="100" <?= $limit == 100 ? 'selected' : '' ?>>100</option>
+            <option value="200" <?= $limit == 200 ? 'selected' : '' ?>>200</option>
         </select>
     </form>
   </div>
@@ -2518,7 +2478,7 @@ document.getElementById('searchByVehiculeForm').addEventListener('submit', funct
 });
 </script>
 
-<?php foreach ($tickets as $ticket) : ?>
+<?php foreach ($tickets_list as $ticket) : ?>
   <div class="modal fade" id="ticketModal<?= $ticket['id_ticket'] ?>" tabindex="-1" role="dialog" aria-labelledby="ticketModalLabel<?= $ticket['id_ticket'] ?>" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -3417,272 +3377,14 @@ document.addEventListener('DOMContentLoaded', function() {
     position: relative;
 }
 
-.autocomplete-suggestions {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #ddd;
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 1050;
-    display: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.autocomplete-suggestion {
-    padding: 12px 16px;
-    cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background-color 0.2s ease;
-}
-
-.autocomplete-suggestion:hover,
-.autocomplete-suggestion.selected {
-    background-color: #f8f9fa;
-}
-
-.autocomplete-suggestion:last-child {
-    border-bottom: none;
-}
-
-.autocomplete-suggestion .agent-name {
-    font-weight: 500;
-    color: #333;
-}
-
-.autocomplete-loading {
-    padding: 12px 16px;
-    text-align: center;
-    color: #666;
-    font-style: italic;
-}
-
-.autocomplete-no-results {
-    padding: 12px 16px;
-    text-align: center;
-    color: #999;
-    font-style: italic;
-}
 </style>
 
-<!-- JavaScript pour l'autocomplétion -->
+<!-- JavaScript simple pour les filtres -->
 <script>
-$(document).ready(function() {
-    // ===== AUTOCOMPLÉTION POUR LES AGENTS =====
-    let searchAgentTimeout;
-    let selectedAgentIndex = -1;
-    
-    function searchAgentsFilter(query) {
-        if (query.length < 2) {
-            $('#agent_suggestions_filter').hide().empty();
-            return;
-        }
-        
-        $('#agent_suggestions_filter').show().html('<div class="autocomplete-loading">Recherche en cours...</div>');
-        
-        $.ajax({
-            url: '../api/search_agents.php',
-            method: 'GET',
-            data: { q: query },
-            dataType: 'json',
-            success: function(data) {
-                displayAgentSuggestions(data);
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX error:', error, 'Status:', status, 'Response:', xhr.responseText);
-                $('#agent_suggestions_filter').html('<div class="autocomplete-no-results">Erreur lors de la recherche: ' + error + '</div>');
-            }
-        });
-    }
-    
-    function displayAgentSuggestions(agents) {
-        const suggestionsDiv = $('#agent_suggestions_filter');
-        
-        if (agents.length === 0) {
-            suggestionsDiv.html('<div class="autocomplete-no-results">Aucun résultat trouvé</div>');
-            return;
-        }
-        
-        let html = '';
-        agents.forEach(function(agent, index) {
-            html += `<div class="autocomplete-suggestion" data-id="${agent.id}" data-index="${index}">
-                        <div class="agent-name">${agent.text}</div>
-                     </div>`;
-        });
-        
-        suggestionsDiv.html(html);
-        selectedAgentIndex = -1;
-    }
-    
-    $('#agent_search_filter').on('input', function() {
-        const query = $(this).val().trim();
-        $('#agent_id_filter').val('');
-        selectedAgentIndex = -1;
-        clearTimeout(searchAgentTimeout);
-        searchAgentTimeout = setTimeout(function() {
-            searchAgentsFilter(query);
-        }, 300);
-    });
-    
-    $('#agent_search_filter').on('keydown', function(e) {
-        const suggestions = $('#agent_suggestions_filter .autocomplete-suggestion');
-        if (suggestions.length === 0) return;
-        
-        switch(e.keyCode) {
-            case 38: e.preventDefault(); selectedAgentIndex = selectedAgentIndex > 0 ? selectedAgentIndex - 1 : suggestions.length - 1; updateAgentSelection(); break;
-            case 40: e.preventDefault(); selectedAgentIndex = selectedAgentIndex < suggestions.length - 1 ? selectedAgentIndex + 1 : 0; updateAgentSelection(); break;
-            case 13: e.preventDefault(); if (selectedAgentIndex >= 0) { selectAgentSuggestion(suggestions.eq(selectedAgentIndex)); } break;
-            case 27: $('#agent_suggestions_filter').hide(); selectedAgentIndex = -1; break;
-        }
-    });
-    
-    function updateAgentSelection() {
-        $('#agent_suggestions_filter .autocomplete-suggestion').removeClass('selected');
-        if (selectedAgentIndex >= 0) {
-            $('#agent_suggestions_filter .autocomplete-suggestion').eq(selectedAgentIndex).addClass('selected');
-        }
-    }
-    
-    $(document).on('click', '#agent_suggestions_filter .autocomplete-suggestion', function() {
-        selectAgentSuggestion($(this));
-    });
-    
-    function selectAgentSuggestion($suggestion) {
-        const agentId = $suggestion.data('id');
-        const agentName = $suggestion.find('.agent-name').text();
-        
-        $('#agent_search_filter').val(agentName);
-        $('#agent_id_filter').val(agentId);
-        $('#agent_suggestions_filter').hide();
-        selectedAgentIndex = -1;
-    }
-    
-    // ===== AUTOCOMPLÉTION POUR LES USINES =====
-    let searchUsineTimeout;
-    let selectedUsineIndex = -1;
-    
-    function searchUsinesFilter(query) {
-        if (query.length < 2) {
-            $('#usine_suggestions_filter').hide().empty();
-            return;
-        }
-        
-        $('#usine_suggestions_filter').show().html('<div class="autocomplete-loading">Recherche en cours...</div>');
-        
-        $.ajax({
-            url: '../api/search_usines.php',
-            method: 'GET',
-            data: { q: query },
-            dataType: 'json',
-            success: function(data) {
-                if (data.debug) {
-                    console.log('Debug info:', data);
-                    $('#usine_suggestions_filter').html('<div class="autocomplete-no-results">Debug: ' + data.error + '</div>');
-                } else {
-                    displayUsineSuggestions(data);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Erreur AJAX:', error);
-                $('#usine_suggestions_filter').html('<div class="autocomplete-no-results">Erreur lors de la recherche: ' + error + '</div>');
-            }
-        });
-    }
-    
-    function displayUsineSuggestions(usines) {
-        const suggestionsDiv = $('#usine_suggestions_filter');
-        
-        if (usines.length === 0) {
-            suggestionsDiv.html('<div class="autocomplete-no-results">Aucun résultat trouvé</div>');
-            return;
-        }
-        
-        let html = '';
-        usines.forEach(function(usine, index) {
-            html += `<div class="autocomplete-suggestion" data-id="${usine.id}" data-index="${index}">
-                        <div class="agent-name">${usine.text}</div>
-                     </div>`;
-        });
-        
-        suggestionsDiv.html(html);
-        selectedUsineIndex = -1;
-    }
-    
-    $('#usine_search_filter').on('input', function() {
-        const query = $(this).val().trim();
-        $('#usine_id_filter').val('');
-        selectedUsineIndex = -1;
-        clearTimeout(searchUsineTimeout);
-        searchUsineTimeout = setTimeout(function() {
-            searchUsinesFilter(query);
-        }, 300);
-    });
-    
-    $('#usine_search_filter').on('keydown', function(e) {
-        const suggestions = $('#usine_suggestions_filter .autocomplete-suggestion');
-        if (suggestions.length === 0) return;
-        
-        switch(e.keyCode) {
-            case 38: e.preventDefault(); selectedUsineIndex = selectedUsineIndex > 0 ? selectedUsineIndex - 1 : suggestions.length - 1; updateUsineSelection(); break;
-            case 40: e.preventDefault(); selectedUsineIndex = selectedUsineIndex < suggestions.length - 1 ? selectedUsineIndex + 1 : 0; updateUsineSelection(); break;
-            case 13: e.preventDefault(); if (selectedUsineIndex >= 0) { selectUsineSuggestion(suggestions.eq(selectedUsineIndex)); } break;
-            case 27: $('#usine_suggestions_filter').hide(); selectedUsineIndex = -1; break;
-        }
-    });
-    
-    function updateUsineSelection() {
-        $('#usine_suggestions_filter .autocomplete-suggestion').removeClass('selected');
-        if (selectedUsineIndex >= 0) {
-            $('#usine_suggestions_filter .autocomplete-suggestion').eq(selectedUsineIndex).addClass('selected');
-        }
-    }
-    
-    $(document).on('click', '#usine_suggestions_filter .autocomplete-suggestion', function() {
-        selectUsineSuggestion($(this));
-    });
-    
-    function selectUsineSuggestion($suggestion) {
-        const usineId = $suggestion.data('id');
-        const usineName = $suggestion.find('.agent-name').text();
-        
-        $('#usine_search_filter').val(usineName);
-        $('#usine_id_filter').val(usineId);
-        $('#usine_suggestions_filter').hide();
-        selectedUsineIndex = -1;
-    }
-    
-    // Cacher les suggestions quand on clique ailleurs
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('.autocomplete-container').length) {
-            $('#agent_suggestions_filter').hide();
-            $('#usine_suggestions_filter').hide();
-            selectedAgentIndex = -1;
-            selectedUsineIndex = -1;
-        }
-    });
-    
-    // Initialiser les valeurs si elles existent déjà
-    <?php if (!empty($agent_id) && !empty($agents)): ?>
-        <?php foreach($agents as $agent): ?>
-            <?php if($agent['id_agent'] == $agent_id): ?>
-                $('#agent_search_filter').val('<?= htmlspecialchars($agent['nom_complet_agent']) ?>');
-                break;
-            <?php endif; ?>
-        <?php endforeach; ?>
-    <?php endif; ?>
-    
-    <?php if (!empty($usine_id) && !empty($usines)): ?>
-        <?php foreach($usines as $usine): ?>
-            <?php if($usine['id_usine'] == $usine_id): ?>
-                $('#usine_search_filter').val('<?= htmlspecialchars($usine['nom_usine']) ?>');
-                break;
-            <?php endif; ?>
-        <?php endforeach; ?>
-    <?php endif; ?>
+// Pas besoin de jQuery pour les selects simples
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Système de filtrage simple initialisé avec succès');
 });
 </script>
-</style>
+
+<?php include('footer.php'); ?>
