@@ -3755,3 +3755,51 @@
 [2025-10-30 14:28:46] Mise à jour automatique de 5 ticket(s) avec les prix unitaires correspondants à leurs dates
 [2025-10-30 14:32:48] Mise à jour automatique de 6 ticket(s) avec les prix unitaires correspondants à leurs dates
 [2025-11-03 16:12:05] Mise à jour automatique de 5 ticket(s) avec les prix unitaires correspondants à leurs dates
+[2025-11-08 15:47:41] Début de l'enregistrement du paiement
+[2025-11-08 15:47:41] Solde actuel avant paiement: 81510000
+[2025-11-08 15:47:41] Nouveau solde calculé: 79310000
+[2025-11-08 15:47:41] Bordereau #66 mis à jour avec montant_payer=2200000, montant_reste=19764960
+[2025-11-08 15:47:41] Transaction de paiement créée #126, nouveau solde: 79310000
+[2025-11-08 15:47:41] Paiement enregistré avec succès
+[2025-11-08 15:48:07] Début de l'enregistrement du paiement
+[2025-11-08 15:48:07] Solde actuel avant paiement: 81510000
+[2025-11-08 15:48:07] Nouveau solde calculé: 79510000
+[2025-11-08 15:48:07] Bordereau #66 mis à jour avec montant_payer=4200000, montant_reste=17764960
+[2025-11-08 15:48:07] Transaction de paiement créée #127, nouveau solde: 79510000
+[2025-11-08 15:48:07] Paiement enregistré avec succès
+[2025-11-08 15:48:25] Début de l'enregistrement du paiement
+[2025-11-08 15:48:25] Solde actuel avant paiement: 81510000
+[2025-11-08 15:48:25] Nouveau solde calculé: 79510000
+[2025-11-08 15:48:25] Bordereau #66 mis à jour avec montant_payer=6200000, montant_reste=15764960
+[2025-11-08 15:48:25] Transaction de paiement créée #128, nouveau solde: 79510000
+[2025-11-08 15:48:25] Paiement enregistré avec succès
+[2025-11-08 15:49:01] Début de l'enregistrement du paiement
+[2025-11-08 15:49:01] Solde actuel avant paiement: 81510000
+[2025-11-08 15:49:01] Nouveau solde calculé: 79510000
+[2025-11-08 15:49:01] Bordereau #66 mis à jour avec montant_payer=8200000, montant_reste=13764960
+[2025-11-08 15:49:01] Transaction de paiement créée #129, nouveau solde: 79510000
+[2025-11-08 15:49:01] Paiement enregistré avec succès
+[2025-11-08 15:49:21] Début de l'enregistrement du paiement
+[2025-11-08 15:49:21] Solde actuel avant paiement: 81510000
+[2025-11-08 15:49:21] Nouveau solde calculé: 79510000
+[2025-11-08 15:49:21] Bordereau #66 mis à jour avec montant_payer=10200000, montant_reste=11764960
+[2025-11-08 15:49:21] Transaction de paiement créée #130, nouveau solde: 79510000
+[2025-11-08 15:49:21] Paiement enregistré avec succès
+[2025-11-08 15:53:14] Début de l'enregistrement du paiement
+[2025-11-08 15:53:14] Solde actuel avant paiement: 81510000
+[2025-11-08 15:53:14] Nouveau solde calculé: 79510000
+[2025-11-08 15:53:14] Bordereau #66 mis à jour avec montant_payer=12200000, montant_reste=9764960
+[2025-11-08 15:53:14] Transaction de paiement créée #131, nouveau solde: 79510000
+[2025-11-08 15:53:14] Paiement enregistré avec succès
+[2025-11-08 15:59:14] Début de l'enregistrement du paiement
+[2025-11-08 15:59:14] Solde actuel avant paiement: 81510000
+[2025-11-08 15:59:14] Nouveau solde calculé: 79510000
+[2025-11-08 15:59:14] Bordereau #66 mis à jour avec montant_payer=14200000, montant_reste=7764960
+[2025-11-08 15:59:14] Transaction de paiement créée #132, nouveau solde: 79510000
+[2025-11-08 15:59:14] Paiement enregistré avec succès
+[2025-11-08 15:59:38] Début de l'enregistrement du paiement
+[2025-11-08 15:59:38] Solde actuel avant paiement: 81510000
+[2025-11-08 15:59:38] Nouveau solde calculé: 79510000
+[2025-11-08 15:59:38] Bordereau #66 mis à jour avec montant_payer=16200000, montant_reste=5764960
+[2025-11-08 15:59:38] Transaction de paiement créée #133, nouveau solde: 79510000
+[2025-11-08 15:59:38] Paiement enregistré avec succès

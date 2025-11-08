@@ -1024,6 +1024,7 @@ function getTicketsAssociation($conn, $agent_id, $date_debut, $date_fin) {
     t.vehicule_id,
     t.poids,
     t.id_ticket,
+    t.numero_bordereau,
     DATE(t.created_at) as date_reception,
     v.matricule_vehicule as vehicule,
       CAST(t.poids AS DECIMAL(10,2)) as poids,

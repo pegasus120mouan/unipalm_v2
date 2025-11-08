@@ -31,10 +31,7 @@ function getBordereaux($conn, $page = 1, $limit = 15, $filters = []) {
     CONCAT(COALESCE(a.nom, ''), ' ', COALESCE(a.prenom, '')) AS nom_complet_agent,
     a.contact,
     (SELECT COUNT(*) FROM tickets t 
-     WHERE t.id_agent = b.id_agent 
-     AND t.date_validation_boss is not null 
-     AND t.prix_unitaire > 0 
-     AND DATE(t.created_at) BETWEEN DATE(b.date_debut) AND DATE(b.date_fin)) as nombre_tickets
+     WHERE t.numero_bordereau = b.numero_bordereau) as nombre_tickets
 FROM bordereau b
 INNER JOIN agents a ON b.id_agent = a.id_agent";
 
@@ -90,6 +87,15 @@ INNER JOIN agents a ON b.id_agent = a.id_agent";
                 AND t.vehicule_id = :vehicule_id
             )";
             $params[':vehicule_id'] = $filters['chauffeur'];
+        }
+
+        if (!empty($filters['numero_ticket'])) {
+            $where_conditions[] = "EXISTS (
+                SELECT 1 FROM tickets t 
+                WHERE t.numero_bordereau = b.numero_bordereau 
+                AND t.numero_ticket LIKE :numero_ticket
+            )";
+            $params[':numero_ticket'] = '%' . $filters['numero_ticket'] . '%';
         }
 
         if (!empty($where_conditions)) {
@@ -287,7 +293,8 @@ function saveBordereau($conn, $id_agent, $date_debut, $date_fin) {
         )
         AND t.date_validation_boss IS NOT NULL
         AND t.prix_unitaire > 0
-        AND t.statut_ticket = 'disponible'";
+        AND t.statut_ticket = 'disponible'
+        AND (t.numero_bordereau IS NULL OR t.numero_bordereau = '')";
 
         $stmt = $conn->prepare($sql);
         $stmt->execute([$numero_bordereau, $id_agent, $date_debut, $date_fin, $id_agent, $date_debut, $date_fin]);
@@ -311,7 +318,8 @@ function saveBordereau($conn, $id_agent, $date_debut, $date_fin) {
                 )
                 AND t.date_validation_boss IS NOT NULL
                 AND t.prix_unitaire > 0
-                AND t.statut_ticket = 'disponible'";
+                AND t.statut_ticket = 'disponible'
+                AND (t.numero_bordereau IS NULL OR t.numero_bordereau = '')";
 
         $stmt = $conn->prepare($sql);
         $stmt->execute([$id_bordereau, $id_agent, $date_debut, $date_fin]);

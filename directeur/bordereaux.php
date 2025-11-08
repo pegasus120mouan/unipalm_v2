@@ -88,6 +88,7 @@ $search_agent = $_GET['agent'] ?? null;
 $search_date_debut = $_GET['date_debut'] ?? null;
 $search_date_fin = $_GET['date_fin'] ?? null;
 $search_numero = $_GET['numero'] ?? null;
+$search_numero_ticket = $_GET['numero_ticket'] ?? null;
 
 // Récupérer les données (functions)
 /*if ($search_usine || $search_date || $search_chauffeur || $search_agent) {
@@ -121,7 +122,8 @@ $result = getBordereaux($conn, $page, $limit, [
     'agent' => $search_agent,
     'date_debut' => $search_date_debut,
     'date_fin' => $search_date_fin,
-    'numero' => $search_numero
+    'numero' => $search_numero,
+    'numero_ticket' => $search_numero_ticket
 ]);
 
 $bordereaux = $result['data'];
@@ -282,15 +284,19 @@ label {
 
     .input-with-icon i {
         position: absolute;
-        left: 15px;
+        left: 16px;
         top: 50%;
         transform: translateY(-50%);
-        color: #999;
+        color: #6c757d;
         z-index: 2;
+        font-size: 16px;
+        width: 16px;
+        text-align: center;
     }
 
     .input-with-icon input {
-        padding-left: 45px;
+        padding-left: 50px !important;
+        padding-right: 15px !important;
     }
 
     .filter-group .form-control {
@@ -300,12 +306,27 @@ label {
         font-size: 14px;
         transition: all 0.3s ease;
         background: #f8f9fa;
+        height: 45px;
     }
 
     .filter-group .form-control:focus {
         border-color: #667eea;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         background: white;
+    }
+
+    .input-with-icon:hover i,
+    .input-with-icon input:focus ~ i {
+        color: #667eea;
+    }
+    
+    .input-with-icon input:focus {
+        padding-left: 50px !important;
+    }
+
+    .input-with-icon input::placeholder {
+        color: #adb5bd;
+        font-style: italic;
     }
 
     .filters-actions-horizontal {
@@ -646,6 +667,21 @@ label {
                 
                 <div class="col-md-4">
                     <div class="filter-group">
+                        <label for="numero_ticket_search">N° Ticket</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-ticket-alt"></i>
+                            <input type="text" 
+                                   id="numero_ticket_search" 
+                                   name="numero_ticket" 
+                                   class="form-control" 
+                                   placeholder="Ex: TK-001, TK-002..."
+                                   value="<?= htmlspecialchars($_GET['numero_ticket'] ?? '') ?>">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="filter-group">
                         <label for="agent_select">Agent</label>
                         <select id="agent_select" name="agent" class="form-control">
                             <option value="">Tous les agents</option>
@@ -658,10 +694,11 @@ label {
                         </select>
                     </div>
                 </div>
-                
-                <div class="col-md-4">
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-12">
                     <div class="filter-group">
-                        <label>&nbsp;</label>
                         <div class="filters-actions-horizontal">
                             <button type="submit" class="btn-filter btn-primary">
                                 <i class="fas fa-search"></i> Rechercher

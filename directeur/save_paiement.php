@@ -267,10 +267,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_paiement'])) {
 
         $conn->commit();
         writeLog("Paiement enregistré avec succès");
-        $_SESSION['success_message'] = "Paiement effectué avec succès. Nouveau solde : " . number_format($nouveau_solde, 0, ',', ' ') . " FCFA";
         
-        // Redirection vers le reçu
-        header("Location: recu_paiement_pdf.php?id_recu=" . $conn->lastInsertId());
+        // Stocker les informations pour le modal de succès
+        $_SESSION['paiement_success'] = true;
+        $_SESSION['success_message'] = "Paiement effectué avec succès !";
+        $_SESSION['nouveau_solde'] = $nouveau_solde;
+        $_SESSION['montant_paye'] = $montant;
+        $_SESSION['numero_recu'] = $numero_recu;
+        $_SESSION['id_recu_pdf'] = $conn->lastInsertId();
+        $_SESSION['type_document'] = $type_document;
+        $_SESSION['numero_document'] = $numero_document;
+        
+        // Redirection vers la page d'origine avec le modal de succès
+        $redirect_page = isset($_POST['redirect_page']) ? $_POST['redirect_page'] : 'paiements.php';
+        header("Location: " . $redirect_page . "?paiement_success=1");
         exit;
 
     } catch (Exception $e) {

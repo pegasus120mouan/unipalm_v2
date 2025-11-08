@@ -87,6 +87,8 @@ $search_chauffeur = $_GET['chauffeur'] ?? null;
 $search_agent = $_GET['agent'] ?? null;
 $search_date_debut = $_GET['date_debut'] ?? null;
 $search_date_fin = $_GET['date_fin'] ?? null;
+$search_numero = $_GET['numero'] ?? null;
+$search_numero_ticket = $_GET['numero_ticket'] ?? null;
 
 // Récupérer les données (functions)
 /*if ($search_usine || $search_date || $search_chauffeur || $search_agent) {
@@ -119,7 +121,9 @@ $result = getBordereaux($conn, $page, $limit, [
     'chauffeur' => $search_chauffeur,
     'agent' => $search_agent,
     'date_debut' => $search_date_debut,
-    'date_fin' => $search_date_fin
+    'date_fin' => $search_date_fin,
+    'numero' => $search_numero,
+    'numero_ticket' => $search_numero_ticket
 ]);
 
 $bordereaux = $result['data'];

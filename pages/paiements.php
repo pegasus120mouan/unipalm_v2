@@ -596,6 +596,7 @@ label {
                             <input type="hidden" name="type" value="<?= htmlspecialchars($type) ?>">
                             <input type="hidden" name="status" value="<?= htmlspecialchars($status) ?>">
                             <input type="hidden" name="montant_reste" value="<?= $item['montant_reste'] ?>">
+                            <input type="hidden" name="redirect_page" value="paiements.php?type=<?= urlencode($type) ?>&status=<?= urlencode($status) ?>">
                             
                             <div class="form-group">
                                 <label>Montant total à payer</label>
@@ -822,7 +823,139 @@ $(document).ready(function() {
         }
     }).trigger('change');
 });
+
+// Modal de succès de paiement
+<?php if (isset($_GET['paiement_success']) && isset($_SESSION['paiement_success'])): ?>
+$(document).ready(function() {
+    $('#modalPaiementSuccess').modal('show');
+    
+    // Auto-redirection vers le PDF après 3 secondes
+    setTimeout(function() {
+        window.open('recu_paiement_pdf.php?id_recu=<?= $_SESSION['id_recu_pdf'] ?>', '_blank');
+        $('#modalPaiementSuccess').modal('hide');
+    }, 3000);
+});
+<?php 
+// Nettoyer les variables de session après affichage
+unset($_SESSION['paiement_success']);
+unset($_SESSION['nouveau_solde']);
+unset($_SESSION['montant_paye']);
+unset($_SESSION['numero_recu']);
+unset($_SESSION['id_recu_pdf']);
+unset($_SESSION['type_document']);
+unset($_SESSION['numero_document']);
+endif; 
+?>
 </script>
+
+<!-- Modal de succès de paiement -->
+<?php if (isset($_GET['paiement_success']) && isset($_SESSION['success_message'])): ?>
+<div class="modal fade" id="modalPaiementSuccess" tabindex="-1" role="dialog" aria-labelledby="modalPaiementSuccessLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalPaiementSuccessLabel">
+                    <i class="fas fa-check-circle me-2"></i>Paiement Réussi
+                </h5>
+            </div>
+            <div class="modal-body text-center">
+                <div class="success-animation mb-3">
+                    <i class="fas fa-check-circle text-success" style="font-size: 4rem; animation: pulse 1.5s infinite;"></i>
+                </div>
+                
+                <h4 class="text-success mb-3"><?= $_SESSION['success_message'] ?></h4>
+                
+                <div class="payment-details bg-light p-3 rounded mb-3">
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Montant payé :</strong>
+                        </div>
+                        <div class="col-6">
+                            <span class="text-success font-weight-bold">
+                                <?= number_format($_SESSION['montant_paye'], 0, ',', ' ') ?> FCFA
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>N° Reçu :</strong>
+                        </div>
+                        <div class="col-6">
+                            <?= $_SESSION['numero_recu'] ?>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Nouveau solde :</strong>
+                        </div>
+                        <div class="col-6">
+                            <?= number_format($_SESSION['nouveau_solde'], 0, ',', ' ') ?> FCFA
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Le reçu va s'ouvrir automatiquement dans <span id="countdown">3</span> secondes...
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="openReceipt()">
+                    <i class="fas fa-print me-2"></i>Ouvrir le reçu maintenant
+                </button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.success-animation {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<script>
+function openReceipt() {
+    window.open('recu_paiement_pdf.php?id_recu=<?= $_SESSION['id_recu_pdf'] ?? '' ?>', '_blank');
+    $('#modalPaiementSuccess').modal('hide');
+}
+
+// Compte à rebours
+<?php if (isset($_GET['paiement_success']) && isset($_SESSION['paiement_success'])): ?>
+let countdown = 3;
+const countdownElement = document.getElementById('countdown');
+const countdownInterval = setInterval(function() {
+    countdown--;
+    if (countdownElement) {
+        countdownElement.textContent = countdown;
+    }
+    if (countdown <= 0) {
+        clearInterval(countdownInterval);
+    }
+}, 1000);
+<?php endif; ?>
+</script>
+<?php endif; ?>
 
 <?php include('footer.php'); ?>
 </body>
